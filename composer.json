@@ -1,0 +1,20 @@
+{
+    "name": "crunch/fastcgi",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sebastian Krebs",
+            "email": "krebs.seb@gmail.com",
+            "homepage": "http://www.kingcrunch.de",
+            "role": "Maintainer"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Crunch\\FastCGI": "src" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
