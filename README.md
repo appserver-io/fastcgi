@@ -75,3 +75,19 @@ Background (includes multiplexing)
     $connection->sendRequest($request);
     // Many code
     $response = $connection->receiveResponse($request);
+
+Contributing
+===
+Through githubs pull-request cycle. You may also use the issue tracker.
+
+Requirements
+===
+* PHP => 5.3
+
+Authors
+===
+* Sebastian "KingCrunch" Krebs <krebs.seb@gmail.com> -- http://www.kingcrunch.de/ (german)
+
+License
+===
+Crunch\RDF is licensed under the MIT License. See the LICENSE file for details
