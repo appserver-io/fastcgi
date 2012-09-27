@@ -1,5 +1,9 @@
 {
     "name": "crunch/fastcgi",
+    "description": "FastCGI client",
+    "type": "library",
+    "keywords": ["FastCGI"],
+    "homepage": "https://github.com/CrunchPHP/FastCGI",
     "license": "MIT",
     "authors": [
         {
@@ -9,12 +13,12 @@
             "role": "Maintainer"
         }
     ],
+    "support": {
+        "email": "krebs.seb@gmail.com",
+        "issues": "https://github.com/CrunchPHP/FastCGI/issues",
+        "source": "https://github.com/CrunchPHP/FastCGI"
+    },
     "autoload": {
         "psr-0": { "Crunch\\FastCGI": "src" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.1.x-dev"
-        }
     }
 }

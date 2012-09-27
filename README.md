@@ -1,6 +1,8 @@
-Crunch\FastCGI
+Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/CrunchPHP/FastCGI.png)](http://travis-ci.org/CrunchPHP/FastCGI)
 ===
 FastCGI client written in PHP
+
+You can find the documentation at (readthedocs.org)[http://crunchregex.readthedocs.org/en/latest/].
 
 
 Allows to access a FastCGI-server directly from PHP.
@@ -12,25 +14,25 @@ Allows to access a FastCGI-server directly from PHP.
 
 Installation
 ===
-Embedded using composer (recommended)
+Embedded using (Composer)[http://getcomposer.org] (recommended)
 ---
 Add it to your `composer.json`
 
     "require": {
-        "crunch/fastcgi": "0.1.*-dev"
+        "crunch/fastcgi": "dev-master@dev"
     }
 
 Standalone
 ---
 
-    git clone git://github.com/KingCrunch/FastCGI.git
+    git clone git://github.com/CrunchPHP/FastCGI.git
     php composer.phar install
 
 Within your application
 
     require '/path/to/crunch/fastcgi/vendor/autoload.php';
 
-Standalone using composer
+Standalone using (Composer)[http://getcomposer.org]
 ---
 
     composer.phar create-project crunch/fastcgi
@@ -76,18 +78,17 @@ Background (includes multiplexing)
     // Many code
     $response = $connection->receiveResponse($request);
 
-Contributing
-===
-Through githubs pull-request cycle. You may also use the issue tracker.
-
 Requirements
-===
+============
 * PHP => 5.3
 
-Authors
-===
+Contributors
+============
+See CONTRIBUTING.md for details on how to contribute.
+
 * Sebastian "KingCrunch" Krebs <krebs.seb@gmail.com> -- http://www.kingcrunch.de/ (german)
 
 License
-===
-Crunch\RDF is licensed under the MIT License. See the LICENSE file for details
+=======
+Crunch\RDF is licensed under the MIT License. See the LICENSE file for details. By contributing you accept, that
+the contribution itself becomes part of this project and covered by the MIT License. No CLA.
