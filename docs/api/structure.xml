@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project version="2.0.0a10" title="Crunch/FastCGI">
+  <file path="Request.php" hash="2bcea3e154a502deb4fa157218e6d689" package="Default">
+    <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
+      <extends/>
+      <name>Request</name>
+      <full_name>\Crunch\FastCGI\Request</full_name>
+      <property final="false" static="false" visibility="public" line="5" namespace="Crunch\FastCGI" package="Default">
+        <name>$parameters</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <property final="false" static="false" visibility="public" line="6" namespace="Crunch\FastCGI" package="Default">
+        <name>$stdin</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <property final="false" static="false" visibility="public" line="7" namespace="Crunch\FastCGI" package="Default">
+        <name>$ID</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="8" package="Default">
+        <name>__construct</name>
+        <full_name>__construct</full_name>
+        <argument line="8">
+          <name>$requestId</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="8">
+          <name>$params</name>
+          <default><![CDATA[null]]></default>
+          <type>array</type>
+        </argument>
+        <argument line="8">
+          <name>$stdin</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+    </class>
+    <parse_markers>
+      <error line="0" code="50007">No page-level DocBlock was found in file Request.php</error>
+      <error line="4" code="50000">No DocBlock was found for \Crunch\FastCGI\Request</error>
+      <error line="5" code="50018">No DocBlock was found for property $parameters</error>
+      <error line="6" code="50018">No DocBlock was found for property $stdin</error>
+      <error line="7" code="50018">No DocBlock was found for property $ID</error>
+      <error line="8" code="50010">No DocBlock was found for method __construct()</error>
+    </parse_markers>
+  </file>
+  <file path="ResponseBuilder.php" hash="ce9984ac6a91d03a0b7734411961bcec" package="Default">
+    <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
+      <extends/>
+      <name>ResponseBuilder</name>
+      <full_name>\Crunch\FastCGI\ResponseBuilder</full_name>
+      <property final="false" static="false" visibility="public" line="5" namespace="Crunch\FastCGI" package="Default">
+        <name>$isComplete</name>
+        <default><![CDATA[false]]></default>
+      </property>
+      <property final="false" static="false" visibility="protected" line="6" namespace="Crunch\FastCGI" package="Default">
+        <name>$_records</name>
+        <default><![CDATA[array()]]></default>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="7" package="Default">
+        <name>addRecord</name>
+        <full_name>addRecord</full_name>
+        <argument line="7">
+          <name>$record</name>
+          <default><![CDATA[]]></default>
+          <type>\Crunch\FastCGI\Record</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="14" package="Default">
+        <name>buildResponse</name>
+        <full_name>buildResponse</full_name>
+      </method>
+    </class>
+    <parse_markers>
+      <error line="0" code="50007">No page-level DocBlock was found in file ResponseBuilder.php</error>
+      <error line="4" code="50000">No DocBlock was found for \Crunch\FastCGI\ResponseBuilder</error>
+      <error line="5" code="50018">No DocBlock was found for property $isComplete</error>
+      <error line="6" code="50018">No DocBlock was found for property $_records</error>
+      <error line="7" code="50010">No DocBlock was found for method addRecord()</error>
+      <error line="14" code="50010">No DocBlock was found for method buildResponse()</error>
+    </parse_markers>
+  </file>
+  <file path="Response.php" hash="33dc7ecf0719e00359c9dce0fc3685fa" package="Default">
+    <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
+      <extends/>
+      <name>Response</name>
+      <full_name>\Crunch\FastCGI\Response</full_name>
+      <property final="false" static="false" visibility="public" line="5" namespace="Crunch\FastCGI" package="Default">
+        <name>$content</name>
+        <default><![CDATA['']]></default>
+      </property>
+      <property final="false" static="false" visibility="public" line="6" namespace="Crunch\FastCGI" package="Default">
+        <name>$error</name>
+        <default><![CDATA['']]></default>
+      </property>
+    </class>
+    <parse_markers>
+      <error line="0" code="50007">No page-level DocBlock was found in file Response.php</error>
+      <error line="4" code="50000">No DocBlock was found for \Crunch\FastCGI\Response</error>
+      <error line="5" code="50018">No DocBlock was found for property $content</error>
+      <error line="6" code="50018">No DocBlock was found for property $error</error>
+    </parse_markers>
+  </file>
+  <file path="Connection.php" hash="61481b61951eae633d99eb3def802045" package="Default">
+    <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
+      <extends/>
+      <name>Connection</name>
+      <full_name>\Crunch\FastCGI\Connection</full_name>
+      <constant namespace="Crunch\FastCGI" line="8" package="Default">
+        <name>RESPONDER</name>
+        <full_name>RESPONDER</full_name>
+        <value><![CDATA[1]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="9" package="Default">
+        <name>AUTHORIZER</name>
+        <full_name>AUTHORIZER</full_name>
+        <value><![CDATA[2]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="10" package="Default">
+        <name>FILTER</name>
+        <full_name>FILTER</full_name>
+        <value><![CDATA[3]]></value>
+      </constant>
+      <property final="false" static="false" visibility="protected" line="5" namespace="Crunch\FastCGI" package="Default">
+        <name>$_socket</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <property final="false" static="false" visibility="protected" line="6" namespace="Crunch\FastCGI" package="Default">
+        <name>$_nextId</name>
+        <default><![CDATA[1]]></default>
+      </property>
+      <property final="false" static="false" visibility="protected" line="7" namespace="Crunch\FastCGI" package="Default">
+        <name>$_builder</name>
+        <default><![CDATA[array()]]></default>
+      </property>
+      <property final="false" static="false" visibility="private" line="57" namespace="Crunch\FastCGI" package="Default">
+        <name>$_buffer</name>
+        <default><![CDATA[array()]]></default>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="11" package="Default">
+        <name>__construct</name>
+        <full_name>__construct</full_name>
+        <argument line="11">
+          <name>$socket</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="15" package="Default">
+        <name>__destruct</name>
+        <full_name>__destruct</full_name>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="18" package="Default">
+        <name>newRequest</name>
+        <full_name>newRequest</full_name>
+        <argument line="18">
+          <name>$params</name>
+          <default><![CDATA[null]]></default>
+          <type>array</type>
+        </argument>
+        <argument line="18">
+          <name>$stdin</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="21" package="Default">
+        <name>request</name>
+        <full_name>request</full_name>
+        <argument line="21">
+          <name>$request</name>
+          <default><![CDATA[]]></default>
+          <type>\Crunch\FastCGI\Request</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="25" package="Default">
+        <name>sendRequest</name>
+        <full_name>sendRequest</full_name>
+        <argument line="25">
+          <name>$request</name>
+          <default><![CDATA[]]></default>
+          <type>\Crunch\FastCGI\Request</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="40" package="Default">
+        <name>sendRecord</name>
+        <full_name>sendRecord</full_name>
+        <argument line="40">
+          <name>$record</name>
+          <default><![CDATA[]]></default>
+          <type>\Crunch\FastCGI\Record</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="44" package="Default">
+        <name>receiveResponse</name>
+        <full_name>receiveResponse</full_name>
+        <argument line="44">
+          <name>$request</name>
+          <default><![CDATA[]]></default>
+          <type>\Crunch\FastCGI\Request</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="51" package="Default">
+        <name>receiveAll</name>
+        <full_name>receiveAll</full_name>
+        <argument line="51">
+          <name>$timeout</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="58" package="Default">
+        <name>receiveRecord</name>
+        <full_name>receiveRecord</full_name>
+        <argument line="58">
+          <name>$timeout</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+    </class>
+    <parse_markers>
+      <error line="0" code="50007">No page-level DocBlock was found in file Connection.php</error>
+      <error line="4" code="50000">No DocBlock was found for \Crunch\FastCGI\Connection</error>
+      <error line="5" code="50018">No DocBlock was found for property $_socket</error>
+      <error line="6" code="50018">No DocBlock was found for property $_nextId</error>
+      <error line="7" code="50018">No DocBlock was found for property $_builder</error>
+      <error line="57" code="50018">No DocBlock was found for property $_buffer</error>
+      <error line="11" code="50010">No DocBlock was found for method __construct()</error>
+      <error line="15" code="50010">No DocBlock was found for method __destruct()</error>
+      <error line="18" code="50010">No DocBlock was found for method newRequest()</error>
+      <error line="21" code="50010">No DocBlock was found for method request()</error>
+      <error line="25" code="50010">No DocBlock was found for method sendRequest()</error>
+      <error line="40" code="50010">No DocBlock was found for method sendRecord()</error>
+      <error line="44" code="50010">No DocBlock was found for method receiveResponse()</error>
+      <error line="51" code="50010">No DocBlock was found for method receiveAll()</error>
+      <error line="58" code="50010">No DocBlock was found for method receiveRecord()</error>
+    </parse_markers>
+  </file>
+  <file path="Client.php" hash="f2a03182e48c61239acbdf1a78f608fe" package="Default">
+    <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
+      <extends/>
+      <name>Client</name>
+      <full_name>\Crunch\FastCGI\Client</full_name>
+      <property final="false" static="false" visibility="protected" line="5" namespace="Crunch\FastCGI" package="Default">
+        <name>$_host</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <property final="false" static="false" visibility="protected" line="6" namespace="Crunch\FastCGI" package="Default">
+        <name>$_port</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="8" package="Default">
+        <name>__construct</name>
+        <full_name>__construct</full_name>
+        <argument line="8">
+          <name>$host</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="8">
+          <name>$port</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="12" package="Default">
+        <name>connect</name>
+        <full_name>connect</full_name>
+      </method>
+    </class>
+    <parse_markers>
+      <error line="0" code="50007">No page-level DocBlock was found in file Client.php</error>
+      <error line="4" code="50000">No DocBlock was found for \Crunch\FastCGI\Client</error>
+      <error line="5" code="50018">No DocBlock was found for property $_host</error>
+      <error line="6" code="50018">No DocBlock was found for property $_port</error>
+      <error line="8" code="50010">No DocBlock was found for method __construct()</error>
+      <error line="12" code="50010">No DocBlock was found for method connect()</error>
+    </parse_markers>
+  </file>
+  <file path="Record.php" hash="7d38a6097d7c0d1822dd9d9645973e14" package="Default">
+    <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
+      <extends/>
+      <implements>\Countable</implements>
+      <name>Record</name>
+      <full_name>\Crunch\FastCGI\Record</full_name>
+      <constant namespace="Crunch\FastCGI" line="5" package="Default">
+        <name>BEGIN_REQUEST</name>
+        <full_name>BEGIN_REQUEST</full_name>
+        <value><![CDATA[1]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="6" package="Default">
+        <name>ABORT_REQUEST</name>
+        <full_name>ABORT_REQUEST</full_name>
+        <value><![CDATA[2]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="7" package="Default">
+        <name>END_REQUEST</name>
+        <full_name>END_REQUEST</full_name>
+        <value><![CDATA[3]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="8" package="Default">
+        <name>PARAMS</name>
+        <full_name>PARAMS</full_name>
+        <value><![CDATA[4]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="9" package="Default">
+        <name>STDIN</name>
+        <full_name>STDIN</full_name>
+        <value><![CDATA[5]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="10" package="Default">
+        <name>STDOUT</name>
+        <full_name>STDOUT</full_name>
+        <value><![CDATA[6]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="11" package="Default">
+        <name>STDERR</name>
+        <full_name>STDERR</full_name>
+        <value><![CDATA[7]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="12" package="Default">
+        <name>DATA</name>
+        <full_name>DATA</full_name>
+        <value><![CDATA[8]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="13" package="Default">
+        <name>GET_VALUES</name>
+        <full_name>GET_VALUES</full_name>
+        <value><![CDATA[9]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="14" package="Default">
+        <name>GET_VALUES_RESULT</name>
+        <full_name>GET_VALUES_RESULT</full_name>
+        <value><![CDATA[10]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="15" package="Default">
+        <name>UNKNOWN_TYPE</name>
+        <full_name>UNKNOWN_TYPE</full_name>
+        <value><![CDATA[11]]></value>
+      </constant>
+      <constant namespace="Crunch\FastCGI" line="16" package="Default">
+        <name>MAXTYPE</name>
+        <full_name>MAXTYPE</full_name>
+        <value><![CDATA[self::UNKNOWN_TYPE]]></value>
+      </constant>
+      <property final="false" static="false" visibility="public" line="18" namespace="Crunch\FastCGI" package="Default">
+        <name>$version</name>
+        <default><![CDATA[1]]></default>
+      </property>
+      <property final="false" static="false" visibility="public" line="19" namespace="Crunch\FastCGI" package="Default">
+        <name>$type</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <property final="false" static="false" visibility="public" line="20" namespace="Crunch\FastCGI" package="Default">
+        <name>$requestId</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <property final="false" static="false" visibility="public" line="21" namespace="Crunch\FastCGI" package="Default">
+        <name>$content</name>
+        <default><![CDATA[]]></default>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="22" package="Default">
+        <name>__construct</name>
+        <full_name>__construct</full_name>
+        <argument line="22">
+          <name>$type</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="22">
+          <name>$requestId</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="22">
+          <name>$content</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="28" package="Default">
+        <name>pack</name>
+        <full_name>pack</full_name>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="36" package="Default">
+        <name>__toString</name>
+        <full_name>__toString</full_name>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="39" package="Default">
+        <name>count</name>
+        <full_name>count</full_name>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="43" package="Default">
+        <name>isSendable</name>
+        <full_name>isSendable</full_name>
+      </method>
+    </class>
+    <parse_markers>
+      <error line="0" code="50007">No page-level DocBlock was found in file Record.php</error>
+      <error line="4" code="50000">No DocBlock was found for \Crunch\FastCGI\Record</error>
+      <error line="18" code="50018">No DocBlock was found for property $version</error>
+      <error line="19" code="50018">No DocBlock was found for property $type</error>
+      <error line="20" code="50018">No DocBlock was found for property $requestId</error>
+      <error line="21" code="50018">No DocBlock was found for property $content</error>
+      <error line="22" code="50010">No DocBlock was found for method __construct()</error>
+      <error line="28" code="50010">No DocBlock was found for method pack()</error>
+      <error line="36" code="50010">No DocBlock was found for method __toString()</error>
+      <error line="39" code="50010">No DocBlock was found for method count()</error>
+      <error line="43" code="50010">No DocBlock was found for method isSendable()</error>
+    </parse_markers>
+  </file>
+  <package name="Default" full_name="Default"/>
+  <namespace name="Crunch" full_name="Crunch">
+    <namespace name="FastCGI" full_name="Crunch\FastCGI"/>
+  </namespace>
+  <marker count="0">todo</marker>
+  <marker count="0">fixme</marker>
+  <deprecated count="0"/>
+</project>
