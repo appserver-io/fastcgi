@@ -1,0 +1,254 @@
+<!DOCTYPE html><html xmlns:date="http://exslt.org/dates-and-times" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+<meta charset="utf-8">
+<title>Crunch/FastCGI » \Crunch\FastCGI\Record</title>
+<meta name="author" content="Mike van Riel">
+<meta name="description" content="">
+<link href="../css/template.css" rel="stylesheet" media="all">
+<script src="../js/jquery-1.7.1.min.js" type="text/javascript"></script><script src="../js/jquery-ui-1.8.2.custom.min.js" type="text/javascript"></script><script src="../js/jquery.mousewheel.min.js" type="text/javascript"></script><script src="../js/bootstrap.js" type="text/javascript"></script><script src="../js/template.js" type="text/javascript"></script><script src="../js/prettify/prettify.min.js" type="text/javascript"></script><link rel="shortcut icon" href="../img/favicon.ico">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../img/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../img/apple-touch-icon-114x114.png">
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+<div class="navbar-inner"><div class="container">
+<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a><a class="brand" href="../index.html">Crunch/FastCGI</a><div class="nav-collapse"><ul class="nav">
+<li class="dropdown">
+<a href="#api" class="dropdown-toggle" data-toggle="dropdown">
+                                    API Documentation <b class="caret"></b></a><ul class="dropdown-menu">
+<li><a>Namespaces</a></li>
+<li><a href="../namespaces/Crunch.html"><i class="icon-th"></i> Crunch</a></li>
+</ul>
+</li>
+<li class="dropdown" id="charts-menu">
+<a href="#charts" class="dropdown-toggle" data-toggle="dropdown">
+                                    Charts <b class="caret"></b></a><ul class="dropdown-menu"><li><a href="../graph_class.html"><i class="icon-list-alt"></i> Class hierarchy diagram</a></li></ul>
+</li>
+<li class="dropdown" id="reports-menu">
+<a href="#reports" class="dropdown-toggle" data-toggle="dropdown">
+                                    Reports <b class="caret"></b></a><ul class="dropdown-menu">
+<li><a href="../errors.html"><i class="icon-remove-sign"></i> Errors 
+                <span class="label label-info">48</span></a></li>
+<li><a href="../markers.html"><i class="icon-map-marker"></i> Markers 
+                <ul></ul></a></li>
+<li><a href="../deprecated.html"><i class="icon-stop"></i> Deprecated elements 
+                <span class="label label-info">0</span></a></li>
+</ul>
+</li>
+</ul></div>
+</div></div>
+<div class="go_to_top"><a href="#___" style="color: inherit">Back to top  <i class="icon-upload icon-white"></i></a></div>
+</div>
+<div id="___" class="container">
+<noscript><div class="alert alert-warning">
+                            Javascript is disabled; several features are only available
+                            if Javascript is enabled.
+                        </div></noscript>
+<div class="row">
+<div class="span4">
+<span class="btn-group visibility" data-toggle="buttons-checkbox"><button class="btn public active" title="Show public elements">Public</button><button class="btn protected" title="Show protected elements">Protected</button><button class="btn private" title="Show private elements">Private</button><button class="btn inherited active" title="Show inherited elements">Inherited</button></span><div class="btn-group view pull-right" data-toggle="buttons-radio">
+<button class="btn details" title="Show descriptions and method names"><i class="icon-list"></i></button><button class="btn simple" title="Show only method names"><i class="icon-align-justify"></i></button>
+</div>
+<ul class="side-nav nav nav-list">
+<li class="nav-header">
+<i class="icon-custom icon-method"></i> Methods</li>
+<li class="method public "><a href="#__construct" title="__construct :: "><span class="description">__construct()
+        </span><pre>__construct()</pre></a></li>
+<li class="method public "><a href="#__toString" title="__toString :: "><span class="description">__toString()
+        </span><pre>__toString()</pre></a></li>
+<li class="method public "><a href="#count" title="count :: "><span class="description">count()
+        </span><pre>count()</pre></a></li>
+<li class="method public "><a href="#isSendable" title="isSendable :: "><span class="description">isSendable()
+        </span><pre>isSendable()</pre></a></li>
+<li class="method public "><a href="#pack" title="pack :: "><span class="description">pack()
+        </span><pre>pack()</pre></a></li>
+<li class="nav-header">
+<i class="icon-custom icon-property"></i> Properties</li>
+<li class="property public "><a href="#%24content" title="$content :: "><span class="description">$content</span><pre>$content</pre></a></li>
+<li class="property public "><a href="#%24requestId" title="$requestId :: "><span class="description">$requestId</span><pre>$requestId</pre></a></li>
+<li class="property public "><a href="#%24type" title="$type :: "><span class="description">$type</span><pre>$type</pre></a></li>
+<li class="property public "><a href="#%24version" title="$version :: "><span class="description">$version</span><pre>$version</pre></a></li>
+<li class="nav-header">
+<i class="icon-custom icon-constant"></i> Constants</li>
+<li class="constant  "><a href="#ABORT_REQUEST" title="ABORT_REQUEST :: "><span class="description">ABORT_REQUEST</span><pre>ABORT_REQUEST</pre></a></li>
+<li class="constant  "><a href="#BEGIN_REQUEST" title="BEGIN_REQUEST :: "><span class="description">BEGIN_REQUEST</span><pre>BEGIN_REQUEST</pre></a></li>
+<li class="constant  "><a href="#DATA" title="DATA :: "><span class="description">DATA</span><pre>DATA</pre></a></li>
+<li class="constant  "><a href="#END_REQUEST" title="END_REQUEST :: "><span class="description">END_REQUEST</span><pre>END_REQUEST</pre></a></li>
+<li class="constant  "><a href="#GET_VALUES" title="GET_VALUES :: "><span class="description">GET_VALUES</span><pre>GET_VALUES</pre></a></li>
+<li class="constant  "><a href="#GET_VALUES_RESULT" title="GET_VALUES_RESULT :: "><span class="description">GET_VALUES_RESULT</span><pre>GET_VALUES_RESULT</pre></a></li>
+<li class="constant  "><a href="#MAXTYPE" title="MAXTYPE :: "><span class="description">MAXTYPE</span><pre>MAXTYPE</pre></a></li>
+<li class="constant  "><a href="#PARAMS" title="PARAMS :: "><span class="description">PARAMS</span><pre>PARAMS</pre></a></li>
+<li class="constant  "><a href="#STDERR" title="STDERR :: "><span class="description">STDERR</span><pre>STDERR</pre></a></li>
+<li class="constant  "><a href="#STDIN" title="STDIN :: "><span class="description">STDIN</span><pre>STDIN</pre></a></li>
+<li class="constant  "><a href="#STDOUT" title="STDOUT :: "><span class="description">STDOUT</span><pre>STDOUT</pre></a></li>
+<li class="constant  "><a href="#UNKNOWN_TYPE" title="UNKNOWN_TYPE :: "><span class="description">UNKNOWN_TYPE</span><pre>UNKNOWN_TYPE</pre></a></li>
+</ul>
+</div>
+<div class="span8">
+<a name="%5CCrunch%5CFastCGI%5CRecord" id="\Crunch\FastCGI\Record"></a><ul class="breadcrumb">
+<li>
+<a href="../index.html"><i class="icon-custom icon-class"></i></a><span class="divider">\</span>
+</li>
+<li><a href="../namespaces/Crunch.html">Crunch</a></li>
+<span class="divider">\</span><li><a href="../namespaces/Crunch.FastCGI.html">FastCGI</a></li>
+<li class="active">
+<span class="divider">\</span><a href="../classes/Crunch.FastCGI.Record.html">Record</a>
+</li>
+</ul>
+<div href="../classes/Crunch.FastCGI.Record.html" class="element class"><div class="details">
+<h3>
+<i class="icon-custom icon-method"></i> Methods</h3>
+<a name="__construct" id="__construct"></a><div class="element clickable method public __construct" data-toggle="collapse" data-target=".__construct .collapse">
+<h2>__construct()
+        </h2>
+<pre>__construct($type, $requestId, $content) </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description">
+<p class="long_description"></p>
+<h3>Parameters</h3>
+<div class="subelement argument"><h4>$type</h4></div>
+<div class="subelement argument"><h4>$requestId</h4></div>
+<div class="subelement argument"><h4>$content</h4></div>
+</div></div>
+</div>
+<a name="__toString" id="__toString"></a><div class="element clickable method public __toString" data-toggle="collapse" data-target=".__toString .collapse">
+<h2>__toString()
+        </h2>
+<pre>__toString() </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="count" id="count"></a><div class="element clickable method public count" data-toggle="collapse" data-target=".count .collapse">
+<h2>count()
+        </h2>
+<pre>count() </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="isSendable" id="isSendable"></a><div class="element clickable method public isSendable" data-toggle="collapse" data-target=".isSendable .collapse">
+<h2>isSendable()
+        </h2>
+<pre>isSendable() </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="pack" id="pack"></a><div class="element clickable method public pack" data-toggle="collapse" data-target=".pack .collapse">
+<h2>pack()
+        </h2>
+<pre>pack() </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<h3>
+<i class="icon-custom icon-property"></i> Properties</h3>
+<a name="%24content" id="$content"> </a><div class="element clickable property public $content" data-toggle="collapse" data-target=".$content .collapse">
+<h2>$content</h2>
+<pre>$content </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="%24requestId" id="$requestId"> </a><div class="element clickable property public $requestId" data-toggle="collapse" data-target=".$requestId .collapse">
+<h2>$requestId</h2>
+<pre>$requestId </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="%24type" id="$type"> </a><div class="element clickable property public $type" data-toggle="collapse" data-target=".$type .collapse">
+<h2>$type</h2>
+<pre>$type </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="%24version" id="$version"> </a><div class="element clickable property public $version" data-toggle="collapse" data-target=".$version .collapse">
+<h2>$version</h2>
+<pre>$version </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<h3>
+<i class="icon-custom icon-constant"></i> Constants</h3>
+<a name="ABORT_REQUEST" id="ABORT_REQUEST"> </a><div class="element clickable constant  ABORT_REQUEST" data-toggle="collapse" data-target=".ABORT_REQUEST .collapse">
+<h2>ABORT_REQUEST</h2>
+<pre>ABORT_REQUEST </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="BEGIN_REQUEST" id="BEGIN_REQUEST"> </a><div class="element clickable constant  BEGIN_REQUEST" data-toggle="collapse" data-target=".BEGIN_REQUEST .collapse">
+<h2>BEGIN_REQUEST</h2>
+<pre>BEGIN_REQUEST </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="DATA" id="DATA"> </a><div class="element clickable constant  DATA" data-toggle="collapse" data-target=".DATA .collapse">
+<h2>DATA</h2>
+<pre>DATA </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="END_REQUEST" id="END_REQUEST"> </a><div class="element clickable constant  END_REQUEST" data-toggle="collapse" data-target=".END_REQUEST .collapse">
+<h2>END_REQUEST</h2>
+<pre>END_REQUEST </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="GET_VALUES" id="GET_VALUES"> </a><div class="element clickable constant  GET_VALUES" data-toggle="collapse" data-target=".GET_VALUES .collapse">
+<h2>GET_VALUES</h2>
+<pre>GET_VALUES </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="GET_VALUES_RESULT" id="GET_VALUES_RESULT"> </a><div class="element clickable constant  GET_VALUES_RESULT" data-toggle="collapse" data-target=".GET_VALUES_RESULT .collapse">
+<h2>GET_VALUES_RESULT</h2>
+<pre>GET_VALUES_RESULT </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="MAXTYPE" id="MAXTYPE"> </a><div class="element clickable constant  MAXTYPE" data-toggle="collapse" data-target=".MAXTYPE .collapse">
+<h2>MAXTYPE</h2>
+<pre>MAXTYPE </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="PARAMS" id="PARAMS"> </a><div class="element clickable constant  PARAMS" data-toggle="collapse" data-target=".PARAMS .collapse">
+<h2>PARAMS</h2>
+<pre>PARAMS </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="STDERR" id="STDERR"> </a><div class="element clickable constant  STDERR" data-toggle="collapse" data-target=".STDERR .collapse">
+<h2>STDERR</h2>
+<pre>STDERR </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="STDIN" id="STDIN"> </a><div class="element clickable constant  STDIN" data-toggle="collapse" data-target=".STDIN .collapse">
+<h2>STDIN</h2>
+<pre>STDIN </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="STDOUT" id="STDOUT"> </a><div class="element clickable constant  STDOUT" data-toggle="collapse" data-target=".STDOUT .collapse">
+<h2>STDOUT</h2>
+<pre>STDOUT </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+<a name="UNKNOWN_TYPE" id="UNKNOWN_TYPE"> </a><div class="element clickable constant  UNKNOWN_TYPE" data-toggle="collapse" data-target=".UNKNOWN_TYPE .collapse">
+<h2>UNKNOWN_TYPE</h2>
+<pre>UNKNOWN_TYPE </pre>
+<div class="labels"></div>
+<div class="row collapse"><div class="detail-description"><p class="long_description"></p></div></div>
+</div>
+</div></div>
+</div>
+</div>
+<div class="row"><footer class="span12">
+            Template is built using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap 2</a> and icons provided by <a href="http://glyphicons.com/">Glyphicons</a>.<br>
+            Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor 2.0.0a10</a> and<br>
+            generated on 2012-09-19T22:53:13+02:00.<br></footer></div>
+</div>
+</body>
+</html>

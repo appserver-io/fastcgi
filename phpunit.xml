@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit
+    backupGlobals="false"
+    backupStaticAttributes="false"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertWarningsToExceptions="true"
+    convertNoticesToExceptions="true"
+    processIsolation="false"
+    stopOnError="false"
+    stopOnFailure="false"
+    stopOnIncomplete="false"
+    stopOnSkipped="false"
+    syntaxCheck="false"
+    testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
+    cacheTokens="true"
+    mapTestClassNameToCoveredClassName="false"
+    forceCoversAnnotation="false"
+    strict="false">
+
+
+    <testsuite name="Crunch_FastCGI">
+      <directory suffix="Test.php">.</directory>
+    </testsuite>
+
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">../src</directory>
+    </whitelist>
+  </filter>
+
+</phpunit>
