@@ -2,7 +2,8 @@ Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/CrunchPHP/FastCGI.p
 ===
 FastCGI client written in PHP
 
-You can find the documentation at (readthedocs.org)[http://crunchregex.readthedocs.org/en/latest/].
+* [Documentation at readthedocs.org](http://crunchfastcgi.readthedocs.org/en/latest/)
+* [List of available packages at packagist.org](http://packagist.org/packages/crunch/fastcgi)
 
 
 Allows to access a FastCGI-server directly from PHP.
