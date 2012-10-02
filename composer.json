@@ -3,7 +3,7 @@
     "description": "FastCGI client",
     "type": "library",
     "keywords": ["FastCGI"],
-    "homepage": "https://github.com/CrunchPHP/FastCGI",
+    "homepage": "http://crunchfastcgi.readthedocs.org/en/latest/",
     "license": "MIT",
     "authors": [
         {
@@ -13,10 +13,12 @@
             "role": "Maintainer"
         }
     ],
+    "require": {
+        "php": ">=5.3.0"
+    },
     "support": {
         "email": "krebs.seb@gmail.com",
-        "issues": "https://github.com/CrunchPHP/FastCGI/issues",
-        "source": "https://github.com/CrunchPHP/FastCGI"
+        "issues": "https://github.com/CrunchPHP/FastCGI/issues"
     },
     "autoload": {
         "psr-0": { "Crunch\\FastCGI": "src" }
