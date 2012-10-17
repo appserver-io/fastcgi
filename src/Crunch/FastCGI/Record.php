@@ -29,7 +29,6 @@ class Record implements \Countable {
         $oversize = strlen((string) $this->content) % 8;
         $pack = pack('CCnnCx', 1, $this->type, $this->requestId, strlen((string) $this->content), $oversize ? 8 - $oversize : 0)
             . ((string) $this->content) . str_repeat("\0", $oversize ? 8 - $oversize : 0);
-        var_dump($pack);
         return $pack;
     }
 

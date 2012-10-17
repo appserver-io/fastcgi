@@ -280,7 +280,7 @@
       <error line="12" code="50010">No DocBlock was found for method connect()</error>
     </parse_markers>
   </file>
-  <file path="Record.php" hash="7d38a6097d7c0d1822dd9d9645973e14" package="Default">
+  <file path="Record.php" hash="f9fcc790022096dcaeb7da1de48c6c03" package="Default">
     <class final="false" abstract="false" namespace="Crunch\FastCGI" line="4" package="Default">
       <extends/>
       <implements>\Countable</implements>
@@ -385,15 +385,15 @@
         <name>pack</name>
         <full_name>pack</full_name>
       </method>
-      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="36" package="Default">
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="35" package="Default">
         <name>__toString</name>
         <full_name>__toString</full_name>
       </method>
-      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="39" package="Default">
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="38" package="Default">
         <name>count</name>
         <full_name>count</full_name>
       </method>
-      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="43" package="Default">
+      <method final="false" abstract="false" static="false" visibility="public" namespace="Crunch\FastCGI" line="42" package="Default">
         <name>isSendable</name>
         <full_name>isSendable</full_name>
       </method>
@@ -407,9 +407,9 @@
       <error line="21" code="50018">No DocBlock was found for property $content</error>
       <error line="22" code="50010">No DocBlock was found for method __construct()</error>
       <error line="28" code="50010">No DocBlock was found for method pack()</error>
-      <error line="36" code="50010">No DocBlock was found for method __toString()</error>
-      <error line="39" code="50010">No DocBlock was found for method count()</error>
-      <error line="43" code="50010">No DocBlock was found for method isSendable()</error>
+      <error line="35" code="50010">No DocBlock was found for method __toString()</error>
+      <error line="38" code="50010">No DocBlock was found for method count()</error>
+      <error line="42" code="50010">No DocBlock was found for method isSendable()</error>
     </parse_markers>
   </file>
   <package name="Default" full_name="Default"/>

@@ -19,15 +19,13 @@
     forceCoversAnnotation="false"
     strict="false">
 
-
     <testsuite name="AllTests">
-      <directory suffix="Test.php">.</directory>
+        <directory suffix="Test.php">.</directory>
     </testsuite>
 
-  <filter>
-    <whitelist addUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">../src</directory>
-    </whitelist>
-  </filter>
-
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../src</directory>
+        </whitelist>
+    </filter>
 </phpunit>

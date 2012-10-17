@@ -3,8 +3,7 @@ php:
   - 5.3
   - 5.4
 
-before_script:
-  - composer install --dev --verbose --profile
+install: composer install --dev --verbose --profile --prefer-dist
 
 branches:
   only:
