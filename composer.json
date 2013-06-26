@@ -18,7 +18,7 @@
     },
     "support": {
         "email": "krebs.seb@gmail.com",
-        "issues": "https://github.com/CrunchPHP/FastCGI/issues"
+        "issues": "https://github.com/KingCrunch/FastCGI/issues"
     },
     "autoload": {
         "psr-0": { "Crunch\\FastCGI": "src" }

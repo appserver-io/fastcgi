@@ -1,4 +1,4 @@
-Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/CrunchPHP/FastCGI.png)](http://travis-ci.org/CrunchPHP/FastCGI)
+Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/KingCrunch/FastCGI.png)](http://travis-ci.org/KingCrunch/FastCGI)
 ===
 FastCGI client library
 
