@@ -63,7 +63,10 @@ class Connection {
         if (\stream_select($read, $write, $except, $this->_buffer ? 0 : $timeout)) {
             while ($header = \fread($read[0], 8 /* header length */)) {
                 $header = unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
-                $content = \fread($this->_socket, $header['contentLength']);
+                $content = '';
+                do {
+                    $content .= \stream_get_contents($this->_socket, $header['contentLength'] - strlen($content));
+                } while (strlen($content) < $header['contentLength']);
                 $this->_buffer[] = new Record($header['type'], $header['requestId'], $content);
                 \fseek($this->_socket, $header['paddingLength'], \SEEK_CUR);
             }
