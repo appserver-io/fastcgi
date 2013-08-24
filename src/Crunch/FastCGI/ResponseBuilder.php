@@ -1,24 +1,51 @@
 <?php
 namespace Crunch\FastCGI;
 
-class ResponseBuilder {
+/**
+ * ResponseBuilder
+ *
+ * @package Crunch\FastCGI
+ */
+class ResponseBuilder
+{
+    /**
+     * Whether or not the response is complete
+     *
+     * @var bool
+     */
     public $isComplete = false;
-    protected $_records = array();
-    public function addRecord (Record $record) {
-        $this->_records[] = $record;
+
+    /**
+     * @var Record[]
+     */
+    protected $records = array();
+
+    /**
+     * @param Record $record
+     * @throws \RuntimeException
+     */
+    public function addRecord (Record $record)
+    {
+        $this->records[] = $record;
         if ($this->isComplete) {
             throw new \RuntimeException('Response already complete');
         }
         $this->isComplete = $record->type == Record::END_REQUEST;
     }
-    public function buildResponse () {
+
+    /**
+     * @return Response
+     * @throws \RuntimeException
+     */
+    public function buildResponse ()
+    {
         if (!$this->isComplete) {
             throw new \RuntimeException('Response not complete yet');
         }
 
         return array_reduce(
-            $this->_records,
-            function (Response $response, Record $record ) {
+            $this->records,
+            function (Response $response, Record $record) {
                 switch ($record->type) {
                     case Record::BEGIN_REQUEST:
                     case Record::ABORT_REQUEST:

@@ -1,30 +1,97 @@
 <?php
 namespace Crunch\FastCGI;
 
-class Connection {
-    protected $_socket;
-    protected $_nextId = 1;
-    protected $_builder = array();
+/**
+ * Connection
+ *
+ * @package Crunch\FastCGI
+ */
+class Connection
+{
     const RESPONDER = 1;
     const AUTHORIZER = 2;
     const FILTER = 3;
-    public function __construct ($socket) {
-        $this->_socket = $socket;
-        stream_set_blocking($this->_socket, 0);
+
+    /**
+     * Stream socket to FastCGI
+     *
+     * @var resource
+     */
+    protected $socket;
+
+    /**
+     * Next request ID to use
+     *
+     * @var int
+     */
+    protected $nextId = 1;
+
+    /**
+     * @var ResponseBuilder[]
+     */
+    protected $builder = array();
+
+    /**
+     * Internal record buffer
+     *
+     * To take pressure from the streams read-buffer.
+     *
+     * @var array
+     */
+    private $recordBuffer = array();
+
+    /**
+     * @param resource $socket
+     */
+    public function __construct ($socket)
+    {
+        $this->socket = $socket;
+        stream_set_blocking($this->socket, 0);
     }
-    public function __destruct() {
-        fclose($this->_socket);
+
+    /**
+     * Slose socket
+     */
+    public function __destruct()
+    {
+        \fclose($this->socket);
     }
-    public function newRequest (array $params = null, $stdin = null) {
-        return new Request($this->_nextId++, $params, $stdin);
+
+    /**
+     * Creates a new request
+     *
+     * @param array|null $params
+     * @param string|null  $stdin
+     * @return Request
+     */
+    public function newRequest (array $params = null, $stdin = null)
+    {
+        return new Request($this->nextId++, $params, $stdin);
     }
-    public function request (Request $request) {
+
+    /**
+     * Send request and awaits the response (sequential)
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function request (Request $request)
+    {
         $this->sendRequest($request);
         return $this->receiveResponse($request, 2);
     }
-    public function sendRequest (Request $request) {
-        $this->_builder[$request->ID] = new ResponseBuilder;
-        $this->_builder[$request->ID] = new ResponseBuilder;
+
+    /**
+     * Send request, but don't wait for response
+     *
+     * Remember to call receiveResponse(). Else, it will remain the buffer.
+     *
+     * @param Request $request
+     */
+    public function sendRequest (Request $request)
+    {
+        $this->builder[$request->ID] = new ResponseBuilder;
+        $this->builder[$request->ID] = new ResponseBuilder;
         $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->ID, pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
 
         $p = '';
@@ -37,40 +104,73 @@ class Connection {
         $this->sendRecord(new Record(Record::STDIN, $request->ID, $request->stdin));
         $this->sendRecord(new Record(Record::STDIN, $request->ID, ''));
     }
-    public function sendRecord (Record $record) {
-        \fwrite($this->_socket, (string) $record, count($record));
-    }
 
-    public function receiveResponse (Request $request) {
-        while (!$this->_builder[$request->ID]->isComplete) {
+    /**
+     * Receive response
+     *
+     * Returns the response a request previously sent with sendRequest()
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function receiveResponse (Request $request)
+    {
+        while (!$this->builder[$request->ID]->isComplete) {
             $this->receiveAll(2);
         }
-        return $this->_builder[$request->ID]->buildResponse();
+
+        return $this->builder[$request->ID]->buildResponse();
     }
 
-    public function receiveAll ($timeout) {
+    /**
+     * Send a single record
+     *
+     * @param Record $record
+     */
+    protected function sendRecord (Record $record)
+    {
+        \fwrite($this->socket, (string) $record, \count($record));
+    }
+
+    /**
+     * Receive all currently available records
+     *
+     * This will read as may records as possible, which does _not_ mean, that
+     * it will read every record, that _should_ appear.
+     *
+     * @param int $timeout
+     */
+    protected function receiveAll ($timeout)
+    {
         while ($record = $this->receiveRecord($timeout)) {
-            $this->_builder[$record->requestId]->addRecord($record);
+            $this->builder[$record->requestId]->addRecord($record);
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }
     }
-    private $_buffer = array();
-    public function receiveRecord ($timeout) {
-        $read = array($this->_socket);
+
+    /**
+     * Tries to receive a new record from the streams read-buffer
+     *
+     * @param int $timeout
+     * @return Record
+     */
+    protected function receiveRecord ($timeout)
+    {
+        $read = array($this->socket);
         $write = $except = array();
         // If we already have some records fetched, we don't need to wait for another one, thus we should look
         // if there is something and keep going without waiting
-        if (\stream_select($read, $write, $except, $this->_buffer ? 0 : $timeout)) {
+        if (\stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
             while ($header = \fread($read[0], 8 /* header length */)) {
-                $header = unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
+                $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
                 $content = '';
                 do {
-                    $content .= \stream_get_contents($this->_socket, $header['contentLength'] - strlen($content));
-                } while (strlen($content) < $header['contentLength']);
-                $this->_buffer[] = new Record($header['type'], $header['requestId'], $content);
-                \fseek($this->_socket, $header['paddingLength'], \SEEK_CUR);
+                    $content .= \stream_get_contents($this->socket, $header['contentLength'] - \strlen($content));
+                } while (\strlen($content) < $header['contentLength']);
+                $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
+                \fseek($this->socket, $header['paddingLength'], \SEEK_CUR);
             }
         }
-        return \array_shift($this->_buffer);
+        return \array_shift($this->recordBuffer);
     }
 }

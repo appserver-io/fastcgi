@@ -1,7 +1,13 @@
 <?php
 namespace Crunch\FastCGI;
 
-class Record implements \Countable {
+/**
+ * Record
+ *
+ * @package Crunch\FastCGI
+ */
+class Record implements \Countable
+{
     const BEGIN_REQUEST = 1;
     const ABORT_REQUEST = 2;
     const END_REQUEST = 3;
@@ -15,31 +21,93 @@ class Record implements \Countable {
     const UNKNOWN_TYPE = 11;
     const MAXTYPE = self::UNKNOWN_TYPE;
 
+    /**
+     * FastCGI version
+     *
+     * @var int
+     */
     public $version = 1;
+
+    /**
+     * Record type (see constants above)
+     *
+     * @var int
+     */
     public $type;
+
+    /**
+     * Request ID
+     *
+     * For received records this defines to which origin request this is
+     * the answer.
+     *
+     * @var int
+     */
     public $requestId;
+
+    /**
+     * Content received
+     *
+     * @var string
+     */
     public $content;
-    public function __construct ($type, $requestId, $content) {
+
+    /**
+     * @param int $type
+     * @param int $requestId
+     * @param string $content
+     */
+    public function __construct ($type, $requestId, $content)
+    {
         $this->type = $type;
         $this->requestId = $requestId;
         $this->content = $content;
     }
 
-    public function pack () {
+    /**
+     * Compiles record into struct to send
+     *
+     * @return string
+     */
+    public function pack ()
+    {
         $oversize = strlen((string) $this->content) % 8;
         $pack = pack('CCnnCx', 1, $this->type, $this->requestId, strlen((string) $this->content), $oversize ? 8 - $oversize : 0)
             . ((string) $this->content) . str_repeat("\0", $oversize ? 8 - $oversize : 0);
         return $pack;
     }
 
-    public function __toString () {
+    /**
+     * To string
+     *
+     * Proxy to "pack()"
+     *
+     * @return string
+     */
+    public function __toString ()
+    {
         return $this->pack();
     }
-    public function count () {
+
+    /**
+     * Length of the body
+     *
+     * @return int
+     */
+    public function count ()
+    {
         return strlen($this->pack());
     }
 
-    public function isSendable () {
+    /**
+     * Whether, or not this record is sendable
+     *
+     * "false" means, that it is a receive-only record.
+     *
+     * @return bool
+     */
+    public function isSendable ()
+    {
         return in_array($this->type, array(self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES));
     }
 }
