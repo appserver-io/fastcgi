@@ -25,6 +25,6 @@
         "issues": "https://github.com/KingCrunch/FastCGI/issues"
     },
     "autoload": {
-        "psr-0": { "Crunch\\FastCGI": "src" }
+        "psr-4": { "Crunch\\FastCGI\\": "src" }
     }
 }
