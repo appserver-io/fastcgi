@@ -1,11 +1,6 @@
 <?php
 namespace Crunch\FastCGI;
 
-/**
- * Record
- *
- * @package Crunch\FastCGI
- */
 class Record implements \Countable
 {
     const BEGIN_REQUEST = 1;
@@ -71,10 +66,9 @@ class Record implements \Countable
      */
     public function pack ()
     {
-        $oversize = strlen((string) $this->content) % 8;
-        $pack = pack('CCnnCx', 1, $this->type, $this->requestId, strlen((string) $this->content), $oversize ? 8 - $oversize : 0)
-            . ((string) $this->content) . str_repeat("\0", $oversize ? 8 - $oversize : 0);
-        return $pack;
+        $oversize = \strlen((string) $this->content) % 8;
+        return \pack('CCnnCx', 1, $this->type, $this->requestId, \strlen((string) $this->content), $oversize ? 8 - $oversize : 0)
+            . ((string) $this->content) . \str_repeat("\0", $oversize ? 8 - $oversize : 0);
     }
 
     /**
@@ -96,7 +90,7 @@ class Record implements \Countable
      */
     public function count ()
     {
-        return strlen($this->pack());
+        return \strlen($this->pack());
     }
 
     /**
@@ -108,6 +102,9 @@ class Record implements \Countable
      */
     public function isSendable ()
     {
-        return in_array($this->type, array(self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES));
+        return \in_array(
+            $this->type,
+            array(self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES)
+        );
     }
 }

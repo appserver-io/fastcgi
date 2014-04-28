@@ -1,11 +1,6 @@
 <?php
 namespace Crunch\FastCGI;
 
-/**
- * Connection
- *
- * @package Crunch\FastCGI
- */
 class Connection
 {
     const RESPONDER = 1;
@@ -46,11 +41,11 @@ class Connection
     public function __construct ($socket)
     {
         $this->socket = $socket;
-        stream_set_blocking($this->socket, 0);
+        \stream_set_blocking($this->socket, 0);
     }
 
     /**
-     * Slose socket
+     * Close socket
      */
     public function __destruct()
     {
@@ -60,8 +55,8 @@ class Connection
     /**
      * Creates a new request
      *
-     * @param array|null $params
-     * @param string|null  $stdin
+     * @param array|null  $params
+     * @param string|null $stdin
      * @return Request
      */
     public function newRequest (array $params = null, $stdin = null)
@@ -91,12 +86,11 @@ class Connection
     public function sendRequest (Request $request)
     {
         $this->builder[$request->ID] = new ResponseBuilder;
-        $this->builder[$request->ID] = new ResponseBuilder;
-        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->ID, pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
+        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->ID, \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
 
         $p = '';
         foreach ($request->parameters as $name => $value) {
-            $p .= pack('NN', strlen($name) + 0x80000000, strlen($value) + 0x80000000) . $name . $value;
+            $p .= \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
         }
         $this->sendRecord(new Record(Record::PARAMS, $request->ID, $p));
         $this->sendRecord(new Record(Record::PARAMS, $request->ID, ''));

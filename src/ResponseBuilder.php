@@ -1,11 +1,6 @@
 <?php
 namespace Crunch\FastCGI;
 
-/**
- * ResponseBuilder
- *
- * @package Crunch\FastCGI
- */
 class ResponseBuilder
 {
     /**

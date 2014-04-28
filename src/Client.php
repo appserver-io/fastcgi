@@ -1,11 +1,6 @@
 <?php
 namespace Crunch\FastCGI;
 
-/**
- * Client
- *
- * @package Crunch\FastCGI
- */
 class Client
 {
     /**
@@ -14,7 +9,7 @@ class Client
      * May be either a host name, or a (local) path to the FCGI-socket
      *
      * - localhost
-     * - /var/run/php5-fpm.sock
+     * - unix:///var/run/php5-fpm.sock
      *
      * @var string
      */
@@ -23,18 +18,21 @@ class Client
     /**
      * Port number
      *
-     * Required for net-based connections, ignored for socket connectios
+     * Required for net-based connections, ignored for socket connections
      *
      * @var int|null
      */
     protected $port;
 
     /**
-     * @param string $host hostname, or path to socket
+     * @param string   $host hostname, or path to socket
      * @param int|null $port ignored for socket connections
      */
     public function __construct($host, $port = null)
     {
+        if ($host = '/') {
+            $host = "unix://$host";
+        }
         $this->host = $host;
         $this->port = $port;
     }
@@ -49,10 +47,10 @@ class Client
      */
     public function connect ()
     {
-        if ($socket = fsockopen($this->host, $this->port, $errorCode, $error, 20)) {
+        if ($socket = @\fsockopen($this->host, $this->port, $errorCode, $error, 20)) {
             return new Connection($socket);
         }
 
-        throw new \RuntimeException("Could not establish connection: $error", $errorCode);
+        throw new ConnectionException($error, $errorCode);
     }
 }
