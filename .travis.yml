@@ -3,8 +3,14 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - 5.6
+  - hhvm
 
-install: composer install --dev --verbose --profile --prefer-dist
+before_script:
+  - composer self-update
+  - composer install --dev --prefer-source --no-interaction --no-progress
+
+script: vendor/bin/phpunit --coverage-text
 
 branches:
   only:
