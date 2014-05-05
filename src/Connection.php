@@ -95,7 +95,13 @@ class Connection
         $this->sendRecord(new Record(Record::PARAMS, $request->ID, $p));
         $this->sendRecord(new Record(Record::PARAMS, $request->ID, ''));
 
-        $this->sendRecord(new Record(Record::STDIN, $request->ID, $request->stdin));
+        // Unify input
+        $stream = is_string($request->stdin)
+            ? fopen('data://text/plain;base64,' . base64_encode($request->stdin), 'rb')
+            : $request->stdin;
+        while ($chunk = fread($stream, 65535)) {
+            $this->sendRecord(new Record(Record::STDIN, $request->ID, $chunk));
+        }
         $this->sendRecord(new Record(Record::STDIN, $request->ID, ''));
     }
 

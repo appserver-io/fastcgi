@@ -20,14 +20,14 @@ class Request
     /**
      * content to send ("body")
      *
-     * @var string
+     * @var string|resource
      */
     public $stdin;
 
     /**
-     * @param int         $requestId
-     * @param array|null  $params
-     * @param string|null $stdin
+     * @param int                  $requestId
+     * @param array|null           $params
+     * @param string|resource|null $stdin string or stream resource
      */
     public function __construct ($requestId, array $params = null, $stdin = null)
     {
