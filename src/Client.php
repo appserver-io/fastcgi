@@ -30,7 +30,7 @@ class Client
      */
     public function __construct($host, $port = null)
     {
-        if ($host = '/') {
+        if ($host[0] == '/') {
             $host = "unix://$host";
         }
         $this->host = $host;
