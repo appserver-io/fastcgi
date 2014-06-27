@@ -1,2 +1,2 @@
 <?php
-echo json_encode(array($_SERVER));
+echo serialize(array($_SERVER));
