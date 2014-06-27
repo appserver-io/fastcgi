@@ -13,13 +13,7 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $this->process = new Process(sprintf('`which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
         $this->process->setWorkingDirectory(__DIR__ . '/Resource');
         $this->process->start();
-        parent::setUp(function ($type, $data) {
-            if (Process::ERR == $type) {
-                echo "[ERR] $data";
-            } else {
-                echo "[OUT] $data";
-            }
-        });
+        parent::setUp();
 
         $this->process->getIncrementalErrorOutput();
         $this->process->getIncrementalOutput();
@@ -60,5 +54,29 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         list($server) = unserialize($body);
 
         $this->assertEquals(7, $server['CONTENT_LENGTH']);
+    }
+
+    public function testFpmGoesAway()
+    {
+        $client = new Client('localhost', 9000);
+        $connection = $client->connect();
+        $request = $connection->newRequest(array(
+            'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
+            'REQUEST_METHOD'  => 'POST',
+            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
+            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH'  => strlen('foo=bar')
+        ), 'foo=bar');
+
+        $connection->sendRequest($request);
+
+        if ($this->process && $this->process->isRunning()) {
+            $this->process->signal(SIGKILL);
+            while ($this->process->isRunning());
+            $this->process = null;
+        }
+        $response = $connection->receiveResponse($request);
+
+        $this->assertEquals('x2', substr($response->content, -2));
     }
 }
