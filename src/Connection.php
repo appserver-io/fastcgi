@@ -38,7 +38,7 @@ class Connection
     /**
      * @param resource $socket
      */
-    public function __construct($socket)
+    public function __construct ($socket)
     {
         $this->socket = $socket;
         \stream_set_blocking($this->socket, 0);
@@ -47,7 +47,7 @@ class Connection
     /**
      * Close socket
      */
-    public function __destruct()
+    public function __destruct ()
     {
         \fclose($this->socket);
     }
@@ -59,7 +59,7 @@ class Connection
      * @param string|null $stdin
      * @return Request
      */
-    public function newRequest(array $params = null, $stdin = null)
+    public function newRequest (array $params = null, $stdin = null)
     {
         return new Request($this->nextId++, $params, $stdin);
     }
@@ -70,7 +70,7 @@ class Connection
      * @param Request $request
      * @return Response
      */
-    public function request(Request $request)
+    public function request (Request $request)
     {
         $this->sendRequest($request);
         return $this->receiveResponse($request, 2);
@@ -83,7 +83,7 @@ class Connection
      *
      * @param Request $request
      */
-    public function sendRequest(Request $request)
+    public function sendRequest (Request $request)
     {
         $this->builder[$request->ID] = new ResponseBuilder;
         $this->sendRecord(
@@ -115,7 +115,7 @@ class Connection
      * @param Request $request
      * @return Response
      */
-    public function receiveResponse(Request $request)
+    public function receiveResponse (Request $request)
     {
         while (!$this->builder[$request->ID]->isComplete()) {
             $this->receiveAll(2);
@@ -129,7 +129,7 @@ class Connection
      *
      * @param Record $record
      */
-    protected function sendRecord(Record $record)
+    protected function sendRecord (Record $record)
     {
         \fwrite($this->socket, (string)$record, \count($record));
     }
@@ -142,7 +142,7 @@ class Connection
      *
      * @param int $timeout
      */
-    protected function receiveAll($timeout)
+    protected function receiveAll ($timeout)
     {
         while ($record = $this->receiveRecord($timeout)) {
             $this->builder[$record->requestId]->addRecord($record);
@@ -156,7 +156,7 @@ class Connection
      * @param int $timeout
      * @return Record
      */
-    protected function receiveRecord($timeout)
+    protected function receiveRecord ($timeout)
     {
         $read = array($this->socket);
         $write = $except = array();
