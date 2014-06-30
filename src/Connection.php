@@ -38,7 +38,7 @@ class Connection
     /**
      * @param resource $socket
      */
-    public function __construct ($socket)
+    public function __construct($socket)
     {
         $this->socket = $socket;
         \stream_set_blocking($this->socket, 0);
@@ -55,11 +55,11 @@ class Connection
     /**
      * Creates a new request
      *
-     * @param array|null  $params
+     * @param array|null $params
      * @param string|null $stdin
      * @return Request
      */
-    public function newRequest (array $params = null, $stdin = null)
+    public function newRequest(array $params = null, $stdin = null)
     {
         return new Request($this->nextId++, $params, $stdin);
     }
@@ -70,7 +70,7 @@ class Connection
      * @param Request $request
      * @return Response
      */
-    public function request (Request $request)
+    public function request(Request $request)
     {
         $this->sendRequest($request);
         return $this->receiveResponse($request, 2);
@@ -83,10 +83,12 @@ class Connection
      *
      * @param Request $request
      */
-    public function sendRequest (Request $request)
+    public function sendRequest(Request $request)
     {
         $this->builder[$request->ID] = new ResponseBuilder;
-        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->ID, \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
+        $this->sendRecord(
+            new Record(Record::BEGIN_REQUEST, $request->ID, \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1))
+        );
 
         $p = '';
         foreach ($request->parameters as $name => $value) {
@@ -113,9 +115,9 @@ class Connection
      * @param Request $request
      * @return Response
      */
-    public function receiveResponse (Request $request)
+    public function receiveResponse(Request $request)
     {
-        while (!$this->builder[$request->ID]->isComplete) {
+        while (!$this->builder[$request->ID]->isComplete()) {
             $this->receiveAll(2);
         }
 
@@ -127,9 +129,9 @@ class Connection
      *
      * @param Record $record
      */
-    protected function sendRecord (Record $record)
+    protected function sendRecord(Record $record)
     {
-        \fwrite($this->socket, (string) $record, \count($record));
+        \fwrite($this->socket, (string)$record, \count($record));
     }
 
     /**
@@ -140,7 +142,7 @@ class Connection
      *
      * @param int $timeout
      */
-    protected function receiveAll ($timeout)
+    protected function receiveAll($timeout)
     {
         while ($record = $this->receiveRecord($timeout)) {
             $this->builder[$record->requestId]->addRecord($record);
@@ -154,21 +156,37 @@ class Connection
      * @param int $timeout
      * @return Record
      */
-    protected function receiveRecord ($timeout)
+    protected function receiveRecord($timeout)
     {
         $read = array($this->socket);
         $write = $except = array();
         // If we already have some records fetched, we don't need to wait for another one, thus we should look
         // if there is something and keep going without waiting
         if (\stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
-            while ($header = \fread($read[0], 8 /* header length */)) {
-                $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
-                $content = '';
+
+            $header = \fread($read[0], 8 /* header length */);
+            if (is_string($header) && strlen($header) > 0) {
+
                 do {
-                    $content .= \stream_get_contents($this->socket, $header['contentLength'] - \strlen($content));
-                } while (\strlen($content) < $header['contentLength']);
-                $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
-                \fseek($this->socket, $header['paddingLength'], \SEEK_CUR);
+
+                    $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
+                    $content = '';
+                    do {
+                        $content .= \stream_get_contents($this->socket, $header['contentLength'] - \strlen($content));
+
+                    } while (\strlen($content) < $header['contentLength']);
+                    $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
+                    \fseek($this->socket, $header['paddingLength'], \SEEK_CUR);
+
+                } while ($header = \fread($read[0], 8 /* header length */));
+
+            } else {
+
+                // Abort the response receivement as the BE seems to have gone away
+                throw new ConnectionException(
+                    'Connection has gone away during processing of request ID '
+                    . ($this->nextId - 1)
+                );
             }
         }
         return \array_shift($this->recordBuffer);

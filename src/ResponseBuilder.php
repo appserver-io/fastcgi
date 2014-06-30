@@ -8,12 +8,20 @@ class ResponseBuilder
      *
      * @var bool
      */
-    public $isComplete = false;
+    protected $isComplete = false;
 
     /**
      * @var Record[]
      */
     protected $records = array();
+
+    /**
+     * @return bool
+     */
+    public function isComplete()
+    {
+        return $this->isComplete;
+    }
 
     /**
      * @param Record $record
@@ -22,7 +30,7 @@ class ResponseBuilder
     public function addRecord (Record $record)
     {
         $this->records[] = $record;
-        if ($this->isComplete) {
+        if ($this->isComplete()) {
             throw new \RuntimeException('Response already complete');
         }
         $this->isComplete = $record->type == Record::END_REQUEST;
@@ -34,7 +42,7 @@ class ResponseBuilder
      */
     public function buildResponse ()
     {
-        if (!$this->isComplete) {
+        if (!$this->isComplete()) {
             throw new \RuntimeException('Response not complete yet');
         }
 
