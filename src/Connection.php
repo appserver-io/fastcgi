@@ -47,7 +47,7 @@ class Connection
     /**
      * Close socket
      */
-    public function __destruct ()
+    public function __destruct()
     {
         \fclose($this->socket);
     }
@@ -55,7 +55,7 @@ class Connection
     /**
      * Creates a new request
      *
-     * @param array|null $params
+     * @param array|null  $params
      * @param string|null $stdin
      * @return Request
      */
@@ -86,9 +86,7 @@ class Connection
     public function sendRequest (Request $request)
     {
         $this->builder[$request->ID] = new ResponseBuilder;
-        $this->sendRecord(
-            new Record(Record::BEGIN_REQUEST, $request->ID, \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1))
-        );
+        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->ID, \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
 
         $p = '';
         foreach ($request->parameters as $name => $value) {
@@ -117,7 +115,7 @@ class Connection
      */
     public function receiveResponse (Request $request)
     {
-        while (!$this->builder[$request->ID]->isComplete()) {
+        while (!$this->builder[$request->ID]->isComplete) {
             $this->receiveAll(2);
         }
 
@@ -131,7 +129,7 @@ class Connection
      */
     protected function sendRecord (Record $record)
     {
-        \fwrite($this->socket, (string)$record, \count($record));
+        \fwrite($this->socket, (string) $record, \count($record));
     }
 
     /**
@@ -155,6 +153,7 @@ class Connection
      *
      * @param int $timeout
      * @return Record
+     * @throws \Crunch\FastCGI\ConnectionException
      */
     protected function receiveRecord ($timeout)
     {

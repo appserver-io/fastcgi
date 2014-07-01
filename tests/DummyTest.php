@@ -1,9 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-use Crunch\FastCGI\Mocks\MockConnection;
 use Symfony\Component\Process\Process;
-use Crunch\FastCGI\Mocks\MockClient;
 
 class DummyTest extends \PHPUnit_Framework_TestCase
 {
@@ -67,8 +65,11 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 
     public function testFpmGoesAway()
     {
+        // We expect this to fail with a ConnectionException
+        $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
+
         // Get a MockClient instead of a real one so we can influence the connection's behaviour
-        $client = new MockClient('localhost', 9000);
+        $client = new Client('localhost', 9000);
         $connection = $client->connect();
         $request = $connection->newRequest(
             array(
@@ -90,30 +91,7 @@ class DummyTest extends \PHPUnit_Framework_TestCase
             $this->process = null;
         }
 
-        // Let's set a timeout and start receiving using our timed mock connection.
-        // After we got a response we might check if we timed out or got a real answer.
-        $timeout = 10;
-        $startTime = microtime(true);
-
-        // Try to receive a response, it will either time out (bad!) or fail as the BE stopped
-        try {
-
-            $response = $connection->receiveResponse($request, $timeout);
-
-        } catch (ConnectionException $e) {
-            // If we caugth an exception we know we succeeded
-
-            return true;
-        }
-
-        // If receiving the response took longer or equally as long as the timeout period we most certainly
-        // ran into it. That's an error
-        if (microtime(true) >= $startTime + $timeout) {
-
-            $this->fail('Discovered a potential endless loop as Connection::receiveResponse() timed out.');
-        }
-
-        // Check if we got the right response btw
-        $this->assertEquals('x2', substr($response->content, -2));
+        // Try to receive a response, it will either run indefinetly (bad!) or fail as the BE stopped
+        $response = $connection->receiveResponse($request);
     }
 }
