@@ -41,13 +41,13 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $client = new Client('localhost', 9000);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
-                'Foo' => 'Bar',
-                'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-                'REQUEST_METHOD' => 'POST',
-                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-                'CONTENT_LENGTH' => strlen('foo=bar')
-            ), 'foo=bar');
+            'Foo' => 'Bar',
+            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
+            'REQUEST_METHOD' => 'POST',
+            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => strlen('foo=bar')
+        ), 'foo=bar');
 
         $connection->sendRequest($request);
         $response = $connection->receiveResponse($request);
@@ -71,13 +71,13 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $client = new Client('localhost', 9000);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
-                'Foo' => 'Bar',
-                'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-                'REQUEST_METHOD' => 'POST',
-                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-                'CONTENT_LENGTH' => strlen('foo=bar')
-            ), 'foo=bar');
+            'Foo' => 'Bar',
+            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
+            'REQUEST_METHOD' => 'POST',
+            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => strlen('foo=bar')
+        ), 'foo=bar');
 
         $connection->sendRequest($request);
 
