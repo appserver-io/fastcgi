@@ -7,7 +7,6 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Process */
     private $process;
-
     protected function setUp()
     {
         $conf = __DIR__ . '/Resources/php-fpm.conf';
@@ -37,21 +36,18 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
-    public function testDummy()
+    public function testDummy ()
     {
         $client = new Client('localhost', 9000);
         $connection = $client->connect();
-        $request = $connection->newRequest(
-            array(
+        $request = $connection->newRequest(array(
                 'Foo' => 'Bar',
                 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
                 'REQUEST_METHOD' => 'POST',
                 'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'CONTENT_LENGTH' => strlen('foo=bar')
-            ),
-            'foo=bar'
-        );
+            ), 'foo=bar');
 
         $connection->sendRequest($request);
         $response = $connection->receiveResponse($request);
@@ -63,6 +59,9 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(7, $server['CONTENT_LENGTH']);
     }
 
+    /**
+     * @medium
+     */
     public function testFpmGoesAway()
     {
         // We expect this to fail with a ConnectionException
@@ -71,17 +70,14 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         // Get a MockClient instead of a real one so we can influence the connection's behaviour
         $client = new Client('localhost', 9000);
         $connection = $client->connect();
-        $request = $connection->newRequest(
-            array(
+        $request = $connection->newRequest(array(
                 'Foo' => 'Bar',
                 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
                 'REQUEST_METHOD' => 'POST',
                 'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'CONTENT_LENGTH' => strlen('foo=bar')
-            ),
-            'foo=bar'
-        );
+            ), 'foo=bar');
 
         $connection->sendRequest($request);
 
@@ -92,6 +88,6 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         }
 
         // Try to receive a response, it will either run indefinetly (bad!) or fail as the BE stopped
-        $response = $connection->receiveResponse($request);
+        $connection->receiveResponse($request);
     }
 }
