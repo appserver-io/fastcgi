@@ -79,10 +79,24 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 
         $connection->sendRequest($request);
 
-        // If the process is running we will stop it and destroy the reference
-        if ($this->process && $this->process->isRunning()) {
-            $this->process->stop(2);
-            $this->process = null;
+        // If the process is running we will stop it, to do so we need the process ID, as the Symfony Process class
+        // might lose it we will read it from the PID file
+        $pidFilePath = __DIR__ . DIRECTORY_SEPARATOR . 'php5-fpm.pid';
+
+        // The PID file should be readable and contain something, otherwise the process does not run
+        if (is_readable($pidFilePath) && filesize($pidFilePath) > 0) {
+
+            // Execute a direct kill command with the PID from the file
+            $pid = file_get_contents($pidFilePath);
+            exec('/etc/init.d/php5-fpm stop');
+
+            // Sleep a little so the Connection class can pick up the termination of the process
+            sleep(3);
+
+        } else {
+            // Fail as we have no possiblity to test our behavior
+
+            $this->fail('The php-fpm process does not seem to run or PID file cannot be picked up.');
         }
 
         // Try to receive a response, it will either run indefinetly (bad!) or fail as the BE stopped
