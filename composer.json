@@ -1,5 +1,5 @@
 {
-    "name": "crunch/fastcgi",
+    "name": "techdivision/fastcgi",
     "description": "FastCGI client",
     "type": "library",
     "keywords": ["FastCGI"],
