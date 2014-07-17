@@ -10,10 +10,14 @@ class DummyTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $conf = __DIR__ . '/Resources/php-fpm.conf';
-        $this->process = new Process(sprintf('`which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
+        $this->process = new Process(sprintf('exec `which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
         $this->process->setWorkingDirectory(__DIR__ . '/Resource');
-        $this->process->start();
+        $this->process->start(function ($type, $message) {
+            var_dump($type);
+            var_dump($message);
+        });
         parent::setUp();
+        sleep(1);
 
         $this->process->getIncrementalErrorOutput();
         $this->process->getIncrementalOutput();
@@ -71,12 +75,13 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $connection->sendRequest($request);
 
         if ($this->process && $this->process->isRunning()) {
-            $this->process->signal(SIGKILL);
+            $this->process->stop(10);
             while ($this->process->isRunning());
             $this->process = null;
         }
-        $response = $connection->receiveResponse($request);
 
+        $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
+        $response = $connection->receiveResponse($request);
         $this->assertEquals('x2', substr($response->content, -2));
     }
 }

@@ -156,21 +156,35 @@ class Connection
      */
     protected function receiveRecord ($timeout)
     {
+        if (feof($this->socket)) {
+            throw new ConnectionException('Connection to FastCGI server went away');
+        }
+
         $read = array($this->socket);
         $write = $except = array();
         // If we already have some records fetched, we don't need to wait for another one, thus we should look
-        // if there is something and keep going without waiting
+        // if there is something and keep going without
         if (\stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
-            while ($header = \fread($read[0], 8 /* header length */)) {
+            while ($header = \stream_get_contents($read[0], 8 /* header length */)) {
                 $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
-                $content = '';
-                do {
-                    $content .= \stream_get_contents($this->socket, $header['contentLength'] - \strlen($content));
-                } while (\strlen($content) < $header['contentLength']);
+                $content = $this->readBody($header['contentLength']);
                 $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
                 \fseek($this->socket, $header['paddingLength'], \SEEK_CUR);
             }
         }
         return \array_shift($this->recordBuffer);
+    }
+
+    private function readBody ($length)
+    {
+        $content = '';
+        do {
+            if (feof($this->socket)) {
+                throw new ConnectionException('Connection to FastCGI server went away');
+            }
+
+            $content .= \stream_get_contents($this->socket, $length - \strlen($content));
+        } while (\strlen($content) < $length);
+        return $content;
     }
 }
