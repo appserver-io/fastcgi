@@ -3,38 +3,52 @@ namespace Crunch\FastCGI;
 
 use Symfony\Component\Process\Process;
 
-class DummyTest extends \PHPUnit_Framework_TestCase
+class ConnectionTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Process */
-    private $process;
-    protected function setUp()
-    {
-        $conf = __DIR__ . '/Resources/php-fpm.conf';
-        $this->process = new Process(sprintf('exec `which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
-        $this->process->setWorkingDirectory(__DIR__ . '/Resource');
-        $this->process->start(function ($type, $message) {
-            var_dump($type);
-            var_dump($message);
-        });
-        parent::setUp();
-        sleep(1);
+    private static $process;
 
-        $this->process->getIncrementalErrorOutput();
-        $this->process->getIncrementalOutput();
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+
+        $conf = __DIR__ . '/Resources/php-fpm.conf';
+        self::$process = new Process(sprintf('exec `which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
+        self::$process->setWorkingDirectory(__DIR__ . '/Resource');
+
+        self::startServer();
     }
 
-    protected function tearDown()
+    public static function tearDownAfterClass()
     {
-        if ($this->process) {
-            $this->process->getIncrementalErrorOutput();
-            $this->process->getIncrementalOutput();
-        }
-        if ($this->process && $this->process->isRunning()) {
-            $this->process->stop(10);
-            $this->process = null;
-        }
+        parent::tearDownAfterClass();
 
-        parent::tearDown();
+        if (self::$process && self::$process->isRunning()) {
+            self::$process->stop(10);
+        }
+        unlink(__DIR__ . '/php5-fpm.log');
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        if (!self::$process->isRunning()) {
+            self::startServer();
+        }
+    }
+
+    private static function startServer ()
+    {
+        self::$process = self::$process->restart(function ($type, $message) {
+            if ($type == 'err') {
+                throw new \Exception("Failed starting test FastCGI server: $message");
+            }
+            echo $message;
+        });
+
+        // 200ms. Hopefully thats enough
+        time_nanosleep(0, 200000000);
     }
 
 
@@ -74,10 +88,9 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 
         $connection->sendRequest($request);
 
-        if ($this->process && $this->process->isRunning()) {
-            $this->process->stop(10);
-            while ($this->process->isRunning());
-            $this->process = null;
+        if (self::$process && self::$process->isRunning()) {
+            self::$process->stop(10);
+            while (self::$process->isRunning());
         }
 
         $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
