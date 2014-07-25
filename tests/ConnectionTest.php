@@ -13,7 +13,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         parent::setUpBeforeClass();
 
         $conf = __DIR__ . '/Resources/php-fpm.conf';
-        self::$process = new Process(sprintf('exec `which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
+        self::$process = new Process(sprintf('exec `which php5-fpm` -n -y %s -p %s', $conf, __DIR__));
         self::$process->setWorkingDirectory(__DIR__ . '/Resource');
 
         self::startServer();
@@ -40,12 +40,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     private static function startServer ()
     {
-        self::$process = self::$process->restart(function ($type, $message) {
-            if ($type == 'err') {
-                throw new \Exception("Failed starting test FastCGI server: $message");
-            }
-            echo $message;
-        });
+        self::$process = self::$process->restart();
 
         // 200ms. Hopefully thats enough
         time_nanosleep(0, 200000000);
@@ -54,7 +49,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDummy ()
     {
-        $client = new Client('localhost', 9000);
+        $client = new Client('localhost', 9001);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -76,7 +71,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testFpmGoesAway()
     {
-        $client = new Client('localhost', 9000);
+        $client = new Client('localhost', 9001);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
