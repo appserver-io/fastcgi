@@ -27,5 +27,11 @@
     },
     "autoload": {
         "psr-4": { "Crunch\\FastCGI\\": "src" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev",
+            "dev-develop": "2.0.x-dev"
+        }
     }
 }
