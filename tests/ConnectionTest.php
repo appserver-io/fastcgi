@@ -1,12 +1,15 @@
 <?php
 namespace Crunch\FastCGI;
 
+use Socket\Raw\Factory;
 use Symfony\Component\Process\Process;
 
 class ConnectionTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Process */
     private static $process;
+
+    private $socketFactory;
 
     public static function setUpBeforeClass()
     {
@@ -33,6 +36,8 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
+        $this->socketFactory = \Phake::partialMock('\Socket\Raw\Factory');
+
         if (!self::$process->isRunning()) {
             self::startServer();
         }
@@ -49,8 +54,8 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDummy ()
     {
-        $client = new Client('localhost', 9331);
-        $connection = $client->connect();
+        $client = new ConnectionFactory($this->socketFactory);
+        $connection = $client->connect('localhost:9331');
         $request = $connection->newRequest([
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
@@ -71,8 +76,8 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testFpmGoesAway()
     {
-        $client = new Client('localhost', 9331);
-        $connection = $client->connect();
+        $client = new ConnectionFactory($this->socketFactory);
+        $connection = $client->connect('localhost:9331');
         $request = $connection->newRequest([
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
@@ -88,7 +93,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
             while (self::$process->isRunning());
         }
 
-        $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
+        $this->setExpectedException('\Socket\Raw\Exception');
         $response = $connection->receiveResponse($request);
         $this->assertEquals('x2', substr($response->getContent(), -2));
     }

@@ -1,6 +1,8 @@
 <?php
 namespace Crunch\FastCGI;
 
+use Socket\Raw\Socket;
+
 class Connection
 {
     const RESPONDER = 1;
@@ -10,7 +12,7 @@ class Connection
     /**
      * Stream socket to FastCGI
      *
-     * @var resource
+     * @var Socket
      */
     private $socket;
 
@@ -38,10 +40,9 @@ class Connection
     /**
      * @param resource $socket
      */
-    public function __construct ($socket)
+    public function __construct (Socket $socket)
     {
         $this->socket = $socket;
-        \stream_set_blocking($this->socket, 0);
     }
 
     /**
@@ -49,7 +50,7 @@ class Connection
      */
     public function __destruct()
     {
-        \fclose($this->socket);
+        $this->socket->close();
     }
 
     /**
@@ -129,8 +130,9 @@ class Connection
      */
     private function sendRecord (Record $record)
     {
-        \fwrite($this->socket, (string) $record, \count($record));
+        $this->socket->send((string) $record, 0);
     }
+
 
     /**
      * Receive all currently available records
@@ -142,49 +144,26 @@ class Connection
      */
     private function receiveAll ($timeout)
     {
-        while ($record = $this->receiveRecord($timeout)) {
+        $this->fetchRecords($timeout);
+        while ($record = \array_shift($this->recordBuffer)) {
             $this->builder[$record->getRequestId()]->addRecord($record);
+        }
+    }
+
+    private function fetchRecords ($timeout)
+    {
+        while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
+            $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
+            $content = $this->socket->recv($header['contentLength'], \MSG_WAITALL);
+
+            $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
+
+            // Drop padding
+            if ($header['paddingLength']) {
+                $this->socket->recv($header['paddingLength'], \MSG_WAITALL);
+            }
+
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }
-    }
-
-    /**
-     * Tries to receive a new record from the streams read-buffer
-     *
-     * @param int $timeout
-     * @return Record
-     */
-    private function receiveRecord ($timeout)
-    {
-        if (feof($this->socket)) {
-            throw new ConnectionException('Connection to FastCGI server went away');
-        }
-
-        $read = [$this->socket];
-        $write = $except = [];
-        // If we already have some records fetched, we don't need to wait for another one, thus we should look
-        // if there is something and keep going without
-        if (\stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
-            while ($header = \stream_get_contents($read[0], 8 /* header length */)) {
-                $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
-                $content = $this->readBody($header['contentLength']);
-                $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
-                \fseek($this->socket, $header['paddingLength'], \SEEK_CUR);
-            }
-        }
-        return \array_shift($this->recordBuffer);
-    }
-
-    private function readBody ($length)
-    {
-        $content = '';
-        do {
-            if (feof($this->socket)) {
-                throw new ConnectionException('Connection to FastCGI server went away');
-            }
-
-            $content .= \stream_get_contents($this->socket, $length - \strlen($content));
-        } while (\strlen($content) < $length);
-        return $content;
     }
 }
