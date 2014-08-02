@@ -130,7 +130,7 @@ class Connection
      */
     private function sendRecord (Record $record)
     {
-        $this->socket->send((string) $record, 0);
+        $this->socket->send($record->pack(), 0);
     }
 
 
@@ -152,16 +152,11 @@ class Connection
 
     private function fetchRecords ($timeout)
     {
-        while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
-            $header = \unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/Creserved', $header);
-            $content = $this->socket->recv($header['contentLength'], \MSG_WAITALL);
+        while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL | \MSG_PEEK)) {
+            $length = \array_sum(\unpack('nlength/Cpadding', substr($header, 4, 3)));
 
-            $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
-
-            // Drop padding
-            if ($header['paddingLength']) {
-                $this->socket->recv($header['paddingLength'], \MSG_WAITALL);
-            }
+            $packet = $this->socket->recv($length + 8, \MSG_WAITALL);
+            $this->recordBuffer[] = Record::unpack($packet);
 
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }

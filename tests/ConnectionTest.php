@@ -1,100 +1,125 @@
 <?php
 namespace Crunch\FastCGI;
 
-use Socket\Raw\Factory;
-use Symfony\Component\Process\Process;
+use PHPUnit_Framework_TestCase as TestCase;
+use Socket\Raw\Socket;
+use Phake_IMock as Mock;
+use Phake;
 
-class ConnectionTest extends \PHPUnit_Framework_TestCase
+/**
+ * @coversDefaultClass \Crunch\FastCGI\Connection
+ * @covers \Crunch\FastCGI\Connection
+ */
+class ConnectionTest extends TestCase
 {
-    /** @var Process */
-    private static $process;
-
-    private $socketFactory;
-
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
-
-        $conf = __DIR__ . '/Resources/php-fpm.conf';
-        self::$process = new Process(sprintf('exec `which php5-fpm` -n -y %s -p %s', $conf, __DIR__));
-        self::$process->setWorkingDirectory(__DIR__ . '/Resource');
-
-        self::startServer();
-    }
-
-    public static function tearDownAfterClass()
-    {
-        parent::tearDownAfterClass();
-
-        if (self::$process && self::$process->isRunning()) {
-            self::$process->stop(10);
-        }
-        unlink(__DIR__ . '/php5-fpm.log');
-    }
-
+    /**
+     * @var Socket|Mock
+     */
+    private $socket;
     protected function setUp()
     {
         parent::setUp();
 
-        $this->socketFactory = \Phake::partialMock('\Socket\Raw\Factory');
-
-        if (!self::$process->isRunning()) {
-            self::startServer();
-        }
+        $this->socket = Phake::mock('\Socket\Raw\Socket');
     }
 
-    private static function startServer ()
+    /**
+     * @covers ::newRequest
+     * @uses \Crunch\FastCGI\Request::__construct
+     */
+    public function testCreateNewRequest()
     {
-        self::$process = self::$process->restart();
+        $connection = new Connection($this->socket);
 
-        // 200ms. Hopefully thats enough
-        time_nanosleep(0, 200000000);
+        $request = $connection->newRequest(['some' => 'param'], 'foobar');
+
+        $this->assertInstanceOf('\Crunch\FastCGI\Request', $request);
     }
 
-
-    public function testDummy ()
+    /**
+     * @covers ::newRequest
+     * @uses \Crunch\FastCGI\Request::__construct
+     * @uses \Crunch\FastCGI\Request::getID
+     */
+    public function testNewInstanceHasIntegerId()
     {
-        $client = new ConnectionFactory($this->socketFactory);
-        $connection = $client->connect('localhost:9331');
-        $request = $connection->newRequest([
-            'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-            'REQUEST_METHOD'  => 'POST',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
-            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH'  => strlen('foo=bar')
-        ], 'foo=bar');
+        $connection = new Connection($this->socket);
+
+        $request = $connection->newRequest(['some' => 'param'], 'foobar');
+
+        $this->assertInternalType('integer', $request->getID());
+    }
+
+    /**
+     * @covers ::newRequest
+     * @uses \Crunch\FastCGI\Request::__construct
+     * @uses \Crunch\FastCGI\Request::getParameters
+     */
+    public function testNewInstanceKeepsParameters()
+    {
+        $connection = new Connection($this->socket);
+
+        $request = $connection->newRequest(['some' => 'param'], 'foobar');
+
+        $this->assertEquals(['some' => 'param'], $request->getParameters());
+    }
+
+    /**
+     * @covers ::newRequest
+     * @uses \Crunch\FastCGI\Request::__construct
+     * @uses \Crunch\FastCGI\Request::getStdin
+     */
+    public function testNewInstanceKeepsBody()
+    {
+        $connection = new Connection($this->socket);
+
+        $request = $connection->newRequest(['some' => 'param'], 'foobar');
+
+        $this->assertEquals('foobar', $request->getStdin());
+    }
+
+    /**
+     * @covers ::sendRequest
+     * @uses \Crunch\FastCGI\Record
+     */
+    public function testSendRequest()
+    {
+        $request = Phake::mock('\Crunch\FastCGI\Request');
+        Phake::when($request)->getID()->thenReturn(42);
+        Phake::when($request)->getParameters()->thenReturn(['some' => 'param']);
+        Phake::when($request)->getStdin()->thenReturn('foobar');
+
+        $connection = new Connection($this->socket);
 
         $connection->sendRequest($request);
-        $response = $connection->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent());
-
-        list($server) = unserialize($body);
-
-        $this->assertEquals(7, $server['CONTENT_LENGTH']);
+        Phake::verify($this->socket, Phake::atLeast(1))->send(Phake::anyParameters());
     }
 
-    public function testFpmGoesAway()
+    /**
+     * @covers ::receiveResponse
+     */
+    public function testReceiveRequest()
     {
-        $client = new ConnectionFactory($this->socketFactory);
-        $connection = $client->connect('localhost:9331');
-        $request = $connection->newRequest([
-            'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-            'REQUEST_METHOD'  => 'POST',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
-            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH'  => strlen('foo=bar')
-        ], 'foo=bar');
+        $request = Phake::mock('\Crunch\FastCGI\Request');
+        Phake::when($request)->getID()->thenReturn(42);
+        Phake::when($request)->getParameters()->thenReturn(['some' => 'param']);
+        Phake::when($request)->getStdin()->thenReturn('foobar');
 
-        $connection->sendRequest($request);
+        $builder = Phake::mock('\Crunch\FastCGI\ResponseBuilder');
+        Phake::when($builder)->isComplete()->thenReturn(false)->thenReturn(true);
 
-        if (self::$process && self::$process->isRunning()) {
-            self::$process->stop(10);
-            while (self::$process->isRunning());
-        }
+        Phake::when($this->socket)->selectRead(Phake::anyParameters())->thenReturn(true)->thenReturn(false);
+        Phake::when($this->socket)->recv(8, \MSG_WAITALL)->thenReturn("\x01\x03\x00\x2A\x00\x00\x00\x00");
 
-        $this->setExpectedException('\Socket\Raw\Exception');
-        $response = $connection->receiveResponse($request);
-        $this->assertEquals('x2', substr($response->getContent(), -2));
+        $connection = new Connection($this->socket);
+        $reflection = new \ReflectionClass($connection);
+        $property = $reflection->getProperty('builder');
+        $property->setAccessible(true);
+        $property->setValue($connection, [42 => $builder]);
+
+        $connection->receiveResponse($request);
+
+        Phake::verify($this->socket, Phake::atLeast(1))->recv(Phake::anyParameters());
     }
 }

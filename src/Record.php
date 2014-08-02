@@ -1,7 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-class Record implements \Countable
+class Record
 {
     const BEGIN_REQUEST = 1;
     const ABORT_REQUEST = 2;
@@ -64,26 +64,12 @@ class Record implements \Countable
             . ((string) $this->getContent()) . \str_repeat("\0", $oversize ? 8 - $oversize : 0);
     }
 
-    /**
-     * To string
-     *
-     * Proxy to "pack()"
-     *
-     * @return string
-     */
-    public function __toString ()
+    public static function unpack ($packet)
     {
-        return $this->pack();
-    }
+        list ($header, $payload) = [substr($packet, 0, 8), substr($packet, 8)];
+        $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
 
-    /**
-     * Length of the body
-     *
-     * @return int
-     */
-    public function count ()
-    {
-        return \strlen($this->pack());
+        return new Record($header['type'], $header['requestId'], substr($payload, 0, $header['length']));
     }
 
     /**

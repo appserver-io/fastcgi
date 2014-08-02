@@ -1,2 +1,3 @@
 <?php
-echo serialize([$_SERVER]);
+// At least travis install php5-fpm 5.3 ...
+echo serialize(array($_SERVER));

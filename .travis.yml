@@ -5,16 +5,20 @@ php:
   - 5.6
   - hhvm
 
+env:
+  matrix:
+    - PREFER_LOWEST="--prefer-lowest"
+    - PREFER_LOWEST=""
+
 branches:
   only:
     - master
     - develop
 
 before_script:
-  - sudo apt-get update
-  - sudo apt-get install php5-fpm
-  - composer self-update
-  - composer install --dev --prefer-source --no-interaction --no-progress
+  - sudo apt-get install -y php5-fpm
+  - composer self-update --no-interaction
+  - composer update --dev --prefer-source $PREFER_LOWEST --no-interaction --no-progress
 
 script: vendor/bin/phpunit --coverage-clover=coverage.clover
 
