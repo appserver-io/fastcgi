@@ -2,9 +2,7 @@ Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/KingCrunch/FastCGI.
 ===
 FastCGI client library
 
-* [Documentation at readthedocs.org](http://crunchfastcgi.readthedocs.org/en/latest/)
 * [List of available packages at packagist.org](http://packagist.org/packages/crunch/fastcgi)
-
 
 Allows to access a FastCGI-server directly from PHP.
 
@@ -43,7 +41,7 @@ Single request and response
 Background (includes multiplexing)
 
     $connection->sendRequest($request);
-    // Many code
+    // Much code
     $response = $connection->receiveResponse($request);
 
 Requirements
