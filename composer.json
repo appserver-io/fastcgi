@@ -1,6 +1,6 @@
 {
-    "name": "crunch/fastcgi",
-    "description": "FastCGI client",
+    "name": "appserver-io/fastcgi",
+    "description": "fastcgi client",
     "type": "library",
     "keywords": ["FastCGI"],
     "homepage": "http://crunchfastcgi.readthedocs.org/en/latest/",
