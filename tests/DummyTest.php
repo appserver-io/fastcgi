@@ -1,44 +1,51 @@
 <?php
 namespace Crunch\FastCGI;
 
-use Symfony\Component\Process\Process;
-
 class DummyTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Process */
     private $process;
+
+
     protected function setUp()
     {
+        // init directory vars
         $conf = __DIR__ . '/Resources/php-fpm.conf';
-        $this->process = new Process(sprintf('`which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
-        $this->process->setWorkingDirectory(__DIR__ . '/Resources');
-        $this->process->start();
+        $pidFile = __DIR__ . '/php5-fpm.pid';
+
+        // start fpm daemon
+        exec(sprintf('/usr/sbin/php5-fpm -n -y %s -p %s', $conf, __DIR__));
+
+        $waitms = 0;
+        // wait until pid file is generate
+        while(!is_file($pidFile)) {
+            usleep(100000);
+            $waitms += 100000;
+            // if 3 secs over we will break here
+            if ($waitms * 0.000001 > 2.99) {
+                $this->fail('Can not start fpm daemon');
+                break;
+            }
+        }
+
+        // store pid for later process killing
+        $this->pid = file_get_contents($pidFile);
+
         parent::setUp();
-
-        // Sleep for some time to allow the process to start listening
-        sleep(1);
-
-        $this->process->getIncrementalErrorOutput();
-        $this->process->getIncrementalOutput();
     }
 
     protected function tearDown()
     {
-        if ($this->process) {
-            $this->process->getIncrementalErrorOutput();
-            $this->process->getIncrementalOutput();
+        // kill fpm daemon if pid exists
+        if ($this->pid) {
+            exec(sprintf('kill %d', $this->pid));
         }
-        if ($this->process && $this->process->isRunning()) {
-            $this->process->stop(10);
-            $this->process = null;
-        }
-
         parent::tearDown();
     }
 
     public function testDummy ()
     {
-        $client = new Client('localhost', 9000);
+        $client = new Client('localhost', 42156);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -67,7 +74,7 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
 
         // Get a MockClient instead of a real one so we can influence the connection's behaviour
-        $client = new Client('localhost', 9000);
+        $client = new Client('localhost', 42156);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -79,25 +86,9 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 
         $connection->sendRequest($request);
 
-        // If the process is running we will stop it, to do so we need the process ID, as the Symfony Process class
-        // might lose it we will read it from the PID file
-        $pidFilePath = __DIR__ . DIRECTORY_SEPARATOR . 'php5-fpm.pid';
-
-        // The PID file should be readable and contain something, otherwise the process does not run
-        if (is_readable($pidFilePath) && filesize($pidFilePath) > 0) {
-
-            // Execute a direct kill command with the PID from the file
-            $pid = file_get_contents($pidFilePath);
-            exec('/etc/init.d/php5-fpm stop');
-
-            // Sleep a little so the Connection class can pick up the termination of the process
-            sleep(3);
-
-        } else {
-            // Fail as we have no possiblity to test our behavior
-
-            $this->fail('The php-fpm process does not seem to run or PID file cannot be picked up.');
-        }
+        // kill fpm daemon
+        exec(sprintf('kill %d', $this->pid));
+        $this->pid = null;
 
         // Try to receive a response, it will either run indefinetly (bad!) or fail as the BE stopped
         $connection->receiveResponse($request);
