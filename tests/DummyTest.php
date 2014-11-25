@@ -16,9 +16,16 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         // start fpm daemon
         exec(sprintf('/usr/sbin/php5-fpm -n -y %s -p %s', $conf, __DIR__));
 
+        $waitms = 0;
         // wait until pid file is generate
         while(!is_file($pidFile)) {
-            usleep(50000);
+            usleep(100000);
+            $waitms += 100000;
+            // if 3 secs over we will break here
+            if ($waitms * 0.000001 > 2.99) {
+                $this->fail('Can not start fpm daemon');
+                break;
+            }
         }
 
         // store pid for later process killing
