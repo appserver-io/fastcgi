@@ -18,7 +18,6 @@
     },
     "require-dev": {
         "phpunit/phpunit" : "3.7.*",
-        "symfony/process": "~2.5",
         "phake/phake": "~2.0@dev",
         "appserver-io/build" : "0.1.*"
     },
