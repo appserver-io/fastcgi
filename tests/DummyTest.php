@@ -10,7 +10,8 @@ class DummyTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $conf = __DIR__ . '/Resources/php-fpm.conf';
-        $this->process = new Process(sprintf('`which php5-fpm` -F -n -y %s -p %s', $conf, __DIR__));
+
+        $this->process = new Process(sprintf('/usr/sbin/php5-fpm -F -n -y %s -p %s', $conf, __DIR__));
         $this->process->setWorkingDirectory(__DIR__ . '/Resources');
         $this->process->start();
         parent::setUp();
@@ -88,7 +89,8 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 
             // Execute a direct kill command with the PID from the file
             $pid = file_get_contents($pidFilePath);
-            exec('/etc/init.d/php5-fpm stop');
+
+            exec(sprintf('kill %s', $pid));
 
             // Sleep a little so the Connection class can pick up the termination of the process
             sleep(3);

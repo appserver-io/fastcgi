@@ -1,22 +1,30 @@
 language: php
 php:
-  - 5.3
   - 5.4
   - 5.5
-  - 5.6
   - hhvm
 
 matrix:
   allow_failures:
     - php: hhvm
 
-before_script:
+before_install:
   - sudo apt-get update
   - sudo apt-get install php5-fpm
-  - composer self-update
-  - composer install --dev --prefer-source --no-interaction --no-progress
+  - pecl install pthreads-1.0.1
+  - pecl install xdebug
+  - pyrus install pear/PHP_CodeSniffer
+  - phpenv rehash
+  - wget https://scrutinizer-ci.com/ocular.phar
 
-script: vendor/bin/phpunit
+script:
+  - ant composer-init
+  - ant run-tests
+  - php ocular.phar code-coverage:upload --format=php-clover $TRAVIS_BUILD_DIR/target/reports/unit/clover.xml
+
+notifications:
+  email: info@appserver.io
+  hipchat: 95d47a72c5372d4a0fef20048c3200@Appserver
 
 branches:
   only:
