@@ -45,7 +45,7 @@ class DummyTest extends \PHPUnit_Framework_TestCase
 
     public function testDummy ()
     {
-        $client = new Client('localhost', 9000);
+        $client = new Client('localhost', 42156);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -74,7 +74,7 @@ class DummyTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
 
         // Get a MockClient instead of a real one so we can influence the connection's behaviour
-        $client = new Client('localhost', 9000);
+        $client = new Client('localhost', 42156);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
