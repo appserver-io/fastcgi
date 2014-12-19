@@ -213,10 +213,9 @@ class Connection
             } else {
                 // check if backend is still up
                 if (!is_resource($testConnection = @fsockopen($this->host, $this->port))) {
-                    // if not throw error with response code 500
+                    // if not throw exception
                     throw new ConnectionException(
-                        'Connection has gone away during processing of request ID '
-                        . ($this->nextId - 1), 500
+                        'Connection has gone away during processing of request ID ' . ($this->nextId - 1)
                     );
                 } else {
                     // close test connection
