@@ -48,7 +48,7 @@ class Client
     public function connect ()
     {
         if ($socket = @\fsockopen($this->host, $this->port, $errorCode, $error, 20)) {
-            return new Connection($socket);
+            return new Connection($socket, $this->host, $this->port);
         }
 
         throw new ConnectionException($error, $errorCode);

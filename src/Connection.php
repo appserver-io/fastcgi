@@ -8,6 +8,27 @@ class Connection
     const FILTER = 3;
 
     /**
+     * Hostname
+     *
+     * May be either a host name, or a (local) path to the FCGI-socket
+     *
+     * - localhost
+     * - unix:///var/run/php5-fpm.sock
+     *
+     * @var string
+     */
+    protected $host;
+
+    /**
+     * Port number
+     *
+     * Required for net-based connections, ignored for socket connections
+     *
+     * @var int|null
+     */
+    protected $port;
+
+    /**
      * Stream socket to FastCGI
      *
      * @var resource
@@ -37,10 +58,14 @@ class Connection
 
     /**
      * @param resource $socket
+     * @param string   $host
+     * @param string   $port
      */
-    public function __construct ($socket)
+    public function __construct ($socket, $host, $port)
     {
         $this->socket = $socket;
+        $this->host = $host;
+        $this->port = $port;
         \stream_set_blocking($this->socket, 0);
     }
 
@@ -161,9 +186,11 @@ class Connection
         $write = $except = array();
         // If we already have some records fetched, we don't need to wait for another one, thus we should look
         // if there is something and keep going without waiting
-        if (\stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
+
+        if ($streamSelect = \stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
 
             $header = \fread($read[0], 8 /* header length */);
+
             if (is_string($header) && strlen($header) > 0) {
 
                 do {
@@ -172,20 +199,27 @@ class Connection
                     $content = '';
                     do {
                         $content .= \stream_get_contents($this->socket, $header['contentLength'] - \strlen($content));
+                        // break the loop if the content length has reached
+                        if (strlen($content) >= $header['contentLength']) {
+                            break;
+                        }
 
-                    } while (\strlen($content) < $header['contentLength']);
+                    } while (is_resource($this->socket));
                     $this->recordBuffer[] = new Record($header['type'], $header['requestId'], $content);
                     \fseek($this->socket, $header['paddingLength'], \SEEK_CUR);
 
-                } while ($header = \fread($read[0], 8 /* header length */));
+                } while (strlen($header = \fread($read[0], 8 /* header length */)) > 0);
 
             } else {
-
-                // Abort the response receivement as the BE seems to have gone away
-                throw new ConnectionException(
-                    'Connection has gone away during processing of request ID '
-                    . ($this->nextId - 1)
-                );
+                // check if backend is still up
+                if (!is_resource($testConnection = @fsockopen($this->host, $this->port))) {
+                    // if not throw error with response code 500
+                    throw new ConnectionException(
+                        'Connection has gone away during processing of request ID '
+                        . ($this->nextId - 1), 500
+                    );
+                }
+                fclose($testConnection);
             }
         }
         return \array_shift($this->recordBuffer);
