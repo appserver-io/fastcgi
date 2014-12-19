@@ -218,8 +218,11 @@ class Connection
                         'Connection has gone away during processing of request ID '
                         . ($this->nextId - 1), 500
                     );
+                } else {
+                    // close test connection
+                    fclose($testConnection);
                 }
-                fclose($testConnection);
+
             }
         }
         return \array_shift($this->recordBuffer);
