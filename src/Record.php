@@ -45,7 +45,7 @@ class Record
      * @param int $requestId
      * @param string $content
      */
-    public function __construct ($type, $requestId, $content)
+    public function __construct($type, $requestId, $content)
     {
         $this->type = $type;
         $this->requestId = $requestId;
@@ -57,14 +57,14 @@ class Record
      *
      * @return string
      */
-    public function pack ()
+    public function pack()
     {
         $oversize = \strlen((string) $this->getContent()) % 8;
         return \pack('CCnnCx', 1, $this->getType(), $this->getRequestId(), \strlen((string) $this->getContent()), $oversize ? 8 - $oversize : 0)
             . ((string) $this->getContent()) . \str_repeat("\0", $oversize ? 8 - $oversize : 0);
     }
 
-    public static function unpack ($packet)
+    public static function unpack($packet)
     {
         list ($header, $payload) = [substr($packet, 0, 8), substr($packet, 8)];
         $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
@@ -79,7 +79,7 @@ class Record
      *
      * @return bool
      */
-    public function isSendable ()
+    public function isSendable()
     {
         return \in_array(
             $this->getType(),

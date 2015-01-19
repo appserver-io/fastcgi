@@ -16,6 +16,7 @@ class ConnectionFactoryTest extends TestCase
      * @var SocketFactory|Mock
      */
     private $socketFactory;
+
     protected function setUp()
     {
         parent::setUp();

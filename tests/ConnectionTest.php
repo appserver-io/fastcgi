@@ -16,6 +16,7 @@ class ConnectionTest extends TestCase
      * @var Socket|Mock
      */
     private $socket;
+
     protected function setUp()
     {
         parent::setUp();

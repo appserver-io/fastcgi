@@ -33,14 +33,14 @@ class Connection
      *
      * To take pressure from the streams read-buffer.
      *
-     * @var Record
+     * @var Record[]
      */
     private $recordBuffer = [];
 
     /**
-     * @param resource $socket
+     * @param Socket $socket
      */
-    public function __construct (Socket $socket)
+    public function __construct(Socket $socket)
     {
         $this->socket = $socket;
     }
@@ -56,11 +56,11 @@ class Connection
     /**
      * Creates a new request
      *
-     * @param string[]|null  $params
+     * @param string[]|null $params
      * @param string|null $stdin
      * @return Request
      */
-    public function newRequest (array $params = null, $stdin = null)
+    public function newRequest(array $params = null, $stdin = null)
     {
         return new Request($this->nextId++, $params, $stdin);
     }
@@ -71,7 +71,7 @@ class Connection
      * @param Request $request
      * @return Response
      */
-    public function request (Request $request)
+    public function request(Request $request)
     {
         $this->sendRequest($request);
         return $this->receiveResponse($request, 2);
@@ -84,7 +84,7 @@ class Connection
      *
      * @param Request $request
      */
-    public function sendRequest (Request $request)
+    public function sendRequest(Request $request)
     {
         $this->builder[$request->getID()] = new ResponseBuilder;
         $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->getID(), \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
@@ -114,7 +114,7 @@ class Connection
      * @param Request $request
      * @return Response
      */
-    public function receiveResponse (Request $request)
+    public function receiveResponse(Request $request)
     {
         while (!$this->builder[$request->getID()]->isComplete()) {
             $this->receiveAll(2);
@@ -128,7 +128,7 @@ class Connection
      *
      * @param Record $record
      */
-    private function sendRecord (Record $record)
+    private function sendRecord(Record $record)
     {
         $this->socket->send($record->pack(), 0);
     }
@@ -142,7 +142,7 @@ class Connection
      *
      * @param int $timeout
      */
-    private function receiveAll ($timeout)
+    private function receiveAll($timeout)
     {
         $this->fetchRecords($timeout);
         while ($record = \array_shift($this->recordBuffer)) {
@@ -150,7 +150,7 @@ class Connection
         }
     }
 
-    private function fetchRecords ($timeout)
+    private function fetchRecords($timeout)
     {
         while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL | \MSG_PEEK)) {
             $length = \array_sum(\unpack('nlength/Cpadding', substr($header, 4, 3)));

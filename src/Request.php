@@ -29,7 +29,7 @@ class Request
      * @param string[]|null           $params
      * @param string|resource|null $stdin string or stream resource
      */
-    public function __construct ($requestId, array $params = null, $stdin = null)
+    public function __construct($requestId, array $params = null, $stdin = null)
     {
         $this->ID = $requestId;
         $this->parameters = $params ?: [];

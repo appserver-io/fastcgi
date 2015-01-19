@@ -29,7 +29,7 @@ class ResponseBuilder
      * @param Record $record
      * @throws \RuntimeException
      */
-    public function addRecord (Record $record)
+    public function addRecord(Record $record)
     {
         $this->records[] = $record;
         if ($this->complete) {
@@ -42,7 +42,7 @@ class ResponseBuilder
      * @return Response
      * @throws \RuntimeException
      */
-    public function buildResponse ()
+    public function buildResponse()
     {
         if (!$this->isComplete()) {
             throw new \RuntimeException('Response not complete yet');

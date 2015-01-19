@@ -27,7 +27,7 @@ class ConnectionFactory
      * @return Connection
      * @throws \RuntimeException
      */
-    public function connect ($address)
+    public function connect($address)
     {
         if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
             $address = "unix://$address";
