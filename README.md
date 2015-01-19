@@ -1,7 +1,12 @@
-Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/KingCrunch/FastCGI.png)](http://travis-ci.org/KingCrunch/FastCGI)
+Crunch\FastCGI
 ===
 FastCGI client library
+[![Build Status](https://travis-ci.org/KingCrunch/FastCGI.svg?branch=develop)](https://travis-ci.org/KingCrunch/FastCGI)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/?branch=develop)
+[![Code Coverage](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/?branch=develop)
+[![Build Status](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/build-status/develop)
 
+* [Installation](https://getcomposer.org/doc/01-basic-usage.md#composer-json-project-setup)
 * [List of available packages at packagist.org](http://packagist.org/packages/crunch/fastcgi)
 
 Allows to access a FastCGI-server directly from PHP.
@@ -10,50 +15,5 @@ Allows to access a FastCGI-server directly from PHP.
 - Testing (fetch pages as seen by the webserver)
 - Background tasks
 
-Usage
-=====
-Preparation
 
-    require __DIR__ . '/../vendor/autoload.php';
-    use Crunch\FastCGI\Client as FastCGI;
-
-    $fastCgi = new FastCGI('unix:///var/run/php5-fpm.socket', null);
-    // $fastCgi = new FastCGI('localhost', 9999);
-    $connection = $fastCgi->connect();
-
-The request
-
-    $request = $connection->newRequest();
-    $request->parameters = array(
-        'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-        'REQUEST_METHOD' => 'POST',
-        'SCRIPT_FILENAME' => '/var/www/example.php',
-        'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-        'CONTENT_LENGTH' => strlen('foo=bar')
-    );
-    $request->stdin = 'foo=bar';
-
-Single request and response
-
-    $response = $connection->request($request);
-    echo $response->content;
-
-Background (includes multiplexing)
-
-    $connection->sendRequest($request);
-    // Much code
-    $response = $connection->receiveResponse($request);
-
-Requirements
-============
-* PHP => 5.3
-
-Contributors
-============
-See CONTRIBUTING.md for details on how to contribute.
-
-* Sebastian "KingCrunch" Krebs <krebs.seb@gmail.com> -- http://www.kingcrunch.de/ (german)
-
-License
-=======
-This library is licensed under the MIT License. See the LICENSE file for details.
+For the 2nd release I'll cleanup much stuff, especially regarding best-practices, tests and stuff.

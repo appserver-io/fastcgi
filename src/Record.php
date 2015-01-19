@@ -104,7 +104,7 @@ class Record implements \Countable
     {
         return \in_array(
             $this->type,
-            array(self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES)
+            [self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES]
         );
     }
 }

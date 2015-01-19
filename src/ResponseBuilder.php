@@ -13,7 +13,7 @@ class ResponseBuilder
     /**
      * @var Record[]
      */
-    protected $records = array();
+    protected $records = [];
 
     /**
      * @param Record $record

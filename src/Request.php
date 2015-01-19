@@ -32,7 +32,7 @@ class Request
     public function __construct ($requestId, array $params = null, $stdin = null)
     {
         $this->ID = $requestId;
-        $this->parameters = $params ?: array();
+        $this->parameters = $params ?: [];
         $this->stdin = $stdin ?: '';
     }
 }

@@ -24,7 +24,7 @@ class Connection
     /**
      * @var ResponseBuilder[]
      */
-    protected $builder = array();
+    protected $builder = [];
 
     /**
      * Internal record buffer
@@ -33,7 +33,7 @@ class Connection
      *
      * @var array
      */
-    private $recordBuffer = array();
+    private $recordBuffer = [];
 
     /**
      * @param resource $socket
@@ -160,8 +160,8 @@ class Connection
             throw new ConnectionException('Connection to FastCGI server went away');
         }
 
-        $read = array($this->socket);
-        $write = $except = array();
+        $read = [$this->socket];
+        $write = $except = [];
         // If we already have some records fetched, we don't need to wait for another one, thus we should look
         // if there is something and keep going without
         if (\stream_select($read, $write, $except, $this->recordBuffer ? 0 : $timeout)) {
