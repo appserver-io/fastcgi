@@ -8,12 +8,22 @@ class ResponseBuilder
      *
      * @var bool
      */
-    public $isComplete = false;
+    private $complete = false;
 
     /**
      * @var Record[]
      */
-    protected $records = [];
+    private $records = [];
+
+    /**
+     * @return boolean
+     */
+    public function isComplete()
+    {
+        return $this->complete;
+    }
+
+
 
     /**
      * @param Record $record
@@ -22,10 +32,10 @@ class ResponseBuilder
     public function addRecord (Record $record)
     {
         $this->records[] = $record;
-        if ($this->isComplete) {
+        if ($this->complete) {
             throw new \RuntimeException('Response already complete');
         }
-        $this->isComplete = $record->type == Record::END_REQUEST;
+        $this->complete = $record->getType() == Record::END_REQUEST;
     }
 
     /**
@@ -34,14 +44,14 @@ class ResponseBuilder
      */
     public function buildResponse ()
     {
-        if (!$this->isComplete) {
+        if (!$this->isComplete()) {
             throw new \RuntimeException('Response not complete yet');
         }
 
-        return array_reduce(
+        list($content, $error) = array_reduce(
             $this->records,
-            function (Response $response, Record $record) {
-                switch ($record->type) {
+            function (array $response, Record $record) {
+                switch ($record->getType()) {
                     case Record::BEGIN_REQUEST:
                     case Record::ABORT_REQUEST:
                     case Record::PARAMS:
@@ -51,10 +61,10 @@ class ResponseBuilder
                         throw new \RuntimeException('Cannot build a response from an request record');
                         break;
                     case Record::STDOUT:
-                        $response->content .= $record->content;
+                        $response[0] .= $record->getContent();
                         break;
                     case Record::STDERR:
-                        $response->error .= $record->content;
+                        $response[1] .= $record->getContent();
                         break;
                     case Record::END_REQUEST:
                         break;
@@ -68,7 +78,9 @@ class ResponseBuilder
                 }
                 return $response;
             },
-            new Response
+            ['', '']
         );
+
+        return new Response($content, $error);
     }
 }

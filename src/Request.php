@@ -8,25 +8,25 @@ class Request
      *
      * @var int
      */
-    public $ID;
+    private $ID;
 
     /**
      * Parameters
      *
      * @var string[]
      */
-    public $parameters;
+    private $parameters;
 
     /**
      * content to send ("body")
      *
      * @var string|resource
      */
-    public $stdin;
+    private $stdin;
 
     /**
      * @param int                  $requestId
-     * @param array|null           $params
+     * @param string[]|null           $params
      * @param string|resource|null $stdin string or stream resource
      */
     public function __construct ($requestId, array $params = null, $stdin = null)
@@ -34,5 +34,29 @@ class Request
         $this->ID = $requestId;
         $this->parameters = $params ?: [];
         $this->stdin = $stdin ?: '';
+    }
+
+    /**
+     * @return int
+     */
+    public function getID()
+    {
+        return $this->ID;
+    }
+
+    /**
+     * @return \string[]
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * @return resource|string
+     */
+    public function getStdin()
+    {
+        return $this->stdin;
     }
 }

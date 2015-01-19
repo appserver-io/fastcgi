@@ -12,26 +12,26 @@ class Connection
      *
      * @var resource
      */
-    protected $socket;
+    private $socket;
 
     /**
      * Next request ID to use
      *
      * @var int
      */
-    protected $nextId = 1;
+    private $nextId = 1;
 
     /**
      * @var ResponseBuilder[]
      */
-    protected $builder = [];
+    private $builder = [];
 
     /**
      * Internal record buffer
      *
      * To take pressure from the streams read-buffer.
      *
-     * @var array
+     * @var Record
      */
     private $recordBuffer = [];
 
@@ -55,7 +55,7 @@ class Connection
     /**
      * Creates a new request
      *
-     * @param array|null  $params
+     * @param string[]|null  $params
      * @param string|null $stdin
      * @return Request
      */
@@ -85,24 +85,24 @@ class Connection
      */
     public function sendRequest (Request $request)
     {
-        $this->builder[$request->ID] = new ResponseBuilder;
-        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->ID, \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
+        $this->builder[$request->getID()] = new ResponseBuilder;
+        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->getID(), \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
 
         $p = '';
-        foreach ($request->parameters as $name => $value) {
+        foreach ($request->getParameters() as $name => $value) {
             $p .= \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
         }
-        $this->sendRecord(new Record(Record::PARAMS, $request->ID, $p));
-        $this->sendRecord(new Record(Record::PARAMS, $request->ID, ''));
+        $this->sendRecord(new Record(Record::PARAMS, $request->getID(), $p));
+        $this->sendRecord(new Record(Record::PARAMS, $request->getID(), ''));
 
         // Unify input
-        $stream = is_string($request->stdin)
-            ? fopen('data://text/plain;base64,' . base64_encode($request->stdin), 'rb')
-            : $request->stdin;
+        $stream = is_string($request->getStdin())
+            ? fopen('data://text/plain;base64,' . base64_encode($request->getStdin()), 'rb')
+            : $request->getStdin();
         while ($chunk = fread($stream, 65535)) {
-            $this->sendRecord(new Record(Record::STDIN, $request->ID, $chunk));
+            $this->sendRecord(new Record(Record::STDIN, $request->getID(), $chunk));
         }
-        $this->sendRecord(new Record(Record::STDIN, $request->ID, ''));
+        $this->sendRecord(new Record(Record::STDIN, $request->getID(), ''));
     }
 
     /**
@@ -115,11 +115,11 @@ class Connection
      */
     public function receiveResponse (Request $request)
     {
-        while (!$this->builder[$request->ID]->isComplete) {
+        while (!$this->builder[$request->getID()]->isComplete()) {
             $this->receiveAll(2);
         }
 
-        return $this->builder[$request->ID]->buildResponse();
+        return $this->builder[$request->getID()]->buildResponse();
     }
 
     /**
@@ -127,7 +127,7 @@ class Connection
      *
      * @param Record $record
      */
-    protected function sendRecord (Record $record)
+    private function sendRecord (Record $record)
     {
         \fwrite($this->socket, (string) $record, \count($record));
     }
@@ -140,10 +140,10 @@ class Connection
      *
      * @param int $timeout
      */
-    protected function receiveAll ($timeout)
+    private function receiveAll ($timeout)
     {
         while ($record = $this->receiveRecord($timeout)) {
-            $this->builder[$record->requestId]->addRecord($record);
+            $this->builder[$record->getRequestId()]->addRecord($record);
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }
     }
@@ -154,7 +154,7 @@ class Connection
      * @param int $timeout
      * @return Record
      */
-    protected function receiveRecord ($timeout)
+    private function receiveRecord ($timeout)
     {
         if (feof($this->socket)) {
             throw new ConnectionException('Connection to FastCGI server went away');

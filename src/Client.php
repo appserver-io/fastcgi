@@ -13,7 +13,7 @@ class Client
      *
      * @var string
      */
-    protected $host;
+    private $host;
 
     /**
      * Port number
@@ -22,7 +22,7 @@ class Client
      *
      * @var int|null
      */
-    protected $port;
+    private $port;
 
     /**
      * @param string   $host hostname, or path to socket

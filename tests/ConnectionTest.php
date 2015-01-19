@@ -62,7 +62,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->sendRequest($request);
         $response = $connection->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->content);
+        list($header, $body) = explode("\r\n\r\n", $response->getContent());
 
         list($server) = unserialize($body);
 
@@ -90,6 +90,6 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
         $response = $connection->receiveResponse($request);
-        $this->assertEquals('x2', substr($response->content, -2));
+        $this->assertEquals('x2', substr($response->getContent(), -2));
     }
 }

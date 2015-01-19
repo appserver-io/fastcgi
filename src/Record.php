@@ -17,18 +17,11 @@ class Record implements \Countable
     const MAXTYPE = self::UNKNOWN_TYPE;
 
     /**
-     * FastCGI version
-     *
-     * @var int
-     */
-    public $version = 1;
-
-    /**
      * Record type (see constants above)
      *
      * @var int
      */
-    public $type;
+    private $type;
 
     /**
      * Request ID
@@ -38,14 +31,14 @@ class Record implements \Countable
      *
      * @var int
      */
-    public $requestId;
+    private $requestId;
 
     /**
      * Content received
      *
      * @var string
      */
-    public $content;
+    private $content;
 
     /**
      * @param int $type
@@ -66,9 +59,9 @@ class Record implements \Countable
      */
     public function pack ()
     {
-        $oversize = \strlen((string) $this->content) % 8;
-        return \pack('CCnnCx', 1, $this->type, $this->requestId, \strlen((string) $this->content), $oversize ? 8 - $oversize : 0)
-            . ((string) $this->content) . \str_repeat("\0", $oversize ? 8 - $oversize : 0);
+        $oversize = \strlen((string) $this->getContent()) % 8;
+        return \pack('CCnnCx', 1, $this->getType(), $this->getRequestId(), \strlen((string) $this->getContent()), $oversize ? 8 - $oversize : 0)
+            . ((string) $this->getContent()) . \str_repeat("\0", $oversize ? 8 - $oversize : 0);
     }
 
     /**
@@ -103,8 +96,40 @@ class Record implements \Countable
     public function isSendable ()
     {
         return \in_array(
-            $this->type,
+            $this->getType(),
             [self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES]
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion()
+    {
+        return 1;
     }
 }
