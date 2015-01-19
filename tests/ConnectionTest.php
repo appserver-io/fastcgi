@@ -49,7 +49,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDummy ()
     {
-        $client = new Client('localhost', 9001);
+        $client = new Client('localhost', 9331);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -71,7 +71,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testFpmGoesAway()
     {
-        $client = new Client('localhost', 9001);
+        $client = new Client('localhost', 9331);
         $connection = $client->connect();
         $request = $connection->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
