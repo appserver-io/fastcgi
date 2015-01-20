@@ -10,10 +10,11 @@ class ResponseBuilder
      */
     private $complete = false;
 
-    /**
-     * @var Record[]
-     */
-    private $records = [];
+    /** @var string */
+    private $stdout = '';
+
+    /** @var string */
+    private $stderr = '';
 
     /**
      * @return boolean
@@ -23,19 +24,30 @@ class ResponseBuilder
         return $this->complete;
     }
 
-
-
     /**
      * @param Record $record
      * @throws \RuntimeException
      */
     public function addRecord(Record $record)
     {
-        $this->records[] = $record;
         if ($this->complete) {
             throw new \RuntimeException('Response already complete');
         }
-        $this->complete = $record->getType() == Record::END_REQUEST;
+
+        switch ($record->getType()) {
+            case Record::STDOUT:
+                $this->stdout .= $record->getContent();
+                break;
+            case Record::STDERR:
+                $this->stderr .= $record->getContent();
+                break;
+            case Record::END_REQUEST:
+                $this->complete = true;
+                break;
+            default:
+                throw new \RuntimeException(sprintf('Unknown package type \'%d\'', $record->getType()));
+                break;
+        }
     }
 
     /**
@@ -44,43 +56,20 @@ class ResponseBuilder
      */
     public function buildResponse()
     {
-        if (!$this->isComplete()) {
+        if (!$this->complete) {
             throw new \RuntimeException('Response not complete yet');
         }
 
-        list($content, $error) = array_reduce(
-            $this->records,
-            function (array $response, Record $record) {
-                switch ($record->getType()) {
-                    case Record::BEGIN_REQUEST:
-                    case Record::ABORT_REQUEST:
-                    case Record::PARAMS:
-                    case Record::STDIN:
-                    case Record::DATA:
-                    case Record::GET_VALUES:
-                        throw new \RuntimeException('Cannot build a response from an request record');
-                        break;
-                    case Record::STDOUT:
-                        $response[0] .= $record->getContent();
-                        break;
-                    case Record::STDERR:
-                        $response[1] .= $record->getContent();
-                        break;
-                    case Record::END_REQUEST:
-                        break;
-                    case Record::GET_VALUES_RESULT:
-                        break;
-                    case Record::UNKNOWN_TYPE:
-                        break;
-                    default:
-                        throw new \RuntimeException('Unknown package type received');
-                        break;
-                }
-                return $response;
-            },
-            ['', '']
-        );
+        $response = new Response($this->stdout, $this->stderr);
+        $this->reset();
 
-        return new Response($content, $error);
+        return $response;
+    }
+
+    public function reset()
+    {
+        $this->stdout = '';
+        $this->stderr = '';
+        $this->complete = false;
     }
 }
