@@ -73,21 +73,6 @@ class Record
     }
 
     /**
-     * Whether, or not this record is sendable
-     *
-     * "false" means, that it is a receive-only record.
-     *
-     * @return bool
-     */
-    public function isSendable()
-    {
-        return \in_array(
-            $this->getType(),
-            [self::BEGIN_REQUEST, self::ABORT_REQUEST, self::PARAMS, self::STDIN, self::DATA, self::GET_VALUES]
-        );
-    }
-
-    /**
      * @return string
      */
     public function getContent()

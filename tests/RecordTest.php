@@ -45,28 +45,4 @@ class RecordTest extends TestCase
 
         $this->assertEquals('foo', $record->getContent());
     }
-
-    /**
-     * @covers ::isSendable
-     * @dataProvider sendableTypes
-     * @param int $type
-     */
-    public function testRecordIsSendableTypes($type)
-    {
-        $record = new Record($type, 5, 'foo');
-
-        $this->assertTrue($record->isSendable());
-    }
-
-    public static function sendableTypes()
-    {
-        return [
-            [Record::BEGIN_REQUEST],
-            [Record::ABORT_REQUEST],
-            [Record::PARAMS],
-            [Record::STDIN],
-            [Record::DATA],
-            [Record::GET_VALUES]
-        ];
-    }
 }
