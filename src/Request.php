@@ -25,9 +25,9 @@ class Request
     private $stdin;
 
     /**
-     * @param int                  $requestId
-     * @param string[]|null           $params
-     * @param string|resource|null $stdin string or stream resource
+     * @param int           $requestId
+     * @param string[]|null $params
+     * @param string|null   $stdin string or stream resource
      */
     public function __construct($requestId, array $params = null, $stdin = null)
     {
@@ -53,7 +53,7 @@ class Request
     }
 
     /**
-     * @return resource|string
+     * @return string
      */
     public function getStdin()
     {
