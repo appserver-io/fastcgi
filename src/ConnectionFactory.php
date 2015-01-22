@@ -34,7 +34,10 @@ class ConnectionFactory
             $address = "unix://$address";
         }
         $socket = $this->socketFactory->createClient($address);
-        #$socket->setBlocking(false);
+        $socket->setBlocking(false);
+        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 65544);
+        $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
+        $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 10 * 65544);
         return new Connection($socket);
     }
 }
