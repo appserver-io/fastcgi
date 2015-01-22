@@ -5,6 +5,7 @@ use Socket\Raw\Factory as SocketFactory;
 
 class ConnectionFactory
 {
+    /** @var SocketFactory */
     private $socketFactory;
 
     /**
@@ -23,7 +24,7 @@ class ConnectionFactory
      * It tries to find out itself, whether or not $address is a unix-, or a tcp-socket. If you want to get sure,
      * you should always prepend "unix://", or "tcp://"
      *
-     * @param string $address hostname[:port] or UNIX-path
+     * @param string $address <tcp://>hostname[:port] or UNIX-path <unix://>/path/to/socket
      * @return Connection
      * @throws \RuntimeException
      */
@@ -32,6 +33,8 @@ class ConnectionFactory
         if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
             $address = "unix://$address";
         }
-        return new Connection($this->socketFactory->createClient($address));
+        $socket = $this->socketFactory->createClient($address);
+        #$socket->setBlocking(false);
+        return new Connection($socket);
     }
 }

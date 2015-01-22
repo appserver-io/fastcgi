@@ -89,11 +89,16 @@ class Connection
         $this->builder[$request->getID()] = new ResponseBuilder;
         $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->getID(), \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
 
-        $p = '';
+        $packet = '';
         foreach ($request->getParameters() as $name => $value) {
-            $p .= \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
+            $new = \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
+            if (strlen($new) + strlen($packet) > 65535) {
+                $this->sendRecord(new Record(Record::PARAMS, $request->getID(), $packet));
+                $packet = '';
+            }
+            $packet .= $new;
         }
-        $this->sendRecord(new Record(Record::PARAMS, $request->getID(), $p));
+        $this->sendRecord(new Record(Record::PARAMS, $request->getID(), $packet));
         $this->sendRecord(new Record(Record::PARAMS, $request->getID(), ''));
 
         // Unify input
@@ -122,6 +127,7 @@ class Connection
 
         return $this->builder[$request->getID()]->buildResponse();
     }
+
 
     /**
      * Send a single record
