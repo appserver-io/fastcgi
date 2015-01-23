@@ -2,9 +2,8 @@
 namespace Crunch\FastCGI;
 
 use PHPUnit_Framework_TestCase as TestCase;
-use Socket\Raw\Socket;
-use Phake_IMock as Mock;
-use Phake;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 
 /**
  * @coversDefaultClass \Crunch\FastCGI\Connection
@@ -13,7 +12,7 @@ use Phake;
 class ConnectionTest extends TestCase
 {
     /**
-     * @var Socket|Mock
+     * @var ObjectProphecy
      */
     private $socket;
 
@@ -21,7 +20,7 @@ class ConnectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->socket = Phake::mock('\Socket\Raw\Socket');
+        $this->socket = $this->prophesize('\Socket\Raw\Socket');
     }
 
     /**
@@ -30,7 +29,7 @@ class ConnectionTest extends TestCase
      */
     public function testCreateNewRequest()
     {
-        $connection = new Connection($this->socket);
+        $connection = new Connection($this->socket->reveal());
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -44,7 +43,7 @@ class ConnectionTest extends TestCase
      */
     public function testNewInstanceHasIntegerId()
     {
-        $connection = new Connection($this->socket);
+        $connection = new Connection($this->socket->reveal());
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -58,7 +57,7 @@ class ConnectionTest extends TestCase
      */
     public function testNewInstanceKeepsParameters()
     {
-        $connection = new Connection($this->socket);
+        $connection = new Connection($this->socket->reveal());
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -72,7 +71,7 @@ class ConnectionTest extends TestCase
      */
     public function testNewInstanceKeepsBody()
     {
-        $connection = new Connection($this->socket);
+        $connection = new Connection($this->socket->reveal());
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -85,17 +84,17 @@ class ConnectionTest extends TestCase
      */
     public function testSendRequest()
     {
-        Phake::when($this->socket)->selectWrite(Phake::anyParameters())->thenReturn(true);
-        $request = Phake::mock('\Crunch\FastCGI\Request');
-        Phake::when($request)->getID()->thenReturn(42);
-        Phake::when($request)->getParameters()->thenReturn(['some' => 'param']);
-        Phake::when($request)->getStdin()->thenReturn('foobar');
+        $this->socket->selectWrite(Argument::any())->willReturn(true);
+        $this->socket->send(Argument::type('string'), Argument::type('int'))->shouldBeCalled();
+        $this->socket->close()->willReturn(null);
+        $request = $this->prophesize('\Crunch\FastCGI\Request');
+        $request->getID()->willReturn(42);
+        $request->getParameters()->willReturn(['some' => 'param']);
+        $request->getStdin()->willReturn('foobar');
 
-        $connection = new Connection($this->socket);
+        $connection = new Connection($this->socket->reveal());
 
-        $connection->sendRequest($request);
-
-        Phake::verify($this->socket, Phake::atLeast(1))->send(Phake::anyParameters());
+        $connection->sendRequest($request->reveal());
     }
 
     /**
@@ -103,25 +102,28 @@ class ConnectionTest extends TestCase
      */
     public function testReceiveRequest()
     {
-        $request = Phake::mock('\Crunch\FastCGI\Request');
-        Phake::when($request)->getID()->thenReturn(42);
-        Phake::when($request)->getParameters()->thenReturn(['some' => 'param']);
-        Phake::when($request)->getStdin()->thenReturn('foobar');
+        $request = $this->prophesize('\Crunch\FastCGI\Request');
+        $request->getID()->willReturn(42);
+        $request->getParameters()->willReturn(['some' => 'param']);
+        $request->getStdin()->willReturn('foobar');
 
-        $builder = Phake::mock('\Crunch\FastCGI\ResponseBuilder');
-        Phake::when($builder)->isComplete()->thenReturn(false)->thenReturn(true);
+        $this->socket->selectRead(Argument::any())->willReturn(true, false);
+        $this->socket->recv(Argument::type('int'), Argument::type('int'))->willReturn("\x01\x03\x00\x2A\x00\x00\x00\x00");
+        $this->socket->close()->willReturn(null);
 
-        Phake::when($this->socket)->selectRead(Phake::anyParameters())->thenReturn(true)->thenReturn(false);
-        Phake::when($this->socket)->recv(8, \MSG_WAITALL)->thenReturn("\x01\x03\x00\x2A\x00\x00\x00\x00");
 
-        $connection = new Connection($this->socket);
+        $builder = $this->prophesize('\Crunch\FastCGI\ResponseBuilder');
+        $builder->isComplete()->willReturn(false, true);
+        $builder->addRecord(Argument::type('\Crunch\FastCGI\Record'))->shouldBeCalled();
+        $builder->buildResponse()->willReturn($this->prophesize('\Crunch\FastCGI\Response')->reveal());
+
+        $socket = $this->socket->reveal();
+        $connection = new Connection($socket);
         $reflection = new \ReflectionClass($connection);
         $property = $reflection->getProperty('builder');
         $property->setAccessible(true);
-        $property->setValue($connection, [42 => $builder]);
+        $property->setValue($connection, [42 => $builder->reveal()]);
 
-        $connection->receiveResponse($request);
-
-        Phake::verify($this->socket, Phake::atLeast(1))->recv(Phake::anyParameters());
+        $connection->receiveResponse($request->reveal());
     }
 }

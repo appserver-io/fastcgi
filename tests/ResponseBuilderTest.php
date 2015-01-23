@@ -38,11 +38,11 @@ class ResponseBuilderTest extends TestCase
     {
         $builder = new ResponseBuilder;
 
-        $record = \Phake::mock('\Crunch\FastCGI\Record');
-        \Phake::when($record)->getType()->thenReturn(Record::STDOUT);
-        \Phake::when($record)->getContent()->thenReturn('foo');
+        $record = $this->prophesize('\Crunch\FastCGI\Record');
+        $record->getType()->willReturn(Record::STDOUT);
+        $record->getContent()->willReturn('foo');
 
-        $builder->addRecord($record);
+        $builder->addRecord($record->reveal());
 
         $this->assertFalse($builder->isComplete());
     }
@@ -54,11 +54,11 @@ class ResponseBuilderTest extends TestCase
     {
         $builder = new ResponseBuilder;
 
-        $record = \Phake::mock('\Crunch\FastCGI\Record');
-        \Phake::when($record)->getType()->thenReturn(Record::STDERR);
-        \Phake::when($record)->getContent()->thenReturn('foo');
+        $record = $this->prophesize('\Crunch\FastCGI\Record');
+        $record->getType()->willReturn(Record::STDERR);
+        $record->getContent()->willReturn('foo');
 
-        $builder->addRecord($record);
+        $builder->addRecord($record->reveal());
 
         $this->assertFalse($builder->isComplete());
     }
@@ -70,10 +70,10 @@ class ResponseBuilderTest extends TestCase
     {
         $builder = new ResponseBuilder;
 
-        $record = \Phake::mock('\Crunch\FastCGI\Record');
-        \Phake::when($record)->getType()->thenReturn(Record::END_REQUEST);
+        $record = $this->prophesize('\Crunch\FastCGI\Record');
+        $record->getType()->willReturn(Record::END_REQUEST);
 
-        $builder->addRecord($record);
+        $builder->addRecord($record->reveal());
 
         $this->assertTrue($builder->isComplete());
     }
@@ -87,11 +87,11 @@ class ResponseBuilderTest extends TestCase
 
         $builder = new ResponseBuilder;
 
-        $record = \Phake::mock('\Crunch\FastCGI\Record');
-        \Phake::when($record)->getType()->thenReturn(Record::END_REQUEST);
-        $otherRecord = \Phake::mock('\Crunch\FastCGI\Record');
+        $record = $this->prophesize('\Crunch\FastCGI\Record');
+        $record->getType()->willReturn(Record::END_REQUEST);
+        $otherRecord = $this->prophesize('\Crunch\FastCGI\Record');
 
-        $builder->addRecord($record);
-        $builder->addRecord($otherRecord);
+        $builder->addRecord($record->reveal());
+        $builder->addRecord($otherRecord->reveal());
     }
 }

@@ -39,6 +39,9 @@ class RecordTest extends TestCase
         $this->assertEquals(5, $record->getRequestId());
     }
 
+    /**
+     * @covers ::getContent
+     */
     public function testInstanceKeepsBody()
     {
         $record = new Record(2, 5, 'foo');

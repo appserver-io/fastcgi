@@ -1,7 +1,6 @@
 <?php
 namespace Crunch\FastCGI;
 
-use Socket\Raw\Exception as SocketException;
 use Socket\Raw\Socket;
 
 class Connection
@@ -133,7 +132,7 @@ class Connection
      */
     private function sendRecord(Record $record)
     {
-        if (!$this->socket->selectWrite(2)) {
+        if (!$this->socket->selectWrite(4)) {
             throw new \Exception('Socket not ready exception');
         }
         $this->socket->send($record->pack(), 0);

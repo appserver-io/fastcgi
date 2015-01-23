@@ -2,9 +2,8 @@
 namespace Crunch\FastCGI;
 
 use PHPUnit_Framework_TestCase as TestCase;
-use Socket\Raw\Factory as SocketFactory;
-use Phake_IMock as Mock;
-use Phake as p;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 
 /**
  * @coversDefaultClass \Crunch\FastCGI\ConnectionFactory
@@ -13,7 +12,7 @@ use Phake as p;
 class ConnectionFactoryTest extends TestCase
 {
     /**
-     * @var SocketFactory|Mock
+     * @var ObjectProphecy
      */
     private $socketFactory;
 
@@ -21,11 +20,8 @@ class ConnectionFactoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->socketFactory = p::mock('\Socket\Raw\Factory');
-
-        $socket = p::mock('\Socket\Raw\Socket');
-
-        p::when($this->socketFactory)->createClient('foobar')->thenReturn($socket);
+        $this->socketFactory = $this->prophesize('\Socket\Raw\Factory');
+        $this->socketFactory->createClient(Argument::any())->willReturn($this->prophesize('\Socket\Raw\Socket'));
     }
 
     /**
@@ -35,7 +31,7 @@ class ConnectionFactoryTest extends TestCase
      */
     public function testCreateConnection()
     {
-        $factory = new ConnectionFactory($this->socketFactory);
+        $factory = new ConnectionFactory($this->socketFactory->reveal());
 
         $connection = $factory->connect('foobar');
 

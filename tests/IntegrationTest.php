@@ -1,8 +1,6 @@
 <?php
 namespace Crunch\FastCGI;
 
-use Phake;
-use Phake_IMock as Mock;
 use Socket\Raw\Factory;
 
 /**
@@ -10,15 +8,14 @@ use Socket\Raw\Factory;
  */
 class IntegrationTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var Mock|Factory */
+    /** @var Factory */
     private $socketFactory;
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->socketFactory = Phake::partialMock('\Socket\Raw\Factory');
-
+        $this->socketFactory = new Factory();
 
         $conf = __DIR__ . '/Resources/php-fpm.conf';
         // start fpm daemon
