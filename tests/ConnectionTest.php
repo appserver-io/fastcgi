@@ -85,6 +85,7 @@ class ConnectionTest extends TestCase
      */
     public function testSendRequest()
     {
+        Phake::when($this->socket)->selectWrite(Phake::anyParameters())->thenReturn(true);
         $request = Phake::mock('\Crunch\FastCGI\Request');
         Phake::when($request)->getID()->thenReturn(42);
         Phake::when($request)->getParameters()->thenReturn(['some' => 'param']);
