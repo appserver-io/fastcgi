@@ -1,3 +1,13 @@
+# Version 1.0.1
+
+## Bugfixes
+
+* Removed error code handling from fsockopen to Exceptions
+
+## Features
+
+* None
+
 # Version 1.0.0
 
 ## Bugfixes
