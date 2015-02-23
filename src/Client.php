@@ -51,6 +51,6 @@ class Client
             return new Connection($socket, $this->host, $this->port);
         }
 
-        throw new ConnectionException($error, $errorCode);
+        throw new ConnectionException($error);
     }
 }
