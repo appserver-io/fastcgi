@@ -22,6 +22,7 @@ branches:
     - develop
 
 before_script:
+  - travis_retry sudo apt-get update
   - travis_retry sudo apt-get install -y php5-fpm
   - travis_retry composer self-update --no-interaction
   - travis_retry composer update --dev --prefer-source $PREFER_LOWEST --no-interaction --no-progress
