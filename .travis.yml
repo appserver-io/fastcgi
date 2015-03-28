@@ -3,6 +3,7 @@ php:
   - 5.4
   - 5.5
   - 5.6
+  - 7
   - hhvm
 
 env:
@@ -10,15 +11,20 @@ env:
     - PREFER_LOWEST="--prefer-lowest"
     - PREFER_LOWEST=""
 
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7
+
 branches:
   only:
     - master
     - develop
 
 before_script:
-  - sudo apt-get install -y php5-fpm
-  - composer self-update --no-interaction
-  - composer update --dev --prefer-source $PREFER_LOWEST --no-interaction --no-progress
+  - travis_retry sudo apt-get install -y php5-fpm
+  - travis_retry composer self-update --no-interaction
+  - travis_retry composer update --dev --prefer-source $PREFER_LOWEST --no-interaction --no-progress
 
 script: vendor/bin/phpunit --coverage-clover=coverage.clover
 
