@@ -3,18 +3,9 @@ namespace Crunch\FastCGI;
 
 class Response
 {
-    /**
-     * Content
-     *
-     * @var string
-     */
+    /** @var string */
     private $content = '';
-
-    /**
-     * Error
-     *
-     * @var string
-     */
+    /** @var string */
     private $error = '';
 
     public function __construct($content, $error)

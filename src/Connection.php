@@ -9,32 +9,13 @@ class Connection
     const AUTHORIZER = 2;
     const FILTER = 3;
 
-    /**
-     * Stream socket to FastCGI
-     *
-     * @var Socket
-     */
+    /** @var Socket Stream socket to FastCGI */
     private $socket;
-
-    /**
-     * Next request ID to use
-     *
-     * @var int
-     */
+    /** @var int Next request id */
     private $nextId = 1;
-
-    /**
-     * @var ResponseBuilder[]
-     */
+    /** @var ResponseBuilder[] */
     private $builder = [];
-
-    /**
-     * Internal record buffer
-     *
-     * To take pressure from the streams read-buffer.
-     *
-     * @var Record[]
-     */
+    /** @var Record[] Internal record buffer */
     private $recordBuffer = [];
 
     /**

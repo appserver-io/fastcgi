@@ -3,25 +3,11 @@ namespace Crunch\FastCGI;
 
 class Request
 {
-    /**
-     * Request ID
-     *
-     * @var int
-     */
+    /** @var int Request ID */
     private $ID;
-
-    /**
-     * Parameters
-     *
-     * @var string[]
-     */
+    /** @var string[] */
     private $parameters;
-
-    /**
-     * content to send ("body")
-     *
-     * @var string|resource
-     */
+    /** @var string|resource content to send ("body") */
     private $stdin;
 
     /**

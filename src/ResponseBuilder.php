@@ -3,16 +3,10 @@ namespace Crunch\FastCGI;
 
 class ResponseBuilder
 {
-    /**
-     * Whether or not the response is complete
-     *
-     * @var bool
-     */
+    /** @var bool */
     private $complete = false;
-
     /** @var string */
     private $stdout = '';
-
     /** @var string */
     private $stderr = '';
 

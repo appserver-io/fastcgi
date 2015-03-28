@@ -16,28 +16,11 @@ class Record
     const UNKNOWN_TYPE = 11;
     const MAXTYPE = self::UNKNOWN_TYPE;
 
-    /**
-     * Record type (see constants above)
-     *
-     * @var int
-     */
+    /** @var int Record type (see constants) */
     private $type;
-
-    /**
-     * Request ID
-     *
-     * For received records this defines to which origin request this is
-     * the answer.
-     *
-     * @var int
-     */
+    /** @var int Request ID to match request and response packets */
     private $requestId;
-
-    /**
-     * Content received
-     *
-     * @var string
-     */
+    /** @var string Content received */
     private $content;
 
     /**
