@@ -3,8 +3,9 @@ php:
   - 5.4
   - 5.5
   - 5.6
-  - 7
+  - 7.0
   - hhvm
+  - hhvm-nightly
 
 env:
   matrix:
@@ -14,18 +15,24 @@ env:
 matrix:
   fast_finish: true
   allow_failures:
-    - php: 7
+    - php: hhvm-nightly
+    - php: 7.0
 
 branches:
   only:
     - master
     - develop
 
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
+
 before_script:
   - travis_retry sudo apt-get update
   - travis_retry sudo apt-get install -y php5-fpm
   - travis_retry composer self-update --no-interaction
-  - travis_retry composer update --dev --prefer-source $PREFER_LOWEST --no-interaction --no-progress
+  - travis_retry composer update --dev --prefer-dist $PREFER_LOWEST --no-interaction --no-progress
 
 script: vendor/bin/phpunit --coverage-clover=coverage.clover
 
