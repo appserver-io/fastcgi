@@ -28,10 +28,12 @@ cache:
     - vendor
     - $HOME/.composer/cache
 
-before_script:
+before_install:
   - travis_retry sudo apt-get update
-  - travis_retry sudo apt-get install -y php5-fpm
   - travis_retry composer self-update --no-interaction
+
+install:
+  - travis_retry sudo apt-get install -y php5-fpm
   - travis_retry composer update --dev --prefer-dist $PREFER_LOWEST --no-interaction --no-progress
 
 script: vendor/bin/phpunit --coverage-clover=coverage.clover

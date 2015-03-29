@@ -20,7 +20,7 @@ class ResponseBuilderTest extends TestCase
     }
 
     /**
-     * @covers ::buildResponse
+     * @covers ::build
      */
     public function testExceptionOnIncompleteResponse()
     {
