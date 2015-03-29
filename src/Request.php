@@ -1,7 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-class Request
+class Request implements RequestInterface
 {
     /** @var int Request ID */
     private $ID;

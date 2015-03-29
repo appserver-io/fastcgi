@@ -16,10 +16,7 @@ class Record
     const UNKNOWN_TYPE = 11;
     const MAXTYPE = self::UNKNOWN_TYPE;
 
-    /** @var int Record type (see constants) */
-    private $type;
-    /** @var int Request ID to match request and response packets */
-    private $requestId;
+    private $header;
     /** @var string Content received */
     private $content;
 
@@ -28,10 +25,9 @@ class Record
      * @param int $requestId
      * @param string $content
      */
-    public function __construct($type, $requestId, $content)
+    public function __construct(Header $header, $content)
     {
-        $this->type = $type;
-        $this->requestId = $requestId;
+        $this->header = $header;
         $this->content = $content;
     }
 
@@ -42,17 +38,38 @@ class Record
      */
     public function pack()
     {
-        $oversize = \strlen((string) $this->getContent()) % 8;
-        return \pack('CCnnCx', 1, $this->getType(), $this->getRequestId(), \strlen((string) $this->getContent()), $oversize ? 8 - $oversize : 0)
-            . ((string) $this->getContent()) . \str_repeat("\0", $oversize ? 8 - $oversize : 0);
+        return $this->header->encode() . $this->getContent() . \str_repeat("\0", $this->header->getPaddingLength());
     }
 
-    public static function unpack($packet)
+    public static function unpack(Header $header, $payload)
     {
-        list ($header, $payload) = [substr($packet, 0, 8), substr($packet, 8)];
-        $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
+        return new Record($header, substr($payload, 0, $header->getLength()));
+    }
 
-        return new Record($header['type'], $header['requestId'], substr($payload, 0, $header['length']));
+    public static function buildFromRequest (Request $request)
+    {
+        $result = [new Record(new Header(1, self::BEGIN_REQUEST, $request->getID(), 8), \pack('xCCxxxxx', Connection::RESPONDER, 0xFF & 1))];
+
+        $packet = '';
+        foreach ($request->getParameters() as $name => $value) {
+            $new = \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
+
+            // It's possible to send up to 64kB of params in one record, but it is
+            // not possible to spread a param over two records
+            if (strlen($new) + strlen($packet) > 65535) {
+                $result[] = new Record(new Header(1, Record::PARAMS, $request->getID(), strlen($packet)), $packet);
+                $packet = '';
+            }
+            $packet .= $new;
+        }
+        $result[] = new Record(new Header(1, Record::PARAMS, $request->getID(), strlen($packet)), $packet);
+
+        foreach (str_split($request->getStdin(), 65535) as $chunk) {
+            $result[] = new Record(new Header(1, Record::STDIN, $request->getID(), strlen($chunk)), $chunk);
+        }
+        $result[] = new Record(new Header(1, Record::STDIN, $request->getID(), 0), '');
+
+        return $result;
     }
 
     /**
@@ -60,7 +77,7 @@ class Record
      */
     public function getContent()
     {
-        return $this->content;
+        return (string) $this->content;
     }
 
     /**
@@ -68,7 +85,7 @@ class Record
      */
     public function getRequestId()
     {
-        return $this->requestId;
+        return $this->header->getRequestId();
     }
 
     /**
@@ -76,7 +93,7 @@ class Record
      */
     public function getType()
     {
-        return $this->type;
+        return $this->header->getType();
     }
 
     /**
@@ -84,6 +101,6 @@ class Record
      */
     public function getVersion()
     {
-        return 1;
+        return $this->header->getVersion();
     }
 }

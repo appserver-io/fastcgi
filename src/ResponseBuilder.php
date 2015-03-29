@@ -1,7 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-class ResponseBuilder
+class ResponseBuilder implements Builder
 {
     /** @var bool */
     private $complete = false;
@@ -48,7 +48,7 @@ class ResponseBuilder
      * @return Response
      * @throws \RuntimeException
      */
-    public function buildResponse()
+    public function build()
     {
         if (!$this->complete) {
             throw new \RuntimeException('Response not complete yet');

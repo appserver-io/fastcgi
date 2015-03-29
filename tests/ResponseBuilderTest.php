@@ -28,7 +28,7 @@ class ResponseBuilderTest extends TestCase
 
         $builder = new ResponseBuilder;
 
-        $builder->buildResponse();
+        $builder->build();
     }
 
     /**

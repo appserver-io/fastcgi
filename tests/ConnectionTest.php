@@ -29,7 +29,7 @@ class ConnectionTest extends TestCase
      */
     public function testCreateNewRequest()
     {
-        $connection = new Connection($this->socket->reveal());
+        $connection = new Connection($this->socket->reveal(), new BuilderFactory);
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -43,7 +43,7 @@ class ConnectionTest extends TestCase
      */
     public function testNewInstanceHasIntegerId()
     {
-        $connection = new Connection($this->socket->reveal());
+        $connection = new Connection($this->socket->reveal(), new BuilderFactory);
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -57,7 +57,7 @@ class ConnectionTest extends TestCase
      */
     public function testNewInstanceKeepsParameters()
     {
-        $connection = new Connection($this->socket->reveal());
+        $connection = new Connection($this->socket->reveal(), new BuilderFactory);
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -71,7 +71,7 @@ class ConnectionTest extends TestCase
      */
     public function testNewInstanceKeepsBody()
     {
-        $connection = new Connection($this->socket->reveal());
+        $connection = new Connection($this->socket->reveal(), new BuilderFactory);
 
         $request = $connection->newRequest(['some' => 'param'], 'foobar');
 
@@ -92,7 +92,7 @@ class ConnectionTest extends TestCase
         $request->getParameters()->willReturn(['some' => 'param']);
         $request->getStdin()->willReturn('foobar');
 
-        $connection = new Connection($this->socket->reveal());
+        $connection = new Connection($this->socket->reveal(), new BuilderFactory);
 
         $connection->sendRequest($request->reveal());
     }
@@ -115,10 +115,10 @@ class ConnectionTest extends TestCase
         $builder = $this->prophesize('\Crunch\FastCGI\ResponseBuilder');
         $builder->isComplete()->willReturn(false, true);
         $builder->addRecord(Argument::type('\Crunch\FastCGI\Record'))->shouldBeCalled();
-        $builder->buildResponse()->willReturn($this->prophesize('\Crunch\FastCGI\Response')->reveal());
+        $builder->build()->willReturn($this->prophesize('\Crunch\FastCGI\Response')->reveal());
 
         $socket = $this->socket->reveal();
-        $connection = new Connection($socket);
+        $connection = new Connection($socket, new BuilderFactory);
         $reflection = new \ReflectionClass($connection);
         $property = $reflection->getProperty('builder');
         $property->setAccessible(true);

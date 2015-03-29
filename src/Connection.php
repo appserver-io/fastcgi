@@ -11,6 +11,9 @@ class Connection
 
     /** @var Socket Stream socket to FastCGI */
     private $socket;
+    /** @var BuilderFactory */
+    private $builderFactory;
+
     /** @var int Next request id */
     private $nextId = 1;
     /** @var ResponseBuilder[] */
@@ -20,10 +23,12 @@ class Connection
 
     /**
      * @param Socket $socket
+     * @param BuilderFactory $factory
      */
-    public function __construct(Socket $socket)
+    public function __construct(Socket $socket, BuilderFactory $factory)
     {
         $this->socket = $socket;
+        $this->builderFactory = $factory;
     }
 
     /**
@@ -67,24 +72,9 @@ class Connection
      */
     public function sendRequest(Request $request)
     {
-        $this->builder[$request->getID()] = new ResponseBuilder;
-        $this->sendRecord(new Record(Record::BEGIN_REQUEST, $request->getID(), \pack('xCCxxxxx', self::RESPONDER, 0xFF & 1)));
-
-        $packet = '';
-        foreach ($request->getParameters() as $name => $value) {
-            $new = \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
-            if (strlen($new) + strlen($packet) > 65535) {
-                $this->sendRecord(new Record(Record::PARAMS, $request->getID(), $packet));
-                $packet = '';
-            }
-            $packet .= $new;
+        foreach (Record::buildFromRequest($request) as $record) {
+            $this->sendRecord($record);
         }
-        $this->sendRecord(new Record(Record::PARAMS, $request->getID(), $packet));
-
-        foreach (str_split($request->getStdin(), 65535) as $chunk) {
-            $this->sendRecord(new Record(Record::STDIN, $request->getID(), $chunk));
-        }
-        $this->sendRecord(new Record(Record::STDIN, $request->getID(), ''));
     }
 
     /**
@@ -97,11 +87,22 @@ class Connection
      */
     public function receiveResponse(Request $request)
     {
-        while (!$this->builder[$request->getID()]->isComplete()) {
-            $this->receiveAll(2);
+        // At some point we want to have different behaviour between "There is no record at all"
+        // and "it's simply slow"
+        for ($i = 0; !isset($this->builder[$request->getID()]); $i++) {
+            if ($i > 10) {
+                throw new \RuntimeException("Timeout");
+            }
+            $this->receiveAll(10);
+        }
+        for ($i = 0; !$this->builder[$request->getID()]->isComplete(); $i++) {
+            if ($i > 10) {
+                throw new \RuntimeException("Timeout");
+            }
+            $this->receiveAll(10);
         }
 
-        return $this->builder[$request->getID()]->buildResponse();
+        return $this->builder[$request->getID()]->build();
     }
 
 
@@ -132,17 +133,20 @@ class Connection
     {
         $this->fetchRecords($timeout);
         while ($record = \array_shift($this->recordBuffer)) {
+            if (!isset($this->builder[$record->getRequestId()])) {
+                $this->builder[$record->getRequestId()] = $this->builderFactory->create($record);
+            }
             $this->builder[$record->getRequestId()]->addRecord($record);
         }
     }
 
     private function fetchRecords($timeout)
     {
-        while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL | \MSG_PEEK)) {
-            $length = \array_sum(\unpack('nlength/Cpadding', substr($header, 4, 3)));
+        while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
+            $header = Header::decode($header);
 
-            $packet = $this->socket->recv($length + 8, \MSG_WAITALL);
-            $this->recordBuffer[] = Record::unpack($packet);
+            $packet = $this->socket->recv($header->getPayloadLength(), \MSG_WAITALL);
+            $this->recordBuffer[] = Record::unpack($header, $packet);
 
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }

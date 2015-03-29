@@ -38,6 +38,28 @@ class ConnectionFactory
         $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 65544);
         $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
         $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 10 * 65544);
-        return new Connection($socket);
+        return new Connection($socket, new BuilderFactory);
+    }
+
+    /**
+     * Creates a server
+     *
+     * @param string $address
+     * @param callable $receiver
+     */
+    public function listen($address, callable $receiver)
+    {
+        if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
+            $address = "unix://$address";
+        }
+        $socket = $this->socketFactory->createServer($address);
+        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 65544);
+        $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
+        $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 10 * 65544);
+
+        $socket->listen();
+        while ($client = $socket->accept()) {
+            $receiver(new Connection($client));
+        }
     }
 }

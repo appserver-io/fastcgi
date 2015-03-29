@@ -14,7 +14,7 @@ class RecordTest extends TestCase
      */
     public function testVersionIsConstantOne()
     {
-        $record = new Record(2, 5, 'foo');
+        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
 
         $this->assertEquals(1, $record->getVersion());
     }
@@ -24,7 +24,7 @@ class RecordTest extends TestCase
      */
     public function testInstanceKeepsType()
     {
-        $record = new Record(2, 5, 'foo');
+        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
 
         $this->assertEquals(2, $record->getType());
     }
@@ -34,7 +34,7 @@ class RecordTest extends TestCase
      */
     public function testInstanceKeepsRequestId()
     {
-        $record = new Record(2, 5, 'foo');
+        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
 
         $this->assertEquals(5, $record->getRequestId());
     }
@@ -44,7 +44,7 @@ class RecordTest extends TestCase
      */
     public function testInstanceKeepsBody()
     {
-        $record = new Record(2, 5, 'foo');
+        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
 
         $this->assertEquals('foo', $record->getContent());
     }
