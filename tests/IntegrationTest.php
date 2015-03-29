@@ -19,7 +19,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
         $conf = __DIR__ . '/Resources/php-fpm.conf';
         // start fpm daemon
-        exec("`which php5-fpm` -n -y $conf -p " . __DIR__ . '/tmp 2>&1 1>/dev/null');
+        $output = $exitCode = null;
+        exec("`which php-fpm` -n -y $conf -p " . __DIR__ . '/tmp 2>&1 1>/dev/null', $output, $exitCode);
+        if ($exitCode) {
+            throw new \RuntimeException('Couldn\'t start php-fpm.');
+        }
 
         // wait until pid file is generate
         while (!is_file(__DIR__ . '/tmp/php5-fpm.pid')) {

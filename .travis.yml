@@ -7,8 +7,7 @@ php:
   - hhvm
   - hhvm-nightly
 
-# Enforces using the container based infrastructure, but I need sudo ...
-#sudo: false
+sudo: false
 
 env:
   matrix:
@@ -25,23 +24,15 @@ branches:
     - master
     - develop
 
-# Currently does not work because of "sudo"
 cache:
   directories:
     - vendor
     - $HOME/.composer/cache
 
-# Needs to be whitelisted (which it isn't)
-#addons:
-#  apt_packages:
-#  - php5-fpm
-
 before_install:
-  - travis_retry sudo apt-get update
   - travis_retry composer self-update --no-interaction
 
 install:
-  - travis_retry sudo apt-get install -y php5-fpm
   - travis_retry composer update --dev --prefer-dist $PREFER_LOWEST --no-interaction --no-progress
 
 script: vendor/bin/phpunit --enforce-time-limit --coverage-clover=coverage.clover
