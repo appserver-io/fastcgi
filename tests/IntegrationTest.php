@@ -11,6 +11,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     /** @var Factory */
     private $socketFactory;
 
+    private $fpmExists = true;
+
     protected function setUp()
     {
         parent::setUp();
@@ -21,12 +23,10 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         // start fpm daemon
         $output = $exitCode = null;
         exec("`which php-fpm` -n -y $conf -p " . __DIR__ . '/tmp 2>&1 1>/dev/null', $output, $exitCode);
-        if ($exitCode) {
-            throw new \RuntimeException('Couldn\'t start php-fpm.');
-        }
+        $this->fpmExists = ($exitCode == 0);
 
         // wait until pid file is generate
-        while (!is_file(__DIR__ . '/tmp/php5-fpm.pid')) {
+        while ($this->fpmExists && !is_file(__DIR__ . '/tmp/php5-fpm.pid')) {
             usleep(100000);
         }
     }
@@ -51,6 +51,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testSendSimpleRequest()
     {
+        if (!$this->fpmExists) {
+            $this->markTestSkipped('php-fpm not found on this system');
+            return;
+        }
+
         $client = new ConnectionFactory($this->socketFactory);
         $connection = $client->connect('localhost:9331');
         $request = $connection->newRequest(array(
@@ -74,6 +79,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testSendSimpleRequestWithOversizedPayload()
     {
+        if (!$this->fpmExists) {
+            $this->markTestSkipped('php-fpm not found on this system');
+            return;
+        }
+
         $client = new ConnectionFactory($this->socketFactory);
         $connection = $client->connect('localhost:9331');
 
@@ -99,6 +109,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testSendRequestWithOversizedParameters()
     {
+        if (!$this->fpmExists) {
+            $this->markTestSkipped('php-fpm not found on this system');
+            return;
+        }
+
         $client = new ConnectionFactory($this->socketFactory);
         $connection = $client->connect('localhost:9331');
 
@@ -126,6 +141,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testFpmGoesAway()
     {
+        if (!$this->fpmExists) {
+            $this->markTestSkipped('php-fpm not found on this system');
+            return;
+        }
+
         $client = new ConnectionFactory($this->socketFactory);
         $connection = $client->connect('localhost:9331');
         $request = $connection->newRequest(array(
