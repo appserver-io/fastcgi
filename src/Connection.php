@@ -18,8 +18,6 @@ class Connection
     private $nextId = 1;
     /** @var ResponseBuilder[] */
     private $builder = [];
-    /** @var Record[] Internal record buffer */
-    private $recordBuffer = [];
 
     /**
      * @param Socket $socket
@@ -120,33 +118,18 @@ class Connection
         $this->socket->send($record->pack(), 0);
     }
 
-
-    /**
-     * Receive all currently available records
-     *
-     * This will read as may records as possible, which does _not_ mean, that
-     * it will read every record, that _should_ appear.
-     *
-     * @param int $timeout
-     */
     private function receiveAll($timeout)
-    {
-        $this->fetchRecords($timeout);
-        while ($record = \array_shift($this->recordBuffer)) {
-            if (!isset($this->builder[$record->getRequestId()])) {
-                $this->builder[$record->getRequestId()] = $this->builderFactory->create($record);
-            }
-            $this->builder[$record->getRequestId()]->addRecord($record);
-        }
-    }
-
-    private function fetchRecords($timeout)
     {
         while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
             $header = Header::decode($header);
 
             $packet = $this->socket->recv($header->getPayloadLength(), \MSG_WAITALL);
-            $this->recordBuffer[] = Record::unpack($header, $packet);
+            $record = Record::unpack($header, $packet);
+
+            if (!isset($this->builder[$record->getRequestId()])) {
+                $this->builder[$record->getRequestId()] = $this->builderFactory->create($record);
+            }
+            $this->builder[$record->getRequestId()]->addRecord($record);
 
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }
