@@ -10,23 +10,16 @@ use PHPUnit_Framework_TestCase as TestCase;
 class RecordTest extends TestCase
 {
     /**
-     * @covers ::getVersion
-     */
-    public function testVersionIsConstantOne()
-    {
-        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
-
-        $this->assertEquals(1, $record->getVersion());
-    }
-
-    /**
      * @covers ::getType
      */
     public function testInstanceKeepsType()
     {
-        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
+        $header = $this->prophesize('\Crunch\FastCGI\Header');
 
-        $this->assertEquals(2, $record->getType());
+        $record = new Record($header->reveal(), 'foo');
+        $record->getType();
+
+        $header->getType()->shouldHaveBeenCalled();
     }
 
     /**
@@ -34,9 +27,12 @@ class RecordTest extends TestCase
      */
     public function testInstanceKeepsRequestId()
     {
-        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
+        $header = $this->prophesize('\Crunch\FastCGI\Header');
 
-        $this->assertEquals(5, $record->getRequestId());
+        $record = new Record($header->reveal(), 'foo');
+        $record->getRequestId();
+
+        $header->getRequestId()->shouldHaveBeenCalled();
     }
 
     /**
@@ -44,7 +40,9 @@ class RecordTest extends TestCase
      */
     public function testInstanceKeepsBody()
     {
-        $record = new Record(new Header(1, 2, 5, 0, 0), 'foo');
+        $header = $this->prophesize('\Crunch\FastCGI\Header');
+
+        $record = new Record($header->reveal(), 'foo');
 
         $this->assertEquals('foo', $record->getContent());
     }

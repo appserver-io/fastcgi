@@ -1,7 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-class ResponseBuilder implements Builder
+class ResponseBuilder
 {
     /** @var bool */
     private $complete = false;

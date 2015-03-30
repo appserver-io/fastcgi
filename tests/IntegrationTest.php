@@ -56,9 +56,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $client = new ConnectionFactory($this->socketFactory);
-        $connection = $client->connect('localhost:9331');
-        $request = $connection->newRequest(array(
+
+        $connectionFactory = new ConnectionFactory($this->socketFactory);
+        $handler = new ClientRecordHandler;
+        $connection = $connectionFactory->connect('localhost:9331', $handler);
+        $client = new Client($handler, $connection);
+
+        $request = $client->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
@@ -66,8 +70,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'CONTENT_LENGTH'  => strlen('foo=bar')
         ), 'foo=bar');
 
-        $connection->sendRequest($request);
-        $response = $connection->receiveResponse($request);
+        $client->sendRequest($request);
+        $response = $client->receiveResponse($request);
 
         list($header, $body) = explode("\r\n\r\n", $response->getContent());
 
@@ -84,11 +88,14 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $client = new ConnectionFactory($this->socketFactory);
-        $connection = $client->connect('localhost:9331');
+        $connectionFactory = new ConnectionFactory($this->socketFactory);
+        $handler = new ClientRecordHandler;
+        $connection = $connectionFactory->connect('localhost:9331', $handler);
+        $client = new Client($handler, $connection);
+
 
         $content = str_repeat('abcdefgh', 65535);
-        $request = $connection->newRequest(array(
+        $request = $client->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
@@ -96,8 +103,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'CONTENT_LENGTH'  => strlen($content)
         ), $content);
 
-        $connection->sendRequest($request);
-        $response = $connection->receiveResponse($request);
+        $client->sendRequest($request);
+        $response = $client->receiveResponse($request);
 
         list($header, $body) = explode("\r\n\r\n", $response->getContent());
 
@@ -114,14 +121,16 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $client = new ConnectionFactory($this->socketFactory);
-        $connection = $client->connect('localhost:9331');
+        $connectionFactory = new ConnectionFactory($this->socketFactory);
+        $handler = new ClientRecordHandler;
+        $connection = $connectionFactory->connect('localhost:9331', $handler);
+        $client = new Client($handler, $connection);
 
         $params = [];
         for ($i = 1; $i < 4000; $i++) {
             $params["param$i"] = "value$i";
         }
-        $request = $connection->newRequest(array(
+        $request = $client->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
@@ -129,8 +138,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'CONTENT_LENGTH'  => strlen('foo=bar')
         ) + $params, 'foo=bar');
 
-        $connection->sendRequest($request);
-        $response = $connection->receiveResponse($request);
+        $client->sendRequest($request);
+        $response = $client->receiveResponse($request);
 
         list($header, $body) = explode("\r\n\r\n", $response->getContent());
 
@@ -146,9 +155,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $client = new ConnectionFactory($this->socketFactory);
-        $connection = $client->connect('localhost:9331');
-        $request = $connection->newRequest(array(
+        $connectionFactory = new ConnectionFactory($this->socketFactory);
+        $handler = new ClientRecordHandler;
+        $connection = $connectionFactory->connect('localhost:9331', $handler);
+        $client = new Client($handler, $connection);
+
+
+        $request = $client->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
@@ -156,12 +169,12 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'CONTENT_LENGTH'  => strlen('foo=bar')
         ), 'foo=bar');
 
-        $connection->sendRequest($request);
+        $client->sendRequest($request);
 
         exec(sprintf('kill %d', file_get_contents(__DIR__ . '/tmp/php5-fpm.pid')));
 
         $this->setExpectedException('\Socket\Raw\Exception');
-        $response = $connection->receiveResponse($request);
+        $response = $client->receiveResponse($request);
         $this->assertEquals('x2', substr($response->getContent(), -2));
     }
 }

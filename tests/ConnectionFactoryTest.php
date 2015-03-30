@@ -11,9 +11,7 @@ use Prophecy\Prophecy\ObjectProphecy;
  */
 class ConnectionFactoryTest extends TestCase
 {
-    /**
-     * @var ObjectProphecy
-     */
+    /** @var ObjectProphecy */
     private $socketFactory;
 
     protected function setUp()
@@ -33,7 +31,9 @@ class ConnectionFactoryTest extends TestCase
     {
         $factory = new ConnectionFactory($this->socketFactory->reveal());
 
-        $connection = $factory->connect('foobar');
+
+        $recordHandler = $this->prophesize('\Crunch\FastCGI\RecordHandlerInterface');
+        $connection = $factory->connect('foobar', $recordHandler->reveal());
 
         $this->assertInstanceOf('\Crunch\FastCGI\Connection', $connection);
     }

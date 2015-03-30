@@ -95,12 +95,4 @@ class Record
     {
         return $this->header->getType();
     }
-
-    /**
-     * @return int
-     */
-    public function getVersion()
-    {
-        return $this->header->getVersion();
-    }
 }
