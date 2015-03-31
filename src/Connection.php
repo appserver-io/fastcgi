@@ -57,12 +57,6 @@ class Connection
 
             $this->handler->push($record);
 
-
-            /*if (!isset($this->builder[$record->getRequestId()])) {
-                $this->builder[$record->getRequestId()] = $this->builderFactory->create($record);
-            }
-            $this->builder[$record->getRequestId()]->addRecord($record);*/
-
             $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
         }
     }
