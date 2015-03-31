@@ -19,7 +19,7 @@ class Header
      * @param int $type
      * @param int $requestId
      * @param int $length
-     * @param int|null $paddingLength Calculated from $length when omitted
+     * @param int|null $paddingLength Calculated from $length when omitted, exception when invalid
      */
     public function __construct($version, $type, $requestId, $length, $paddingLength = null)
     {
@@ -30,11 +30,14 @@ class Header
         $this->paddingLength = $paddingLength;
 
         if ($length && !$paddingLength) {
-            $this->paddingLength = $length % 8 ? 8 - ($length % 8) : 0;
+            $this->paddingLength = (8 - ($length % 8)) % 8;
         }
     }
 
-
+    /**
+     * @param string $header
+     * @return Header
+     */
     public static function decode($header)
     {
         $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
