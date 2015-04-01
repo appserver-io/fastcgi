@@ -1,6 +1,9 @@
 <?php
 namespace Crunch\FastCGI;
 
+use Assert as assert;
+use Assert\Assertion;
+
 class Header
 {
     private $version;
@@ -23,6 +26,24 @@ class Header
      */
     public function __construct($version, $type, $requestId, $length, $paddingLength = null)
     {
+        assert\that($version)
+            ->integer()
+            ->range(1, 1, "Only version 1 supported, $version given");
+        assert\that($type)
+            ->integer()
+            ->range(1, 11, "Types are represented as integer between 1 and 11, $type given");
+        assert\that($requestId)
+            ->integer()
+            ->min(1, "Request ID must be > 1, $requestId given");
+        assert\that($length)
+            ->integer()
+            ->range(0, 65535, "Length must be between 0 and 65535, $length giben");
+        assert\thatNullOr($paddingLength)
+            ->integer()
+            ->range(0, 7, "Padding length must be between 0 and 7");
+        assert\that(is_null($paddingLength) || ($paddingLength + $length) % 8 == 0)
+            ->true('Sum of Length and Padding Length must be divisible by 8');
+
         $this->version = $version;
         $this->type = $type;
         $this->requestId = $requestId;
@@ -30,6 +51,7 @@ class Header
         $this->paddingLength = $paddingLength;
 
         if ($length && !$paddingLength) {
+            // So that "$length % $paddingLength % 8 = 0"
             $this->paddingLength = (8 - ($length % 8)) % 8;
         }
     }
@@ -40,6 +62,11 @@ class Header
      */
     public static function decode($header)
     {
+        assert\that($header)
+            ->string();
+        assert\that(bin2hex($header))
+            ->length(16);
+
         $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
 
         return new self($header['version'], $header['type'], $header['requestId'], $header['length'], $header['paddingLength']);
