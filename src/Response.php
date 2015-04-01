@@ -1,7 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-class Response implements ResponseInterface
+class Response
 {
     /** @var string */
     private $content = '';
