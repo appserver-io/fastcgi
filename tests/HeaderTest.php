@@ -9,16 +9,38 @@ use PHPUnit_Framework_TestCase as TestCase;
  */
 class HeaderTest extends TestCase
 {
-    public function testConstructKeepsValues()
+    public static function validConstructorArguments()
     {
-        $header = new Header(1, 2, 3, 4, 4);
+        return [
+            /* $version, $type, $requestId, $length, $padding */
+            [1, 4, 12, 4, null],
+            [1, 4, 12, 2, 6],
+            [1, 4, 12, 32, 0],
+        ];
+    }
 
-        self::assertEquals(1, $header->getVersion());
-        self::assertEquals(2, $header->getType());
-        self::assertEquals(3, $header->getRequestId());
-        self::assertEquals(4, $header->getLength());
-        self::assertEquals(4, $header->getPaddingLength());
-        self::assertEquals(8, $header->getPayloadLength());
+    /**
+     * @covers ::__construct
+     * @dataProvider validConstructorArguments
+     * @param int $version
+     * @param int $type
+     * @param int $requestId
+     * @param int $length
+     * @param int $paddingLength
+     */
+    public function testConstructKeepsValues($version, $type, $requestId, $length, $paddingLength)
+    {
+        $header = new Header($version, $type, $requestId, $length, $paddingLength);
+
+        self::assertEquals($version, $header->getVersion());
+        self::assertEquals($type, $header->getType());
+        self::assertEquals($requestId, $header->getRequestId());
+        self::assertEquals($length, $header->getLength());
+        if ($paddingLength) {
+            self::assertEquals($paddingLength, $header->getPaddingLength());
+            self::assertEquals($length + $paddingLength, $header->getPayloadLength());
+        }
+        self::assertEquals(0, $header->getPayloadLength() % 8);
     }
 
     public static function invalidConstructorArguments()
@@ -37,6 +59,7 @@ class HeaderTest extends TestCase
     }
 
     /**
+     * @covers ::__construct
      * @dataProvider invalidConstructorArguments
      * @param int $version
      * @param int $type
@@ -65,6 +88,7 @@ class HeaderTest extends TestCase
     }
 
     /**
+     * @covers ::__construct
      * @dataProvider lengthAndPaddingProvider
      * @param int $length
      * @param int $expectedPadding
@@ -95,6 +119,7 @@ class HeaderTest extends TestCase
     }
 
     /**
+     * @covers ::decode
      * @dataProvider encodedHeaderProvider
      * @param string $headerString
      * @param int $version
@@ -117,6 +142,7 @@ class HeaderTest extends TestCase
     }
 
     /**
+     * @covers ::encode
      * @dataProvider encodedHeaderProvider
      * @param string $headerString
      * @param int $version

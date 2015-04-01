@@ -2,14 +2,18 @@
 namespace Crunch\FastCGI;
 
 use Assert as assert;
-use Assert\Assertion;
 
 class Header
 {
+    /** @var int */
     private $version;
+    /** @var int */
     private $type;
+    /** @var int */
     private $requestId;
+    /** @var int */
     private $length;
+    /** @var int */
     private $paddingLength;
 
     /**
@@ -18,11 +22,12 @@ class Header
      * If $paddingLength is omitted, it is calculated from $length. If $paddingLength
      * is set, it will be validated against $length.
      *
-     * @param int $version
-     * @param int $type
-     * @param int $requestId
-     * @param int $length
-     * @param int|null $paddingLength Calculated from $length when omitted, exception when invalid
+     * @param int $version Must be 1
+     * @param int $type One of the type constants
+     * @param int $requestId Greater than 1
+     * @param int $length Must be between 0 and 65535 (including)
+     * @param int|null $paddingLength between 0 and 7
+     *                                Calculated from $length when omitted, exception when invalid
      */
     public function __construct($version, $type, $requestId, $length, $paddingLength = null)
     {
@@ -73,7 +78,7 @@ class Header
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getVersion()
     {
@@ -81,7 +86,7 @@ class Header
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getType()
     {
@@ -89,7 +94,7 @@ class Header
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getRequestId()
     {
@@ -97,7 +102,7 @@ class Header
     }
 
     /**
-     * @return mixed
+     * @return int Content length between 0 and 65535 (including)
      */
     public function getLength()
     {
@@ -105,18 +110,27 @@ class Header
     }
 
     /**
-     * @return mixed
+     * @return int Padding length between 0 and 7 (including)
      */
     public function getPaddingLength()
     {
         return $this->paddingLength;
     }
 
+    /**
+     * @deprecated Dont know, still useful? Not used anywhere anymore
+     * @return int Length of the entire payload between 0 and 65535 (including)
+     */
     public function getPayloadLength()
     {
         return $this->getLength() + $this->getPaddingLength();
     }
 
+    /**
+     * Returns the encoded header as a string
+     *
+     * @return string
+     */
     public function encode()
     {
         return \pack('CCnnCx', $this->getVersion(), $this->getType(), $this->getRequestId(), $this->getLength(), $this->getPaddingLength());

@@ -1,6 +1,8 @@
 <?php
 namespace Crunch\FastCGI;
 
+use Assert as assert;
+
 class Record
 {
     const BEGIN_REQUEST = 1;
@@ -16,17 +18,22 @@ class Record
     const UNKNOWN_TYPE = 11;
     const MAXTYPE = self::UNKNOWN_TYPE;
 
+    /** @var Header */
     private $header;
     /** @var string Content received */
     private $content;
 
     /**
-     * @param int $type
-     * @param int $requestId
+     * @param Header $header
      * @param string $content
      */
     public function __construct(Header $header, $content)
     {
+        assert\that($content)
+            ->string();
+        assert\that($content)
+            ->length($header->getLength());
+
         $this->header = $header;
         $this->content = $content;
     }
@@ -43,6 +50,9 @@ class Record
 
     public static function unpack(Header $header, $payload)
     {
+        assert\that($payload)
+            ->string();
+
         return new Record($header, substr($payload, 0, $header->getLength()));
     }
 

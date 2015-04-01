@@ -52,12 +52,15 @@ class Connection
         while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
             $header = Header::decode($header);
 
-            $packet = $this->socket->recv($header->getPayloadLength(), \MSG_WAITALL);
+            $packet = $this->socket->recv($header->getLength(), \MSG_WAITALL);
             $record = Record::unpack($header, $packet);
+            if ($header->getPaddingLength()) {
+                $this->socket->recv($header->getPaddingLength(), \MSG_WAITALL);
+            }
 
             $this->handler->push($record);
 
-            $timeout = 0; // Reset timeout to avoid stuttering on subsequent requests
+            $timeout = 0; // Reset timeout to avoid stuttering on subsequent iterations
         }
     }
 }

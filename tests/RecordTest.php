@@ -15,11 +15,11 @@ class RecordTest extends TestCase
     public function testInstanceKeepsType()
     {
         $header = $this->prophesize('\Crunch\FastCGI\Header');
+        $header->getLength()->willReturn(3);
+        $header->getType()->shouldBeCalled();
 
         $record = new Record($header->reveal(), 'foo');
         $record->getType();
-
-        $header->getType()->shouldHaveBeenCalled();
     }
 
     /**
@@ -28,11 +28,11 @@ class RecordTest extends TestCase
     public function testInstanceKeepsRequestId()
     {
         $header = $this->prophesize('\Crunch\FastCGI\Header');
+        $header->getLength()->willReturn(3);
+        $header->getRequestId()->shouldBeCalled();
 
         $record = new Record($header->reveal(), 'foo');
         $record->getRequestId();
-
-        $header->getRequestId()->shouldHaveBeenCalled();
     }
 
     /**
@@ -41,6 +41,7 @@ class RecordTest extends TestCase
     public function testInstanceKeepsBody()
     {
         $header = $this->prophesize('\Crunch\FastCGI\Header');
+        $header->getLength()->willReturn(3);
 
         $record = new Record($header->reveal(), 'foo');
 

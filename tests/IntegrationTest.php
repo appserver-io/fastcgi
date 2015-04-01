@@ -1,6 +1,8 @@
 <?php
 namespace Crunch\FastCGI;
 
+use Assert\AssertionFailedException;
+use Socket\Raw\Exception as SocketException;
 use Socket\Raw\Factory;
 
 /**
@@ -169,12 +171,22 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'CONTENT_LENGTH'  => strlen('foo=bar')
         ), 'foo=bar');
 
-        $client->sendRequest($request);
+        time_nanosleep(0, 50000);
+            $client->sendRequest($request);
 
         exec(sprintf('kill %d', file_get_contents(__DIR__ . '/tmp/php5-fpm.pid')));
 
-        $this->setExpectedException('\Socket\Raw\Exception');
-        $response = $client->receiveResponse($request);
-        $this->assertEquals('x2', substr($response->getContent(), -2));
+        try {
+            $client->receiveResponse($request);
+        } catch (AssertionFailedException $e) {
+            // Also possible: The server dies while the connection tries to
+            // read the content and therefore only partials arrive
+            self::assertTrue(true);
+            return;
+        } catch (SocketException $e) {
+            self::assertTrue(true);
+            return;
+        }
+        self::assertTrue(false, 'None of the expected exceptions were thrown');
     }
 }

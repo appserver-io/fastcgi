@@ -76,22 +76,5 @@ class Client
         }
 
         return $this->handler->createResponse($request->getID());
-
-        // At some point we want to have different behaviour between "There is no record at all"
-        // and "it's simply slow"
-        for ($i = 0; !isset($this->builder[$request->getID()]); $i++) {
-            if ($i > 10) {
-                throw new \RuntimeException("Timeout");
-            }
-            $this->receiveAll(10);
-        }
-        for ($i = 0; !$this->builder[$request->getID()]->isComplete(); $i++) {
-            if ($i > 10) {
-                throw new \RuntimeException("Timeout");
-            }
-            $this->receiveAll(10);
-        }
-
-        return $this->builder[$request->getID()]->build();
     }
 }
