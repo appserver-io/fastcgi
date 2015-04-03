@@ -3,6 +3,13 @@ namespace Crunch\FastCGI;
 
 use Assert as assert;
 
+/**
+ * Record
+ *
+ * The record is the smallest unit in the communication between the
+ * server and the client. It consists of the Header and the payload, which
+ * itself consists of the actual data and some padding zero-bytes.
+ */
 class Record
 {
     const BEGIN_REQUEST = 1;

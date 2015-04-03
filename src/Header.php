@@ -3,6 +3,25 @@ namespace Crunch\FastCGI;
 
 use Assert as assert;
 
+/**
+ * Record header
+ *
+ * Speaking of the actual transmission the header is the first 8 byte sequence
+ * of the byte stream. It contains the meta data consisting of the FastCGI-version
+ * (constant "1"), the type of the record, the request ID, the length of the
+ * content and the length of the padding sequence.
+ *
+ * The request ID exists to identify which response belongs to which request
+ * for the server and (when multiplexing) for the client.
+ *
+ * The padding is zero-byte sequence. With the the actual record -- the
+ * header, the content and the payload -- is always divisible by 8. However,
+ * the specification allows a padding of up to 255 bytes.
+ *
+ * The content length is limited to 65535 bytes.
+ *
+ * The type defines one of the 11 record types (including "Unknown type" 11).
+ */
 class Header
 {
     /** @var int */
@@ -45,7 +64,7 @@ class Header
             ->range(0, 65535, "Length must be between 0 and 65535, $length giben");
         assert\thatNullOr($paddingLength)
             ->integer()
-            ->range(0, 7, "Padding length must be between 0 and 7");
+            ->range(0, 255, "Padding length must be between 0 and 255");
         assert\that(is_null($paddingLength) || ($paddingLength + $length) % 8 == 0)
             ->true('Sum of Length and Padding Length must be divisible by 8');
 
