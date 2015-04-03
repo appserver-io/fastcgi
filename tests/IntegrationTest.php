@@ -54,15 +54,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function testSendSimpleRequest()
     {
         if (!$this->fpmExists) {
-            $this->markTestSkipped('php-fpm not found on this system');
+            self::markTestSkipped('php-fpm not found on this system');
             return;
         }
 
 
         $connectionFactory = new ConnectionFactory($this->socketFactory);
-        $handler = new ClientRecordHandler;
-        $connection = $connectionFactory->connect('localhost:9331', $handler);
-        $client = new Client($handler, $connection);
+        $client = new Client('localhost:9331', $connectionFactory);
 
         $request = $client->newRequest(array(
             'Foo'             => 'Bar', 'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -79,21 +77,19 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
         list($server) = unserialize($body);
 
-        $this->assertEquals(7, $server['CONTENT_LENGTH']);
+        self::assertEquals(7, $server['CONTENT_LENGTH']);
     }
 
 
     public function testSendSimpleRequestWithOversizedPayload()
     {
         if (!$this->fpmExists) {
-            $this->markTestSkipped('php-fpm not found on this system');
+            self::markTestSkipped('php-fpm not found on this system');
             return;
         }
 
         $connectionFactory = new ConnectionFactory($this->socketFactory);
-        $handler = new ClientRecordHandler;
-        $connection = $connectionFactory->connect('localhost:9331', $handler);
-        $client = new Client($handler, $connection);
+        $client = new Client('localhost:9331', $connectionFactory);
 
 
         $content = str_repeat('abcdefgh', 65535);
@@ -112,21 +108,19 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
         list($server) = unserialize($body);
 
-        $this->assertEquals(strlen($content), $server['CONTENT_LENGTH']);
+        self::assertEquals(strlen($content), $server['CONTENT_LENGTH']);
     }
 
 
     public function testSendRequestWithOversizedParameters()
     {
         if (!$this->fpmExists) {
-            $this->markTestSkipped('php-fpm not found on this system');
+            self::markTestSkipped('php-fpm not found on this system');
             return;
         }
 
         $connectionFactory = new ConnectionFactory($this->socketFactory);
-        $handler = new ClientRecordHandler;
-        $connection = $connectionFactory->connect('localhost:9331', $handler);
-        $client = new Client($handler, $connection);
+        $client = new Client('localhost:9331', $connectionFactory);
 
         $params = [];
         for ($i = 1; $i < 4000; $i++) {
@@ -147,20 +141,18 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
         list($server) = unserialize($body);
 
-        $this->assertEquals(7, $server['CONTENT_LENGTH']);
+        self::assertEquals(7, $server['CONTENT_LENGTH']);
     }
 
     public function testFpmGoesAway()
     {
         if (!$this->fpmExists) {
-            $this->markTestSkipped('php-fpm not found on this system');
+            self::markTestSkipped('php-fpm not found on this system');
             return;
         }
 
         $connectionFactory = new ConnectionFactory($this->socketFactory);
-        $handler = new ClientRecordHandler;
-        $connection = $connectionFactory->connect('localhost:9331', $handler);
-        $client = new Client($handler, $connection);
+        $client = new Client('localhost:9331', $connectionFactory);
 
 
         $request = $client->newRequest(array(

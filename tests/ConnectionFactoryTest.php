@@ -32,8 +32,7 @@ class ConnectionFactoryTest extends TestCase
         $factory = new ConnectionFactory($this->socketFactory->reveal());
 
 
-        $recordHandler = $this->prophesize('\Crunch\FastCGI\RecordHandlerInterface');
-        $connection = $factory->connect('foobar', $recordHandler->reveal());
+        $connection = $factory->connect('foobar');
 
         $this->assertInstanceOf('\Crunch\FastCGI\Connection', $connection);
     }

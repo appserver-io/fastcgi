@@ -12,17 +12,13 @@ class Connection
     /** @var Socket Stream socket to FastCGI */
     private $socket;
 
-    /** @var RecordHandlerInterface */
-    private $handler;
-
     /**
      * @param Socket $socket
      * @param RecordHandlerInterface $handler
      */
-    public function __construct(Socket $socket, RecordHandlerInterface $handler)
+    public function __construct(Socket $socket)
     {
         $this->socket = $socket;
-        $this->handler = $handler;
     }
 
     /**
@@ -47,9 +43,13 @@ class Connection
         $this->socket->send($record->pack(), 0);
     }
 
+    /**
+     * @param int $timeout
+     * @return Record
+     */
     public function receive($timeout)
     {
-        while ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
+        if ($this->socket->selectRead($timeout) && $header = $this->socket->recv(8, \MSG_WAITALL)) {
             $header = Header::decode($header);
 
             $packet = $this->socket->recv($header->getLength(), \MSG_WAITALL);
@@ -58,9 +58,9 @@ class Connection
                 $this->socket->recv($header->getPaddingLength(), \MSG_WAITALL);
             }
 
-            $this->handler->push($record);
-
-            $timeout = 0; // Reset timeout to avoid stuttering on subsequent iterations
+            return $record;
         }
+
+        return null;
     }
 }

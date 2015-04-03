@@ -28,7 +28,7 @@ class ConnectionFactory
      * @return Connection
      * @throws \RuntimeException
      */
-    public function connect($address, RecordHandlerInterface $handler)
+    public function connect($address)
     {
         if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
             $address = "unix://$address";
@@ -38,7 +38,7 @@ class ConnectionFactory
         $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 65544);
         $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
         $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 10 * 65544);
-        return new Connection($socket, $handler);
+        return new Connection($socket);
     }
 
     /**
