@@ -16,7 +16,7 @@ class ResponseTest extends TestCase
     {
         $response = new Response('foo', 'bar');
 
-        $this->assertEquals('bar', $response->getError());
+        self::assertEquals('bar', $response->getError());
     }
 
     /**
@@ -26,6 +26,6 @@ class ResponseTest extends TestCase
     {
         $response = new Response('foo', 'bar');
 
-        $this->assertEquals('foo', $response->getContent());
+        self::assertEquals('foo', $response->getContent());
     }
 }

@@ -16,7 +16,7 @@ class ResponseBuilderTest extends TestCase
     {
         $builder = new ResponseBuilder;
 
-        $this->assertFalse($builder->isComplete());
+        self::assertFalse($builder->isComplete());
     }
 
     /**
@@ -44,7 +44,7 @@ class ResponseBuilderTest extends TestCase
 
         $builder->addRecord($record->reveal());
 
-        $this->assertFalse($builder->isComplete());
+        self::assertFalse($builder->isComplete());
     }
 
     /**
@@ -60,7 +60,7 @@ class ResponseBuilderTest extends TestCase
 
         $builder->addRecord($record->reveal());
 
-        $this->assertFalse($builder->isComplete());
+        self::assertFalse($builder->isComplete());
     }
 
     /**
@@ -75,7 +75,7 @@ class ResponseBuilderTest extends TestCase
 
         $builder->addRecord($record->reveal());
 
-        $this->assertTrue($builder->isComplete());
+        self::assertTrue($builder->isComplete());
     }
 
     /**

@@ -34,6 +34,6 @@ class ConnectionFactoryTest extends TestCase
 
         $connection = $factory->connect('foobar');
 
-        $this->assertInstanceOf('\Crunch\FastCGI\Connection', $connection);
+        self::assertInstanceOf('\Crunch\FastCGI\Connection', $connection);
     }
 }

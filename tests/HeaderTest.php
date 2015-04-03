@@ -155,7 +155,7 @@ class HeaderTest extends TestCase
     {
         $header = new Header($version, $type, $requestId, $length, $paddingLength);
 
-        $this->assertEquals($headerString, $header->encode());
+        self::assertEquals($headerString, $header->encode());
     }
 
     public static function invalidHeaderStrings()

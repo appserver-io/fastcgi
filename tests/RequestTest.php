@@ -16,7 +16,7 @@ class RequestTest extends TestCase
     {
         $response = new Request(5, ['foo' => 'bar'], 'baz');
 
-        $this->assertEquals(5, $response->getID());
+        self::assertEquals(5, $response->getID());
     }
 
     /**
@@ -26,7 +26,7 @@ class RequestTest extends TestCase
     {
         $response = new Request(5, ['foo' => 'bar'], 'baz');
 
-        $this->assertEquals(['foo' => 'bar'], $response->getParameters());
+        self::assertEquals(['foo' => 'bar'], $response->getParameters());
     }
 
     /**
@@ -36,6 +36,6 @@ class RequestTest extends TestCase
     {
         $response = new Request(5, ['foo' => 'bar'], 'baz');
 
-        $this->assertEquals('baz', $response->getStdin());
+        self::assertEquals('baz', $response->getStdin());
     }
 }

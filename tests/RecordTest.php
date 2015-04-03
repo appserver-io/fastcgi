@@ -45,6 +45,6 @@ class RecordTest extends TestCase
 
         $record = new Record($header->reveal(), 'foo');
 
-        $this->assertEquals('foo', $record->getContent());
+        self::assertEquals('foo', $record->getContent());
     }
 }
