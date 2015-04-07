@@ -11,9 +11,9 @@ class Request
     private $stdin;
 
     /**
-     * @param int           $requestId
+     * @param int $requestId
      * @param string[]|null $params
-     * @param string|null   $stdin string or stream resource
+     * @param string|null $stdin string or stream resource
      */
     public function __construct($requestId, array $params = null, $stdin = null)
     {

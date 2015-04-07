@@ -24,9 +24,6 @@ class Connection
     /** @var Socket Stream socket to FastCGI */
     private $socket;
 
-    /** @var int */
-    private $lastRequestId = 0;
-
     /**
      * Creates new Connection instance
      *
@@ -36,6 +33,10 @@ class Connection
      *
      * Make sure the Socket is non-blocking. You can use a blocking Socket, when
      * you don't want to use asynchronous behaviour.
+     *
+     * Also it's highly recommended to keep the values SO_SNDLOWAT and SO_RCVLOWAT
+     * below or equal to 8, because else it is likely to end up in a deadlock at
+     * some point.
      *
      * @param Socket $socket
      */
@@ -66,9 +67,8 @@ class Connection
      */
     public function send(Record $record)
     {
-        $this->lastRequestId = max($record->getRequestId(), $this->lastRequestId);
         if (!$this->socket->selectWrite(4)) {
-            throw new \Exception('Socket not ready exception');
+            throw new ConnectionException('Socket not ready exception');
         }
         $this->socket->send($record->pack(), 0);
     }
@@ -81,6 +81,10 @@ class Connection
      *
      * Waits at most $timeout second for the first byte to read. If you use
      * a blocking Socket timeout has no effect and it blocks until some data arrives.
+     * In this case the method will always return a `Record`
+     *
+     * Usually you want to set $timeout to 0, so it instantly returns as long
+     * as there is no data available.
      *
      * @param int $timeout
      * @return Record|null
@@ -92,21 +96,18 @@ class Connection
         }
 
         // TODO find out, what happens, when there are _some_ bytes, but not 8 in the buffer.
-        // Does it block? Probably. Better to look before.
-        if (!($header = $this->socket->recv(8, \MSG_WAITALL))) {
+        // Or the header is available, but not the actual data? Better look before
+        if (!($rawHeader = $this->socket->recv(8, \MSG_WAITALL))) {
             return null;
         }
 
+        $header = Header::decode($rawHeader);
 
-        $header = Header::decode($header);
-
-        $packet = $this->socket->recv($header->getLength(), \MSG_WAITALL);
-        $record = Record::unpack($header, $packet);
+        $rawRecord = $this->socket->recv($header->getLength(), \MSG_WAITALL);
+        $record = Record::unpack($header, $rawRecord);
         if ($header->getPaddingLength()) {
             $this->socket->recv($header->getPaddingLength(), \MSG_WAITALL);
         }
-
-        $this->lastRequestId = max($record->getRequestId(), $this->lastRequestId);
 
         return $record;
     }

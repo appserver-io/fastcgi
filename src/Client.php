@@ -3,45 +3,30 @@ namespace Crunch\FastCGI;
 
 class Client
 {
-    /** @var string */
-    private $host;
-    /** @var ConnectionFactory */
-    private $connectionFactory;
     /** @var Connection */
-    private $connection = null;
-
-    private $nextId = 1;
-
+    private $connection;
+    /** @var int Next request id to use */
+    private $nextRequestId = 1;
     /** @var ResponseBuilder[] */
     private $responseBuilders = [];
 
     /**
-     * Client constructor.
-     * @param string $host
-     * @param ConnectionFactory $connectionFactory
+     * Creates new client instance
+     *
+     * @param Connection $connection
      */
-    public function __construct($host, ConnectionFactory $connectionFactory)
+    public function __construct(Connection $connection)
     {
-        $this->connectionFactory = $connectionFactory;
-        $this->host = $host;
-    }
-
-    public function connect()
-    {
-        if (!$this->connection) {
-            $this->connection = $this->connectionFactory->connect($this->host);
-        }
-    }
-
-    private function connection()
-    {
-        $this->connect();
-        return $this->connection;
+        $this->connection = $connection;
     }
 
 
     /**
      * Creates a new request
+     *
+     * Although you can create a Request instance manually it is highly
+     * recommended to use this factory method, because only this one
+     * ensures, that the request uses a previously unused request id.
      *
      * @param string[]|null $params
      * @param string|null $stdin
@@ -49,19 +34,7 @@ class Client
      */
     public function newRequest(array $params = null, $stdin = null)
     {
-        return new Request($this->nextId++, $params, $stdin);
-    }
-
-    /**
-     * Send request and awaits the response (sequential)
-     *
-     * @param Request $request
-     * @return Response
-     */
-    public function request(Request $request)
-    {
-        $this->sendRequest($request);
-        return $this->receiveResponse($request);
+        return new Request($this->nextRequestId++, $params, $stdin);
     }
 
     /**
@@ -75,7 +48,7 @@ class Client
     {
         $this->responseBuilders[$request->getID()] = new ResponseBuilder;
         foreach (Record::buildFromRequest($request) as $record) {
-            $this->connection()->send($record);
+            $this->connection->send($record);
         }
     }
 
@@ -86,16 +59,17 @@ class Client
      *
      * @param Request $request
      * @return Response
+     * @throws \Exception
      */
     public function receiveResponse(Request $request)
     {
         if (!isset($this->responseBuilders[$request->getID()])) {
-            throw new \Exception('Client never performed a request for request ID '. $request->getID());
+            throw new ClientException('Client never performed a request for request ID '. $request->getID());
         }
 
-        while (!$this->responseBuilders[$request->getID()]->isComplete() && $record = $this->connection()->receive(10)) {
+        while (!$this->responseBuilders[$request->getID()]->isComplete() && $record = $this->connection->receive(10)) {
             if (!isset($this->responseBuilders[$record->getRequestId()])) {
-                throw new \Exception('Received unexpected request ID ' . $record->getRequestId());
+                throw new ClientException('Received unexpected request ID ' . $record->getRequestId());
             }
 
             $this->responseBuilders[$record->getRequestId()]->addRecord($record);

@@ -25,11 +25,11 @@ class ConnectionTest extends TestCase
 
     public function testSocketNotReadyWhileSending()
     {
+        self::markTestIncomplete('Doesnt test, what it should test');
+
         $this->socket->selectWrite(Argument::type('int'))->willReturn(false);
 
         $this->setExpectedException('\Exception');
         $connection = new Connection($this->socket->reveal());
-
-
     }
 }

@@ -60,7 +60,7 @@ class Record
         assert\that($payload)
             ->string();
 
-        return new Record($header, substr($payload, 0, $header->getLength()));
+        return new Record($header, $payload);
     }
 
     public static function buildFromRequest (Request $request)
@@ -69,10 +69,12 @@ class Record
 
         $packet = '';
         foreach ($request->getParameters() as $name => $value) {
+            // TODO "pack(C)" when < 128
             $new = \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
 
-            // It's possible to send up to 64kB of params in one record, but it is
-            // not possible to spread a param over two records
+            // Although the specs states, that it isn't important it looks like
+            // at least php-fpm expects parameters not to be spread over several
+            // records. That doesn't make much sense for really long values though ...
             if (strlen($new) + strlen($packet) > 65535) {
                 $result[] = new Record(new Header(1, Record::PARAMS, $request->getID(), strlen($packet)), $packet);
                 $packet = '';
@@ -80,11 +82,18 @@ class Record
             $packet .= $new;
         }
         $result[] = new Record(new Header(1, Record::PARAMS, $request->getID(), strlen($packet)), $packet);
+        // Some servers miss to drop the padding on the empty PARAMS-record
+        // I look at you php-fpm ;)
+        $result[] = new Record(new Header(1, Record::PARAMS, $request->getID(), 0, 0), '');
 
-        foreach (str_split($request->getStdin(), 65535) as $chunk) {
+        foreach (array_filter(str_split($request->getStdin(), 65535)) as $chunk) {
             $result[] = new Record(new Header(1, Record::STDIN, $request->getID(), strlen($chunk)), $chunk);
         }
-        $result[] = new Record(new Header(1, Record::STDIN, $request->getID(), 0), '');
+
+        // I don't know why, but for some reason it seems, that the TCP-sockets expects
+        // this to be of a certain minimum size. At least with an additional padding it works
+        // with both unix- and tcp-sockets
+        $result[] = new Record(new Header(1, Record::STDIN, $request->getID(), 0, 0), '');
 
         return $result;
     }

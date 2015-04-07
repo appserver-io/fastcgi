@@ -33,11 +33,15 @@ class ConnectionFactory
         if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
             $address = "unix://$address";
         }
+
         $socket = $this->socketFactory->createClient($address);
         $socket->setBlocking(false);
-        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 65544);
         $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
         $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 10 * 65544);
+        // Fails with 'Protocol not available (SOCKET_ENOPROTOOPT)'
+        // $socket->setOption(\SOL_SOCKET, \SO_SNDLOWAT, 8);
+        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 8);
+
         return new Connection($socket);
     }
 
@@ -53,9 +57,10 @@ class ConnectionFactory
             $address = "unix://$address";
         }
         $socket = $this->socketFactory->createServer($address);
-        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 65544);
+        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 32);
+        $socket->setOption(\SOL_SOCKET, \SO_SNDLOWAT, 32);
         $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
-        $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 10 * 65544);
+        $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 0 * 65544);
 
         $socket->listen();
         while ($client = $socket->accept()) {

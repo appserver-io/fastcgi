@@ -36,7 +36,7 @@ class ClientTest extends TestCase
      */
     public function testCreateNewRequest()
     {
-        $client = new Client('foo:8080', $this->connectionFactory->reveal());
+        $client = new Client($this->connection->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -50,7 +50,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceHasIntegerId()
     {
-        $client = new Client('foo:8080', $this->connectionFactory->reveal());
+        $client = new Client($this->connection->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -64,7 +64,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceKeepsParameters()
     {
-        $client = new Client('foo:8080', $this->connectionFactory->reveal());
+        $client = new Client($this->connection->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -78,7 +78,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceKeepsBody()
     {
-        $client = new Client('foo:8080', $this->connectionFactory->reveal());
+        $client = new Client($this->connection->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -97,7 +97,7 @@ class ClientTest extends TestCase
         $request->getParameters()->willReturn(['some' => 'param']);
         $request->getStdin()->willReturn('foobar');
 
-        $client = new Client('foo:8080', $this->connectionFactory->reveal());
+        $client = new Client($this->connection->reveal());
 
         $client->sendRequest($request->reveal());
 
@@ -115,10 +115,10 @@ class ClientTest extends TestCase
         $request = $this->prophesize('\Crunch\FastCGI\Request');
         $request->getID()->willReturn(42);
 
-        $client = new Client('foo:8080', $this->connectionFactory->reveal());
+        $client = new Client($this->connection->reveal());
 
         $request = $request->reveal();
-        $client->request($request);
+        $client->sendRequest($request);
         $client->receiveResponse($request);
 
         $this->recordHandler->createResponse(42)->shouldHaveBeenCalled();

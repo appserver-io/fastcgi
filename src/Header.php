@@ -61,11 +61,11 @@ class Header
             ->min(1, "Request ID must be > 1, $requestId given");
         assert\that($length)
             ->integer()
-            ->range(0, 65535, "Length must be between 0 and 65535, $length giben");
+            ->range(0, 65535, "Length must be between 0 and 65535, $length given");
         assert\thatNullOr($paddingLength)
             ->integer()
-            ->range(0, 255, "Padding length must be between 0 and 255");
-        assert\that(is_null($paddingLength) || ($paddingLength + $length) % 8 == 0)
+            ->range(0, 255, "Padding length must be between 0 and 255, $paddingLength given");
+        assert\that(is_null($paddingLength) || ($paddingLength + $length) % 8 === 0)
             ->true('Sum of Length and Padding Length must be divisible by 8');
 
         $this->version = $version;
@@ -74,10 +74,15 @@ class Header
         $this->length = $length;
         $this->paddingLength = $paddingLength;
 
-        if ($length && !$paddingLength) {
-            // So that "$length % $paddingLength % 8 = 0"
-            $this->paddingLength = (8 - ($length % 8)) % 8;
+        if (!$paddingLength) {
+            /* Although it is undocumented it seems, that a padding of 0 may end up
+             * in a dead lock. I have tested it against php-fpm and while it worked
+             * with unix sockets the server doesn't start to send any response when
+             * using TCP-sockets and there are records without content and no padding.
+             */
+            $paddingLength = (8 - ($length % 8)) % 8;
         }
+        $this->paddingLength = (int) $paddingLength;
     }
 
     /**
