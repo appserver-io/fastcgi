@@ -34,7 +34,7 @@ before_install:
 
 install:
   # "ignore platform requirements" to test against php7 without directly allowing it
-  - travis_retry composer update --dev --prefer-dist $PREFER_LOWEST --no-interaction --no-progress --ignore-platform-reqs
+  - travis_retry composer update --prefer-dist $PREFER_LOWEST --no-interaction --no-progress --ignore-platform-reqs
 
 script: vendor/bin/phpunit --enforce-time-limit --coverage-clover=coverage.clover
 
