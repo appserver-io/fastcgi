@@ -1,4 +1,5 @@
 language: php
+sudo: false
 php:
   - 5.4
   - 5.5
@@ -7,17 +8,16 @@ php:
   - hhvm
   - hhvm-nightly
 
-sudo: false
-
 env:
   matrix:
     - PREFER_LOWEST="--prefer-lowest"
     - PREFER_LOWEST=""
+  global:
+    secure: Pn8qTf9ha4PpTyk07yazFZe1cfalnZyvbiY/y/IpEPVgKvPkhcO0p/ZXFoBgETvvzZ+kJzpC7n930fai4lAL2khVp+FbvGIWjVcO6knTKQIMJKjj96RTWBCDAck3U1zRq12Z//msYlQ80mJnaEiTvXbFmOuhIAr4IsYAdv8lpEc=
 
 matrix:
   fast_finish: true
   allow_failures:
-    # Looks like the nightly build is sometimes unstable
     - php: hhvm-nightly
 
 branches:
@@ -28,17 +28,15 @@ branches:
 cache:
   directories:
     - vendor
-    - $HOME/.composer/cache
+    - "$HOME/.composer/cache"
 
 before_install:
+  - composer config -g github-oauth.github.com $GITHUB_OAUTH
   - travis_retry composer self-update --no-interaction
-
 install:
-  # "ignore platform requirements" to test against php7 without directly allowing it
   - travis_retry composer update --prefer-dist $PREFER_LOWEST --no-interaction --no-progress --ignore-platform-reqs
-
-script: vendor/bin/phpunit --enforce-time-limit --coverage-clover=coverage.clover
-
+script:
+  - vendor/bin/phpunit --enforce-time-limit --coverage-clover=coverage.clover
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover

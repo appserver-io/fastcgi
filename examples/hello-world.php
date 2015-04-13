@@ -13,8 +13,8 @@ $connection = $connectionFactory->connect('unix:///var/run/php5-fpm.sock');
 $client = new Client($connection);
 
 
-
-$data = 'name=' . (@$argv[1] ?: 'World');
+$name = (@$argv[1] ?: 'World');
+$data = "name=$name";
 $request = $client->newRequest(array(
     'REQUEST_METHOD'  => 'POST',
     'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
@@ -23,8 +23,11 @@ $request = $client->newRequest(array(
 ), $data);
 
 $client->sendRequest($request);
+
+// Usually this ends up in an exception if there is an error, so this
+// shouldn't end up in an infinite loop
 while (!($response = $client->receiveResponse($request))) {
     echo '.';
 }
-echo "\n" . $response->getContent() . \PHP_EOL;
 
+echo "\n" . $response->getContent() . \PHP_EOL;
