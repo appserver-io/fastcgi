@@ -3,7 +3,7 @@ namespace Crunch\FastCGI;
 
 use Socket\Raw\Factory as SocketFactory;
 
-class ClientFactory
+class ClientFactory implements ClientFactoryInterface
 {
     /** @var SocketFactory */
     private $socketFactory;
@@ -25,7 +25,7 @@ class ClientFactory
      * you should always prepend "unix://", or "tcp://"
      *
      * @param string $address <tcp://>hostname[:port] or UNIX-path <unix://>/path/to/socket
-     * @return Connection
+     * @return ClientInterface
      * @throws \RuntimeException
      */
     public function connect($address)

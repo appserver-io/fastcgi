@@ -1,7 +1,7 @@
 <?php
 namespace Crunch\FastCGI;
 
-class Client
+class Client implements ClientInterface
 {
     /** @var Connection */
     private $connection;
@@ -13,9 +13,9 @@ class Client
     /**
      * Creates new client instance
      *
-     * @param Connection $connection
+     * @param ConnectionInterface $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
     }
@@ -30,7 +30,7 @@ class Client
      *
      * @param string[]|null $params
      * @param string|null $stdin
-     * @return Request
+     * @return RequestInterface
      */
     public function newRequest(array $params = null, $stdin = null)
     {
@@ -42,9 +42,9 @@ class Client
      *
      * Remember to call receiveResponse(). Else, it will remain the buffer.
      *
-     * @param Request $request
+     * @param RequestInterface $request
      */
-    public function sendRequest(Request $request)
+    public function sendRequest(RequestInterface $request)
     {
         $this->responseBuilders[$request->getID()] = new ResponseBuilder;
         foreach ($request->toRecords() as $record) {
@@ -57,11 +57,11 @@ class Client
      *
      * Returns the response a request previously sent with sendRequest()
      *
-     * @param Request $request
-     * @return Response
+     * @param RequestInterface $request
+     * @return ResponseInterface
      * @throws \Exception
      */
-    public function receiveResponse(Request $request)
+    public function receiveResponse(RequestInterface $request)
     {
         if (!isset($this->responseBuilders[$request->getID()])) {
             throw new ClientException('Client never performed a request for request ID '. $request->getID());

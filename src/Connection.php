@@ -15,7 +15,7 @@ use Socket\Raw\Socket;
  * _ever_, because else you'll get issues with conflicting request ids, broken
  * multiplexing and so on.
  */
-class Connection
+class Connection implements ConnectionInterface
 {
     const RESPONDER = 1;
     const AUTHORIZER = 2;

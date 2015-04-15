@@ -4,7 +4,7 @@ namespace Crunch\FastCGI;
 use ArrayIterator;
 use Traversable;
 
-class Request
+class Request implements RequestInterface
 {
     /** @var int Request ID */
     private $ID;

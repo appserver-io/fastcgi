@@ -45,7 +45,7 @@ class ResponseBuilder
     }
 
     /**
-     * @return Response
+     * @return ResponseInterface
      * @throws \RuntimeException
      */
     public function build()
