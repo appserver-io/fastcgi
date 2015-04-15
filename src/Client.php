@@ -47,7 +47,7 @@ class Client
     public function sendRequest(Request $request)
     {
         $this->responseBuilders[$request->getID()] = new ResponseBuilder;
-        foreach (Record::buildFromRequest($request) as $record) {
+        foreach ($request->toRecords() as $record) {
             $this->connection->send($record);
         }
     }

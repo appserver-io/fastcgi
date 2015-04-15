@@ -12,21 +12,21 @@ use Prophecy\Prophecy\ObjectProphecy;
 class ClientTest extends TestCase
 {
     /** @var ObjectProphecy */
-    private $recordHandler;
+    private $recordHandlerProphet;
     /** @var ObjectProphecy */
-    private $connection;
+    private $connectionProphet;
     /** @var ObjectProphecy */
-    private $connectionFactory;
+    private $connectionFactoryProphet;
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->connection = $this->prophesize('\Crunch\FastCGI\Connection');
-        $this->connectionFactory = $this->prophesize('\Crunch\FastCGI\ConnectionFactory');
-        $this->connectionFactory
+        $this->connectionProphet = $this->prophesize('\Crunch\FastCGI\Connection');
+        $this->connectionFactoryProphet = $this->prophesize('\Crunch\FastCGI\ConnectionFactory');
+        $this->connectionFactoryProphet
             ->connect(Argument::type('string'), Argument::any())
-            ->willReturn($this->connection->reveal());
+            ->willReturn($this->connectionProphet->reveal());
     }
 
 
@@ -36,7 +36,7 @@ class ClientTest extends TestCase
      */
     public function testCreateNewRequest()
     {
-        $client = new Client($this->connection->reveal());
+        $client = new Client($this->connectionProphet->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -50,7 +50,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceHasIntegerId()
     {
-        $client = new Client($this->connection->reveal());
+        $client = new Client($this->connectionProphet->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -64,7 +64,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceKeepsParameters()
     {
-        $client = new Client($this->connection->reveal());
+        $client = new Client($this->connectionProphet->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -78,7 +78,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceKeepsBody()
     {
-        $client = new Client($this->connection->reveal());
+        $client = new Client($this->connectionProphet->reveal());
 
         $request = $client->newRequest(['some' => 'param'], 'foobar');
 
@@ -92,16 +92,18 @@ class ClientTest extends TestCase
      */
     public function testSendRequest()
     {
-        $request = $this->prophesize('\Crunch\FastCGI\Request');
-        $request->getID()->willReturn(42);
-        $request->getParameters()->willReturn(['some' => 'param']);
-        $request->getStdin()->willReturn('foobar');
+        $requestProphet = $this->prophesize('\Crunch\FastCGI\Request');
+        $recordProphet = $this->prophesize('\Crunch\FastCGI\Record');
 
-        $client = new Client($this->connection->reveal());
+        $record = $recordProphet->reveal();
+        $requestProphet->toRecords()->willReturn([$record]);
+        $requestProphet->getID()->willReturn(42);
 
-        $client->sendRequest($request->reveal());
+        $client = new Client($this->connectionProphet->reveal());
 
-        $this->connection->send(Argument::any())->shouldHaveBeenCalled();
+        $client->sendRequest($requestProphet->reveal());
+
+        $this->connectionProphet->send($record)->shouldHaveBeenCalled();
     }
 
     /**
@@ -115,12 +117,12 @@ class ClientTest extends TestCase
         $request = $this->prophesize('\Crunch\FastCGI\Request');
         $request->getID()->willReturn(42);
 
-        $client = new Client($this->connection->reveal());
+        $client = new Client($this->connectionProphet->reveal());
 
         $request = $request->reveal();
         $client->sendRequest($request);
         $client->receiveResponse($request);
 
-        $this->recordHandler->createResponse(42)->shouldHaveBeenCalled();
+        $this->recordHandlerProphet->createResponse(42)->shouldHaveBeenCalled();
     }
 }
