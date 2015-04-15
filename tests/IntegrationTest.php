@@ -68,9 +68,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $socketFactory = new SocketFactory();
-        $connectionFactory = new ConnectionFactory($socketFactory);
-        $connection = $connectionFactory->connect('localhost:9331');
-        $client = new Client($connection);
+        $clientFactory = new ClientFactory($socketFactory);
+        $client = $clientFactory->connect('localhost:9331');
 
         $request = $client->newRequest(array(
             'REQUEST_METHOD'  => 'POST',
@@ -97,9 +96,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $socketFactory = new SocketFactory();
-        $connectionFactory = new ConnectionFactory($socketFactory);
-        $connection = $connectionFactory->connect('localhost:9331');
-        $client = new Client($connection);
+        $clientFactory = new ClientFactory($socketFactory);
+        $client = $clientFactory->connect('localhost:9331');
 
         $request = $client->newRequest(array(
             'REQUEST_METHOD'  => 'GET',
@@ -126,9 +124,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $socketFactory = new SocketFactory();
-        $connectionFactory = new ConnectionFactory($socketFactory);
-        $connection = $connectionFactory->connect('localhost:9331');
-        $client = new Client($connection);
+        $clientFactory = new ClientFactory($socketFactory);
+        $client = $clientFactory->connect('localhost:9331');
 
 
         $content = str_repeat('abcdefgh', 65535);
@@ -155,9 +152,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $socketFactory = new SocketFactory();
-        $connectionFactory = new ConnectionFactory($socketFactory);
-        $connection = $connectionFactory->connect('localhost:9331');
-        $client = new Client($connection);
+        $clientFactory = new ClientFactory($socketFactory);
+        $client = $clientFactory->connect('localhost:9331');
 
         $params = [];
         for ($i = 1; $i < 4000; $i++) {
@@ -187,9 +183,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $socketFactory = new SocketFactory();
-        $connectionFactory = new ConnectionFactory($socketFactory);
-        $connection = $connectionFactory->connect('localhost:9331');
-        $client = new Client($connection);
+        $clientFactory = new ClientFactory($socketFactory);
+        $client = $clientFactory->connect('localhost:9331');
 
 
         $request = $client->newRequest(array(

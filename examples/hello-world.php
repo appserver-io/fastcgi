@@ -1,16 +1,15 @@
 <?php
 
 use Crunch\FastCGI\Client;
-use Crunch\FastCGI\ConnectionFactory;
+use Crunch\FastCGI\ClientFactory;
 use Socket\Raw\Factory as SocketFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $socketFactory = new SocketFactory();
-$connectionFactory = new ConnectionFactory($socketFactory);
-$connection = $connectionFactory->connect('unix:///var/run/php5-fpm.sock');
-#$connection = $connectionFactory->connect('localhost:5330');
-$client = new Client($connection);
+$clientFactory = new ClientFactory($socketFactory);
+$client = $clientFactory->connect('unix:///var/run/php5-fpm.sock');
+#$client = $clientFactory->connect('localhost:5330');
 
 
 $name = (@$argv[1] ?: 'World');

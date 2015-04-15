@@ -3,7 +3,7 @@ namespace Crunch\FastCGI;
 
 use Socket\Raw\Factory as SocketFactory;
 
-class ConnectionFactory
+class ClientFactory
 {
     /** @var SocketFactory */
     private $socketFactory;
@@ -42,29 +42,6 @@ class ConnectionFactory
         // $socket->setOption(\SOL_SOCKET, \SO_SNDLOWAT, 8);
         $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 8);
 
-        return new Connection($socket);
-    }
-
-    /**
-     * Creates a server
-     *
-     * @param string $address
-     * @param callable $receiver
-     */
-    public function listen($address, callable $receiver)
-    {
-        if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
-            $address = "unix://$address";
-        }
-        $socket = $this->socketFactory->createServer($address);
-        $socket->setOption(\SOL_SOCKET, \SO_RCVLOWAT, 32);
-        $socket->setOption(\SOL_SOCKET, \SO_SNDLOWAT, 32);
-        $socket->setOption(\SOL_SOCKET, \SO_RCVBUF, 10 * 65544);
-        $socket->setOption(\SOL_SOCKET, \SO_SNDBUF, 0 * 65544);
-
-        $socket->listen();
-        while ($client = $socket->accept()) {
-            $receiver(new Connection($client));
-        }
+        return new Client(new Connection($socket));
     }
 }

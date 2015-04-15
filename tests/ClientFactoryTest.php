@@ -6,10 +6,10 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
 /**
- * @coversDefaultClass \Crunch\FastCGI\ConnectionFactory
- * @covers \Crunch\FastCGI\ConnectionFactory
+ * @coversDefaultClass \Crunch\FastCGI\ClientFactory
+ * @covers \Crunch\FastCGI\ClientFactory
  */
-class ConnectionFactoryTest extends TestCase
+class ClientFactoryTest extends TestCase
 {
     /** @var ObjectProphecy */
     private $socketFactory;
@@ -27,13 +27,13 @@ class ConnectionFactoryTest extends TestCase
      * @uses \Crunch\FastCGI\Connection::__construct
      * @uses \Crunch\FastCGI\Connection::__destruct
      */
-    public function testCreateConnection()
+    public function testCreateClient()
     {
-        $factory = new ConnectionFactory($this->socketFactory->reveal());
+        $factory = new ClientFactory($this->socketFactory->reveal());
 
 
         $connection = $factory->connect('foobar');
 
-        self::assertInstanceOf('\Crunch\FastCGI\Connection', $connection);
+        self::assertInstanceOf('\Crunch\FastCGI\Client', $connection);
     }
 }

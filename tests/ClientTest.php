@@ -16,15 +16,15 @@ class ClientTest extends TestCase
     /** @var ObjectProphecy */
     private $connectionProphet;
     /** @var ObjectProphecy */
-    private $connectionFactoryProphet;
+    private $clientFactoryProphet;
 
     protected function setUp()
     {
         parent::setUp();
 
         $this->connectionProphet = $this->prophesize('\Crunch\FastCGI\Connection');
-        $this->connectionFactoryProphet = $this->prophesize('\Crunch\FastCGI\ConnectionFactory');
-        $this->connectionFactoryProphet
+        $this->clientFactoryProphet = $this->prophesize('\Crunch\FastCGI\ClientFactory');
+        $this->clientFactoryProphet
             ->connect(Argument::type('string'), Argument::any())
             ->willReturn($this->connectionProphet->reveal());
     }
