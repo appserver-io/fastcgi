@@ -130,4 +130,83 @@ class ClientTest extends TestCase
 
         self::assertSame($response, $client->receiveResponse($request));
     }
+
+
+    /**
+     * @covers ::receiveResponse
+     */
+    public function testExceptionWhenTheRequestWerentSentBefore()
+    {
+        $this->setExpectedException('\Crunch\FastCGI\ClientException');
+
+        $requestProphet = $this->prophesize('\Crunch\FastCGI\Request');
+        $requestProphet->getID()->willReturn(42);
+
+        $request = $requestProphet->reveal();
+
+        $client = new Client($this->connectionProphet->reveal());
+
+        $client->receiveResponse($request);
+    }
+
+    /**
+     * @covers ::receiveResponse
+     */
+    public function testExceptionWhenThereComesARecordForAnUnknownRequestId()
+    {
+        $this->setExpectedException('\Crunch\FastCGI\ClientException');
+
+        $requestProphet = $this->prophesize('\Crunch\FastCGI\Request');
+        $requestProphet->getID()->willReturn(42);
+        $responseBuilderProphet = $this->prophesize('\Crunch\FastCGI\ResponseBuilder');
+        $responseBuilderProphet->isComplete()->willReturn(false);
+        $recordProphet = $this->prophesize('\Crunch\FastCGI\Record');
+        $recordProphet->getRequestId()->willReturn(23);
+        $this->connectionProphet
+            ->receive(Argument::type('integer'))
+            ->willReturn($recordProphet->reveal());
+
+
+        $client = new Client($this->connectionProphet->reveal());
+
+        $refClient = new \ReflectionObject($client);
+        $refProperty = $refClient->getProperty('responseBuilders');
+        $refProperty->setAccessible(true);
+        $refProperty->setValue($client, [42 => $responseBuilderProphet->reveal()]);
+
+        $request = $requestProphet->reveal();
+
+        $client->receiveResponse($request);
+    }
+
+
+    /**
+     * @covers ::receiveResponse
+     */
+    public function testReceiveResponseReturnsNullWhenResponseIsIncomplete()
+    {
+        $requestProphet = $this->prophesize('\Crunch\FastCGI\Request');
+        $requestProphet->getID()->willReturn(42);
+        $responseBuilderProphet = $this->prophesize('\Crunch\FastCGI\ResponseBuilder');
+        $responseBuilderProphet->isComplete()->willReturn(false);
+        $recordProphet = $this->prophesize('\Crunch\FastCGI\Record');
+        $recordProphet->getRequestId()->willReturn(42);
+        $record = $recordProphet->reveal();
+        $responseBuilderProphet->addRecord($record)->shouldBeCalled();
+        $this->connectionProphet
+            ->receive(Argument::type('integer'))
+            ->willReturn($record, null);
+
+
+        $client = new Client($this->connectionProphet->reveal());
+
+        $refClient = new \ReflectionObject($client);
+        $refProperty = $refClient->getProperty('responseBuilders');
+        $refProperty->setAccessible(true);
+        $refProperty->setValue($client, [42 => $responseBuilderProphet->reveal()]);
+
+        $request = $requestProphet->reveal();
+
+        self::assertNull($client->receiveResponse($request));
+    }
 }

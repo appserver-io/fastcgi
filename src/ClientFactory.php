@@ -30,8 +30,10 @@ class ClientFactory implements ClientFactoryInterface
      */
     public function connect($address)
     {
-        if (!preg_match('~^[^/]+://~', $address) && strpos($address, '/')) {
-            $address = "unix://$address";
+        if (!preg_match('~^[^/]+://~', $address)) {
+            if ($address[0] == '/') {
+                $address = "unix://$address";
+            }
         }
 
         $socket = $this->socketFactory->createClient($address);

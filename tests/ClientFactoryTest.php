@@ -37,4 +37,18 @@ class ClientFactoryTest extends TestCase
 
         self::assertInstanceOf('\Crunch\FastCGI\Client', $connection);
     }
+
+    /**
+     * @covers ::connect
+     * @uses \Crunch\FastCGI\Client::__construct
+     * @uses \Crunch\FastCGI\Connection::__construct
+     * @uses \Crunch\FastCGI\Connection::__destruct
+     */
+    public function testConnectCanHandleSchemelessUnixSocketPaths()
+    {
+        $factory = new ClientFactory($this->socketFactory->reveal());
+        $factory->connect('/foo/bar');
+
+        $this->socketFactory->createClient(Argument::exact('unix:///foo/bar'))->shouldHaveBeenCalled();
+    }
 }
