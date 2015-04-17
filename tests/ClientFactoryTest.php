@@ -24,6 +24,7 @@ class ClientFactoryTest extends TestCase
 
     /**
      * @covers ::connect
+     * @uses \Crunch\FastCGI\Client::__construct
      * @uses \Crunch\FastCGI\Connection::__construct
      * @uses \Crunch\FastCGI\Connection::__destruct
      */

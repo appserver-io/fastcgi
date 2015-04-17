@@ -14,22 +14,25 @@ class ConnectionTest extends TestCase
     /**
      * @var ObjectProphecy
      */
-    private $socket;
+    private $socketProphet;
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->socket = $this->prophesize('\Socket\Raw\Socket');
+        $this->socketProphet = $this->prophesize('\Socket\Raw\Socket');
+        $this->socketProphet->close()->willReturn(null);
     }
 
     public function testSocketNotReadyWhileSending()
     {
-        self::markTestIncomplete('Doesnt test, what it should test');
+        $recordProphet = $this->prophesize('\Crunch\FastCGI\Record');
 
-        $this->socket->selectWrite(Argument::type('int'))->willReturn(false);
+        $this->socketProphet->selectWrite(Argument::type('int'))->willReturn(false);
 
-        $this->setExpectedException('\Exception');
-        $connection = new Connection($this->socket->reveal());
+        $this->setExpectedException('\Crunch\FastCGI\ConnectionException');
+        $connection = new Connection($this->socketProphet->reveal());
+
+        $connection->send($recordProphet->reveal());
     }
 }

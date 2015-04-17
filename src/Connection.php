@@ -67,7 +67,7 @@ class Connection implements ConnectionInterface
      */
     public function send(Record $record)
     {
-        if (!$this->socket->selectWrite(4)) {
+        if (!$this->socket->selectWrite(0)) {
             throw new ConnectionException('Socket not ready exception');
         }
         $this->socket->send($record->pack(), 0);

@@ -111,18 +111,23 @@ class ClientTest extends TestCase
      */
     public function testReceiveRequest()
     {
-        self::markTestIncomplete('Doesn\'t work in current setup');
-
-
-        $request = $this->prophesize('\Crunch\FastCGI\Request');
-        $request->getID()->willReturn(42);
+        $requestProphet = $this->prophesize('\Crunch\FastCGI\Request');
+        $requestProphet->getID()->willReturn(42);
+        $responseBuilderProphet = $this->prophesize('\Crunch\FastCGI\ResponseBuilder');
+        $responseBuilderProphet->isComplete()->willReturn(true);
+        $responseProphet = $this->prophesize('\Crunch\FastCGI\ResponseInterface');
+        $response = $responseProphet->reveal();
+        $responseBuilderProphet->build()->willReturn($response);
 
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $request->reveal();
-        $client->sendRequest($request);
-        $client->receiveResponse($request);
+        $refClient = new \ReflectionObject($client);
+        $refProperty = $refClient->getProperty('responseBuilders');
+        $refProperty->setAccessible(true);
+        $refProperty->setValue($client, [42 => $responseBuilderProphet->reveal()]);
 
-        $this->recordHandlerProphet->createResponse(42)->shouldHaveBeenCalled();
+        $request = $requestProphet->reveal();
+
+        self::assertSame($response, $client->receiveResponse($request));
     }
 }
