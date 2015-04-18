@@ -70,7 +70,7 @@ class Connection implements ConnectionInterface
         if (!$this->socket->selectWrite(0)) {
             throw new ConnectionException('Socket not ready exception');
         }
-        $this->socket->send($record->pack(), 0);
+        $this->socket->send($record->encode(), 0);
     }
 
     /**
@@ -104,7 +104,7 @@ class Connection implements ConnectionInterface
         $header = Header::decode($rawHeader);
 
         $rawRecord = $this->socket->recv($header->getLength(), \MSG_WAITALL);
-        $record = Record::unpack($header, $rawRecord);
+        $record = Record::decode($header, $rawRecord);
         if ($header->getPaddingLength()) {
             $this->socket->recv($header->getPaddingLength(), \MSG_WAITALL);
         }

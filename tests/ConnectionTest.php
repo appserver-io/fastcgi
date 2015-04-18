@@ -45,7 +45,7 @@ class ConnectionTest extends TestCase
     public function testSendARecord()
     {
         $recordProphet = $this->prophesize('\Crunch\FastCGI\Record');
-        $recordProphet->pack()->willReturn('foo');
+        $recordProphet->encode()->willReturn('foo');
         $record = $recordProphet->reveal();
         $this->socketProphet->send('foo', Argument::type('integer'))->shouldBeCalled();
 

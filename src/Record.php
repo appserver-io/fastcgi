@@ -50,12 +50,12 @@ class Record
      *
      * @return string
      */
-    public function pack()
+    public function encode()
     {
         return $this->header->encode() . $this->getContent() . \str_repeat("\0", $this->header->getPaddingLength());
     }
 
-    public static function unpack(Header $header, $payload)
+    public static function decode(Header $header, $payload)
     {
         assert\that($payload)
             ->string();
