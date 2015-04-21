@@ -71,12 +71,12 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $clientFactory = new ClientFactory($socketFactory);
         $client = $clientFactory->connect('localhost:9331');
 
-        $request = $client->newRequest(array(
+        $request = $client->newRequest(new RequestParameters([
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => strlen('foo=bar')
-        ), 'foo=bar');
+        ]), 'foo=bar');
 
         $client->sendRequest($request);
 
@@ -99,12 +99,12 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $clientFactory = new ClientFactory($socketFactory);
         $client = $clientFactory->connect('localhost:9331');
 
-        $request = $client->newRequest(array(
+        $request = $client->newRequest(new RequestParameters([
             'REQUEST_METHOD'  => 'GET',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => 0
-        ), '');
+        ]), '');
 
         $client->sendRequest($request);
 
@@ -129,11 +129,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $content = str_repeat('abcdefgh', 65535);
-        $request = $client->newRequest(array(
+        $request = $client->newRequest(new RequestParameters([
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_LENGTH'  => strlen($content)
-        ), $content);
+        ]), $content);
 
         $client->sendRequest($request);
         $response = $client->receiveResponse($request);
@@ -155,17 +155,17 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $clientFactory = new ClientFactory($socketFactory);
         $client = $clientFactory->connect('localhost:9331');
 
-        $params = [];
-        for ($i = 1; $i < 4000; $i++) {
-            $params["param$i"] = "value$i";
-        }
-        $request = $client->newRequest(array(
+        $params = [
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => strlen('foo=bar')
-        ) + $params, 'foo=bar');
+        ];
+        for ($i = 1; $i < 4000; $i++) {
+            $params["param$i"] = "value$i";
+        }
+        $request = $client->newRequest(new RequestParameters($params), 'foo=bar');
 
         $client->sendRequest($request);
         $response = $client->receiveResponse($request);
@@ -187,13 +187,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $client = $clientFactory->connect('localhost:9331');
 
 
-        $request = $client->newRequest(array(
+        $request = $client->newRequest(new RequestParameters([
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => strlen('foo=bar')
-        ), 'foo=bar');
+        ]), 'foo=bar');
 
         time_nanosleep(0, 50000);
         $client->sendRequest($request);

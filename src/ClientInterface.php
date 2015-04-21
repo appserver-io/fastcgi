@@ -10,11 +10,11 @@ interface ClientInterface
      * recommended to use this factory method, because only this one
      * ensures, that the request uses a previously unused request id.
      *
-     * @param string[]|null $params
+     * @param RequestParametersInterface $parameters
      * @param string|null $stdin
      * @return RequestInterface
      */
-    public function newRequest(array $params = null, $stdin = null);
+    public function newRequest(RequestParametersInterface $parameters = null, $stdin = null);
 
     /**
      * Send request, but don't wait for response

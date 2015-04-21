@@ -12,8 +12,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 class ClientTest extends TestCase
 {
     /** @var ObjectProphecy */
-    private $recordHandlerProphet;
-    /** @var ObjectProphecy */
     private $connectionProphet;
     /** @var ObjectProphecy */
     private $clientFactoryProphet;
@@ -38,7 +36,7 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(['some' => 'param'], 'foobar');
+        $request = $client->newRequest(new RequestParameters(['some' => 'param']), 'foobar');
 
         self::assertInstanceOf('\Crunch\FastCGI\Request', $request);
     }
@@ -52,7 +50,7 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(['some' => 'param'], 'foobar');
+        $request = $client->newRequest(new RequestParameters(['some' => 'param']), 'foobar');
 
         self::assertInternalType('integer', $request->getID());
     }
@@ -66,9 +64,10 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(['some' => 'param'], 'foobar');
+        $parameters = new RequestParameters(['some' => 'param']);
+        $request = $client->newRequest($parameters, 'foobar');
 
-        self::assertEquals(['some' => 'param'], $request->getParameters());
+        self::assertSame($parameters, $request->getParameters());
     }
 
     /**
@@ -80,7 +79,7 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(['some' => 'param'], 'foobar');
+        $request = $client->newRequest(new RequestParameters(['some' => 'param']), 'foobar');
 
         self::assertEquals('foobar', $request->getStdin());
     }

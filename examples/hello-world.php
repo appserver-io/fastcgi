@@ -14,12 +14,12 @@ $client = $clientFactory->connect('unix:///var/run/php5-fpm.sock');
 
 $name = (@$argv[1] ?: 'World');
 $data = "name=$name";
-$request = $client->newRequest(array(
+$request = $client->newRequest(new \Crunch\FastCGI\RequestParameters([
     'REQUEST_METHOD'  => 'POST',
     'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
     'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
     'CONTENT_LENGTH'  => strlen($data)
-), $data);
+]), $data);
 
 $client->sendRequest($request);
 
