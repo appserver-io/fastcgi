@@ -28,14 +28,14 @@ class ResponseBuilder
             throw new \RuntimeException('Response already complete');
         }
 
-        switch ($record->getType()) {
-            case Record::STDOUT:
+        switch (true) {
+            case $record->getType()->isStdout():
                 $this->stdout .= $record->getContent();
                 break;
-            case Record::STDERR:
+            case $record->getType()->isStderr():
                 $this->stderr .= $record->getContent();
                 break;
-            case Record::END_REQUEST:
+            case $record->getType()->isEndRequest():
                 $this->complete = true;
                 break;
             default:

@@ -24,7 +24,7 @@ use Assert as assert;
  */
 class Header
 {
-    /** @var int */
+    /** @var RecordType */
     private $type;
     /** @var int */
     private $requestId;
@@ -39,17 +39,14 @@ class Header
      * If $paddingLength is omitted, it is calculated from $length. If $paddingLength
      * is set, it will be validated against $length.
      *
-     * @param int $type One of the type constants
+     * @param RecordType $type
      * @param int $requestId Greater than 1
      * @param int $length Must be between 0 and 65535 (including)
      * @param int|null $paddingLength between 0 and 7
      *                                Calculated from $length when omitted, exception when invalid
      */
-    public function __construct($type, $requestId, $length, $paddingLength = null)
+    public function __construct(RecordType $type, $requestId, $length, $paddingLength = null)
     {
-        assert\that($type)
-            ->integer()
-            ->range(1, 11, "Types are represented as integer between 1 and 11, $type given");
         assert\that($requestId)
             ->integer()
             ->min(1, "Request ID must be > 1, $requestId given");
@@ -91,11 +88,11 @@ class Header
 
         $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
 
-        return new self($header['type'], $header['requestId'], $header['length'], $header['paddingLength']);
+        return new self(RecordType::instance($header['type']), $header['requestId'], $header['length'], $header['paddingLength']);
     }
 
     /**
-     * @return int
+     * @return RecordType
      */
     public function getType()
     {
@@ -142,6 +139,6 @@ class Header
      */
     public function encode()
     {
-        return \pack('CCnnCx', 1, $this->getType(), $this->getRequestId(), $this->getLength(), $this->getPaddingLength());
+        return \pack('CCnnCx', 1, $this->getType()->value(), $this->getRequestId(), $this->getLength(), $this->getPaddingLength());
     }
 }

@@ -80,7 +80,7 @@ class Record
     }
 
     /**
-     * @return int
+     * @return RecordType
      */
     public function getType()
     {

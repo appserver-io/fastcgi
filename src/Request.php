@@ -56,20 +56,20 @@ class Request implements RequestInterface
      */
     public function toRecords()
     {
-        $result = [new Record(new Header(Record::BEGIN_REQUEST, $this->getID(), 8), \pack('xCCxxxxx', Connection::RESPONDER, 0xFF & 1))];
+        $result = [new Record(new Header(RecordType::beginRequest(), $this->getID(), 8), \pack('xCCxxxxx', Connection::RESPONDER, 0xFF & 1))];
 
         foreach ($this->getParameters()->encode($this->getID()) as $value) {
             $result[] = $value;
         }
 
         foreach (array_filter(str_split($this->getStdin(), 65535)) as $chunk) {
-            $result[] = new Record(new Header(Record::STDIN, $this->getID(), strlen($chunk)), $chunk);
+            $result[] = new Record(new Header(RecordType::stdin(), $this->getID(), strlen($chunk)), $chunk);
         }
 
         // I don't know why, but for some reason it seems, that the TCP-sockets expects
         // this to be of a certain minimum size. At least with an additional padding it works
         // with both unix- and tcp-sockets
-        $result[] = new Record(new Header(Record::STDIN, $this->getID(), 0, 0), '');
+        $result[] = new Record(new Header(RecordType::stdin(), $this->getID(), 0, 0), '');
 
         return new ArrayIterator($result);
     }

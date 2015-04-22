@@ -13,26 +13,25 @@ class HeaderTest extends TestCase
     {
         return [
             /* $type, $requestId, $length, $padding */
-            [4, 12, 4, null],
-            [4, 12, 2, 6],
-            [4, 12, 32, 0],
+            [RecordType::instance(4), 12, 4, null],
+            [RecordType::instance(4), 12, 2, 6],
+            [RecordType::instance(4), 12, 32, 0],
         ];
     }
 
     /**
      * @covers ::__construct
      * @dataProvider validConstructorArguments
-     * @param int $version
-     * @param int $type
+     * @param RecordType $type
      * @param int $requestId
      * @param int $length
      * @param int $paddingLength
      */
-    public function testConstructKeepsValues($type, $requestId, $length, $paddingLength)
+    public function testConstructKeepsValues(RecordType $type, $requestId, $length, $paddingLength)
     {
         $header = new Header($type, $requestId, $length, $paddingLength);
 
-        self::assertEquals($type, $header->getType());
+        self::assertSame($type, $header->getType());
         self::assertEquals($requestId, $header->getRequestId());
         self::assertEquals($length, $header->getLength());
         if ($paddingLength) {
@@ -45,26 +44,21 @@ class HeaderTest extends TestCase
     public static function invalidConstructorArguments()
     {
         return [
-            /* $version, $type, $requestId, $length, $padding */
-            [-4, 12, 4, null],
-            [55, 12, 4, null],
-            [4, -9, 4, null],
-            [4, 0, 4, null],
-            [4, 12, 4, 9],
-            [4, 12, 4, 2],
+            /* $type, $requestId, $length, $padding */
+            [RecordType::instance(4), 12, 4, 9],
+            [RecordType::instance(4), 12, 4, 2],
         ];
     }
 
     /**
      * @covers ::__construct
      * @dataProvider invalidConstructorArguments
-     * @param int $version
-     * @param int $type
+     * @param RecordType $type
      * @param int $requestId
      * @param int $length
      * @param int|null $padding
      */
-    public function testInvalidConstructorArguments($type, $requestId, $length, $padding)
+    public function testInvalidConstructorArguments(RecordType $type, $requestId, $length, $padding)
     {
         $this->setExpectedException('\Assert\AssertionFailedException');
 
@@ -92,7 +86,7 @@ class HeaderTest extends TestCase
      */
     public function testCorrectPaddingCalculation($length, $expectedPadding)
     {
-        $header = new Header(2, 3, $length);
+        $header = new Header(RecordType::instance(2), 3, $length);
 
         self::assertEquals($expectedPadding, $header->getPaddingLength());
     }
@@ -109,9 +103,9 @@ class HeaderTest extends TestCase
          */
         return [
             /* $header, $type, $requestId, $length, $paddingLength */
-            ["\x01\x02\x00\x03\x00\x04\x04\x00", 2, 3, 4, 4],
-            ["\x01\x06\x00\x12\x00\x10\x00\x00", 6, 18, 16, 0],
-            ["\x01\x06\x00\x12\x1f\xa4\x04\x00", 6, 18, 8100, 4],
+            ["\x01\x02\x00\x03\x00\x04\x04\x00", RecordType::instance(2), 3, 4, 4],
+            ["\x01\x06\x00\x12\x00\x10\x00\x00", RecordType::instance(6), 18, 16, 0],
+            ["\x01\x06\x00\x12\x1f\xa4\x04\x00", RecordType::instance(6), 18, 8100, 4],
         ];
     }
 
@@ -119,17 +113,16 @@ class HeaderTest extends TestCase
      * @covers ::decode
      * @dataProvider encodedHeaderProvider
      * @param string $headerString
-     * @param int $version
-     * @param int $type
+     * @param RecordType $type
      * @param int $requestId
      * @param int $length
      * @param int $paddingLength
      */
-    public function testDecodeHeader($headerString, $type, $requestId, $length, $paddingLength)
+    public function testDecodeHeader($headerString, RecordType $type, $requestId, $length, $paddingLength)
     {
         $header = Header::decode($headerString);
 
-        self::assertEquals($type, $header->getType());
+        self::assertSame($type, $header->getType());
         self::assertEquals($requestId, $header->getRequestId());
         self::assertEquals($length, $header->getLength());
         self::assertEquals($paddingLength, $header->getPaddingLength());
@@ -141,13 +134,12 @@ class HeaderTest extends TestCase
      * @covers ::encode
      * @dataProvider encodedHeaderProvider
      * @param string $headerString
-     * @param int $version
-     * @param int $type
+     * @param RecordType $type
      * @param int $requestId
      * @param int $length
      * @param int $paddingLength
      */
-    public function testEncodeHeader($headerString, $type, $requestId, $length, $paddingLength)
+    public function testEncodeHeader($headerString, RecordType $type, $requestId, $length, $paddingLength)
     {
         $header = new Header($type, $requestId, $length, $paddingLength);
 
@@ -173,8 +165,6 @@ class HeaderTest extends TestCase
             ["\x01\x02\x00\x03\x00\x04\x04\x06\x07\x08"],
 
             ["\x01\x02\x00\x03\x00\x04\x09\x00"], // Invalid padding
-            ["\x01\x0E\x00\x03\x00\x04\x04\x00"], // Invalid type
-
         ];
     }
 

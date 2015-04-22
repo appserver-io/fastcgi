@@ -39,7 +39,7 @@ class ResponseBuilderTest extends TestCase
         $builder = new ResponseBuilder;
 
         $record = $this->prophesize('\Crunch\FastCGI\Record');
-        $record->getType()->willReturn(Record::STDOUT);
+        $record->getType()->willReturn(RecordType::stdout());
         $record->getContent()->willReturn('foo');
 
         $builder->addRecord($record->reveal());
@@ -55,7 +55,7 @@ class ResponseBuilderTest extends TestCase
         $builder = new ResponseBuilder;
 
         $record = $this->prophesize('\Crunch\FastCGI\Record');
-        $record->getType()->willReturn(Record::STDERR);
+        $record->getType()->willReturn(RecordType::stderr());
         $record->getContent()->willReturn('foo');
 
         $builder->addRecord($record->reveal());
@@ -71,7 +71,7 @@ class ResponseBuilderTest extends TestCase
         $builder = new ResponseBuilder;
 
         $record = $this->prophesize('\Crunch\FastCGI\Record');
-        $record->getType()->willReturn(Record::END_REQUEST);
+        $record->getType()->willReturn(RecordType::endRequest());
 
         $builder->addRecord($record->reveal());
 
@@ -88,7 +88,7 @@ class ResponseBuilderTest extends TestCase
         $builder = new ResponseBuilder;
 
         $record = $this->prophesize('\Crunch\FastCGI\Record');
-        $record->getType()->willReturn(Record::END_REQUEST);
+        $record->getType()->willReturn(RecordType::endRequest());
         $otherRecord = $this->prophesize('\Crunch\FastCGI\Record');
 
         $builder->addRecord($record->reveal());
