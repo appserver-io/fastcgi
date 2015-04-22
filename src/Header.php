@@ -25,8 +25,6 @@ use Assert as assert;
 class Header
 {
     /** @var int */
-    private $version;
-    /** @var int */
     private $type;
     /** @var int */
     private $requestId;
@@ -41,18 +39,14 @@ class Header
      * If $paddingLength is omitted, it is calculated from $length. If $paddingLength
      * is set, it will be validated against $length.
      *
-     * @param int $version Must be 1
      * @param int $type One of the type constants
      * @param int $requestId Greater than 1
      * @param int $length Must be between 0 and 65535 (including)
      * @param int|null $paddingLength between 0 and 7
      *                                Calculated from $length when omitted, exception when invalid
      */
-    public function __construct($version, $type, $requestId, $length, $paddingLength = null)
+    public function __construct($type, $requestId, $length, $paddingLength = null)
     {
-        assert\that($version)
-            ->integer()
-            ->range(1, 1, "Only version 1 supported, $version given");
         assert\that($type)
             ->integer()
             ->range(1, 11, "Types are represented as integer between 1 and 11, $type given");
@@ -68,7 +62,6 @@ class Header
         assert\that(is_null($paddingLength) || ($paddingLength + $length) % 8 === 0)
             ->true('Sum of Length and Padding Length must be divisible by 8');
 
-        $this->version = $version;
         $this->type = $type;
         $this->requestId = $requestId;
         $this->length = $length;
@@ -98,15 +91,7 @@ class Header
 
         $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
 
-        return new self($header['version'], $header['type'], $header['requestId'], $header['length'], $header['paddingLength']);
-    }
-
-    /**
-     * @return int
-     */
-    public function getVersion()
-    {
-        return $this->version;
+        return new self($header['type'], $header['requestId'], $header['length'], $header['paddingLength']);
     }
 
     /**
@@ -157,6 +142,6 @@ class Header
      */
     public function encode()
     {
-        return \pack('CCnnCx', $this->getVersion(), $this->getType(), $this->getRequestId(), $this->getLength(), $this->getPaddingLength());
+        return \pack('CCnnCx', 1, $this->getType(), $this->getRequestId(), $this->getLength(), $this->getPaddingLength());
     }
 }

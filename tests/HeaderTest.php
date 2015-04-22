@@ -12,10 +12,10 @@ class HeaderTest extends TestCase
     public static function validConstructorArguments()
     {
         return [
-            /* $version, $type, $requestId, $length, $padding */
-            [1, 4, 12, 4, null],
-            [1, 4, 12, 2, 6],
-            [1, 4, 12, 32, 0],
+            /* $type, $requestId, $length, $padding */
+            [4, 12, 4, null],
+            [4, 12, 2, 6],
+            [4, 12, 32, 0],
         ];
     }
 
@@ -28,11 +28,10 @@ class HeaderTest extends TestCase
      * @param int $length
      * @param int $paddingLength
      */
-    public function testConstructKeepsValues($version, $type, $requestId, $length, $paddingLength)
+    public function testConstructKeepsValues($type, $requestId, $length, $paddingLength)
     {
-        $header = new Header($version, $type, $requestId, $length, $paddingLength);
+        $header = new Header($type, $requestId, $length, $paddingLength);
 
-        self::assertEquals($version, $header->getVersion());
         self::assertEquals($type, $header->getType());
         self::assertEquals($requestId, $header->getRequestId());
         self::assertEquals($length, $header->getLength());
@@ -47,14 +46,12 @@ class HeaderTest extends TestCase
     {
         return [
             /* $version, $type, $requestId, $length, $padding */
-            [12, 4, 12, 4, null],
-            [-1, 4, 12, 4, null],
-            [1, -4, 12, 4, null],
-            [1, 55, 12, 4, null],
-            [1, 4, -9, 4, null],
-            [1, 4, 0, 4, null],
-            [1, 4, 12, 4, 9],
-            [1, 4, 12, 4, 2],
+            [-4, 12, 4, null],
+            [55, 12, 4, null],
+            [4, -9, 4, null],
+            [4, 0, 4, null],
+            [4, 12, 4, 9],
+            [4, 12, 4, 2],
         ];
     }
 
@@ -67,11 +64,11 @@ class HeaderTest extends TestCase
      * @param int $length
      * @param int|null $padding
      */
-    public function testInvalidConstructorArguments($version, $type, $requestId, $length, $padding)
+    public function testInvalidConstructorArguments($type, $requestId, $length, $padding)
     {
         $this->setExpectedException('\Assert\AssertionFailedException');
 
-        new Header($version, $type, $requestId, $length, $padding);
+        new Header($type, $requestId, $length, $padding);
     }
 
     // TODO test invalid values (exception)
@@ -95,7 +92,7 @@ class HeaderTest extends TestCase
      */
     public function testCorrectPaddingCalculation($length, $expectedPadding)
     {
-        $header = new Header(1, 2, 3, $length);
+        $header = new Header(2, 3, $length);
 
         self::assertEquals($expectedPadding, $header->getPaddingLength());
     }
@@ -111,10 +108,10 @@ class HeaderTest extends TestCase
          * Byte 8 "unused" (still required)
          */
         return [
-            /* $header, $version, $type, $requestId, $length, $paddingLength */
-            ["\x01\x02\x00\x03\x00\x04\x04\x00", 1, 2, 3, 4, 4],
-            ["\x01\x06\x00\x12\x00\x10\x00\x00", 1, 6, 18, 16, 0],
-            ["\x01\x06\x00\x12\x1f\xa4\x04\x00", 1, 6, 18, 8100, 4],
+            /* $header, $type, $requestId, $length, $paddingLength */
+            ["\x01\x02\x00\x03\x00\x04\x04\x00", 2, 3, 4, 4],
+            ["\x01\x06\x00\x12\x00\x10\x00\x00", 6, 18, 16, 0],
+            ["\x01\x06\x00\x12\x1f\xa4\x04\x00", 6, 18, 8100, 4],
         ];
     }
 
@@ -128,11 +125,10 @@ class HeaderTest extends TestCase
      * @param int $length
      * @param int $paddingLength
      */
-    public function testDecodeHeader($headerString, $version, $type, $requestId, $length, $paddingLength)
+    public function testDecodeHeader($headerString, $type, $requestId, $length, $paddingLength)
     {
         $header = Header::decode($headerString);
 
-        self::assertEquals($version, $header->getVersion());
         self::assertEquals($type, $header->getType());
         self::assertEquals($requestId, $header->getRequestId());
         self::assertEquals($length, $header->getLength());
@@ -151,9 +147,9 @@ class HeaderTest extends TestCase
      * @param int $length
      * @param int $paddingLength
      */
-    public function testEncodeHeader($headerString, $version, $type, $requestId, $length, $paddingLength)
+    public function testEncodeHeader($headerString, $type, $requestId, $length, $paddingLength)
     {
-        $header = new Header($version, $type, $requestId, $length, $paddingLength);
+        $header = new Header($type, $requestId, $length, $paddingLength);
 
         self::assertEquals($headerString, $header->encode());
     }
@@ -177,7 +173,6 @@ class HeaderTest extends TestCase
             ["\x01\x02\x00\x03\x00\x04\x04\x06\x07\x08"],
 
             ["\x01\x02\x00\x03\x00\x04\x09\x00"], // Invalid padding
-            ["\x04\x02\x00\x03\x00\x04\x04\x00"], // Invalid version
             ["\x01\x0E\x00\x03\x00\x04\x04\x00"], // Invalid type
 
         ];
