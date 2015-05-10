@@ -54,7 +54,7 @@ class ResponseBuilder
             throw new \RuntimeException('Response not complete yet');
         }
 
-        $response = new Response($this->stdout, $this->stderr);
+        $response = new Response(new StringReader($this->stdout), new StringReader($this->stderr));
         $this->reset();
 
         return $response;

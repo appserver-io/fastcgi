@@ -76,13 +76,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => strlen('foo=bar')
-        ]), 'foo=bar');
+        ]), new StringReader('foo=bar'));
 
         $client->sendRequest($request);
 
         $response = $client->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent());
+        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
 
         list($server) = unserialize($body);
 
@@ -104,13 +104,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => 0
-        ]), '');
+        ]));
 
         $client->sendRequest($request);
 
         $response = $client->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent());
+        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
 
         list($server) = unserialize($body);
 
@@ -133,12 +133,12 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'REQUEST_METHOD'  => 'POST',
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
             'CONTENT_LENGTH'  => strlen($content)
-        ]), $content);
+        ]), new StringReader($content));
 
         $client->sendRequest($request);
         $response = $client->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent());
+        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
 
         list($server) = unserialize($body);
 
@@ -165,12 +165,12 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         for ($i = 1; $i < 4000; $i++) {
             $params["param$i"] = "value$i";
         }
-        $request = $client->newRequest(new RequestParameters($params), 'foo=bar');
+        $request = $client->newRequest(new RequestParameters($params), new StringReader('foo=bar'));
 
         $client->sendRequest($request);
         $response = $client->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent());
+        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
 
         list($server) = unserialize($body);
 
@@ -193,7 +193,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
             'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
             'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH'  => strlen('foo=bar')
-        ]), 'foo=bar');
+        ]), new StringReader('foo=bar'));
 
         time_nanosleep(0, 50000);
         $client->sendRequest($request);

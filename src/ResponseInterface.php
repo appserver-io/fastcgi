@@ -10,12 +10,12 @@ namespace Crunch\FastCGI;
 interface ResponseInterface
 {
     /**
-     * @return string
+     * @return ReaderInterface
      */
     public function getContent();
 
     /**
-     * @return string
+     * @return ReaderInterface
      */
     public function getError();
 }

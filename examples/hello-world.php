@@ -19,7 +19,7 @@ $request = $client->newRequest(new \Crunch\FastCGI\RequestParameters([
     'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
     'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
     'CONTENT_LENGTH'  => strlen($data)
-]), $data);
+]), new \Crunch\FastCGI\StringReader($data));
 
 $client->sendRequest($request);
 
@@ -29,4 +29,4 @@ while (!($response = $client->receiveResponse($request))) {
     echo '.';
 }
 
-echo "\n" . $response->getContent() . \PHP_EOL;
+echo "\n" . $response->getContent()->read() . \PHP_EOL;

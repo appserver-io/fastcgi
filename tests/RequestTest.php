@@ -14,7 +14,7 @@ class RequestTest extends TestCase
      */
     public function testInstanceKeepsId()
     {
-        $response = new Request(5, new RequestParameters(['foo' => 'bar']), 'baz');
+        $response = new Request(5, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
 
         self::assertEquals(5, $response->getID());
     }
@@ -25,7 +25,7 @@ class RequestTest extends TestCase
     public function testInstanceKeepsParameters()
     {
         $parameters = new RequestParameters(['foo' => 'bar']);
-        $response = new Request(5, $parameters, 'baz');
+        $response = new Request(5, $parameters, new StringReader('baz'));
 
         self::assertSame($parameters, $response->getParameters());
     }
@@ -35,8 +35,8 @@ class RequestTest extends TestCase
      */
     public function testInstanceKeepsStdin()
     {
-        $response = new Request(5, new RequestParameters(['foo' => 'bar']), 'baz');
+        $response = new Request(5, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
 
-        self::assertEquals('baz', $response->getStdin());
+        self::assertEquals('baz', $response->getStdin()->read(3));
     }
 }

@@ -14,9 +14,11 @@ class ResponseTest extends TestCase
      */
     public function testInstanceKeepsError()
     {
-        $response = new Response('foo', 'bar');
+        $content = new StringReader('foo');
+        $error = new StringReader('bar');
+        $response = new Response($content, $error);
 
-        self::assertEquals('bar', $response->getError());
+        self::assertSame($error, $response->getError());
     }
 
     /**
@@ -24,8 +26,10 @@ class ResponseTest extends TestCase
      */
     public function testInstanceKeepsContent()
     {
-        $response = new Response('foo', 'bar');
+        $content = new StringReader('foo');
+        $error = new StringReader('bar');
+        $response = new Response($content, $error);
 
-        self::assertEquals('foo', $response->getContent());
+        self::assertSame($content, $response->getContent());
     }
 }

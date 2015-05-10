@@ -10,19 +10,19 @@ class Request implements RequestInterface
     private $ID;
     /** @var RequestParameters */
     private $parameters;
-    /** @var string|resource content to send ("body") */
+    /** @var ReaderInterface content to send ("body") */
     private $stdin;
 
     /**
      * @param int $requestId
-     * @param RequestParametersInterface $parameters
-     * @param string|null $stdin string or stream resource
+     * @param RequestParametersInterface|null $parameters
+     * @param ReaderInterface|null $stdin string or stream resource
      */
-    public function __construct($requestId, RequestParametersInterface $parameters = null, $stdin = null)
+    public function __construct($requestId, RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
         $this->ID = $requestId;
-        $this->parameters = $parameters ?: new RequestParameters();
-        $this->stdin = $stdin ?: '';
+        $this->parameters = $parameters ?: new RequestParameters;
+        $this->stdin = $stdin ?: new EmptyReader;
     }
 
     /**
@@ -42,7 +42,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @return string
+     * @return ReaderInterface
      */
     public function getStdin()
     {
@@ -62,7 +62,7 @@ class Request implements RequestInterface
             $result[] = $value;
         }
 
-        foreach (array_filter(str_split($this->getStdin(), 65535)) as $chunk) {
+        while ($chunk = $this->stdin->read(65535)) {
             $result[] = new Record(new Header(RecordType::stdin(), $this->getID(), strlen($chunk)), $chunk);
         }
 

@@ -3,19 +3,19 @@ namespace Crunch\FastCGI;
 
 class Response implements ResponseInterface
 {
-    /** @var string */
+    /** @var ReaderInterface */
     private $content = '';
-    /** @var string */
+    /** @var ReaderInterface */
     private $error = '';
 
-    public function __construct($content, $error)
+    public function __construct(ReaderInterface $content, ReaderInterface $error)
     {
         $this->content = $content;
         $this->error = $error;
     }
 
     /**
-     * @return string
+     * @return ReaderInterface
      */
     public function getContent()
     {
@@ -23,7 +23,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return string
+     * @return ReaderInterface
      */
     public function getError()
     {

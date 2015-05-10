@@ -36,7 +36,7 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(new RequestParameters(['some' => 'param']), 'foobar');
+        $request = $client->newRequest(new RequestParameters(['some' => 'param']), new StringReader('foobar'));
 
         self::assertInstanceOf('\Crunch\FastCGI\Request', $request);
     }
@@ -50,7 +50,7 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(new RequestParameters(['some' => 'param']), 'foobar');
+        $request = $client->newRequest(new RequestParameters(['some' => 'param']), new StringReader('foobar'));
 
         self::assertInternalType('integer', $request->getID());
     }
@@ -65,7 +65,7 @@ class ClientTest extends TestCase
         $client = new Client($this->connectionProphet->reveal());
 
         $parameters = new RequestParameters(['some' => 'param']);
-        $request = $client->newRequest($parameters, 'foobar');
+        $request = $client->newRequest($parameters, new StringReader('foobar'));
 
         self::assertSame($parameters, $request->getParameters());
     }
@@ -79,9 +79,9 @@ class ClientTest extends TestCase
     {
         $client = new Client($this->connectionProphet->reveal());
 
-        $request = $client->newRequest(new RequestParameters(['some' => 'param']), 'foobar');
+        $request = $client->newRequest(new RequestParameters(['some' => 'param']), new StringReader('foobar'));
 
-        self::assertEquals('foobar', $request->getStdin());
+        self::assertEquals('foobar', $request->getStdin()->read(6));
     }
 
     /**

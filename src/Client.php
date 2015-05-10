@@ -28,11 +28,11 @@ class Client implements ClientInterface
      * recommended to use this factory method, because only this one
      * ensures, that the request uses a previously unused request id.
      *
-     * @param RequestParametersInterface $parameters
-     * @param string|null $stdin
+     * @param RequestParametersInterface|null $parameters
+     * @param ReaderInterface|null $stdin
      * @return RequestInterface
      */
-    public function newRequest(RequestParametersInterface $parameters = null, $stdin = null)
+    public function newRequest(RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
         return new Request($this->nextRequestId++, $parameters, $stdin);
     }
