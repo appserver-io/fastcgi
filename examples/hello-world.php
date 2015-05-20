@@ -1,7 +1,7 @@
 <?php
 
-use Crunch\FastCGI\Client;
-use Crunch\FastCGI\ClientFactory;
+use Crunch\FastCGI\Client\Client;
+use Crunch\FastCGI\Client\ClientFactory;
 use Socket\Raw\Factory as SocketFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -14,12 +14,12 @@ $client = $clientFactory->connect('unix:///var/run/php5-fpm.sock');
 
 $name = (@$argv[1] ?: 'World');
 $data = "name=$name";
-$request = $client->newRequest(new \Crunch\FastCGI\RequestParameters([
+$request = $client->newRequest(new \Crunch\FastCGI\Protocol\RequestParameters([
     'REQUEST_METHOD'  => 'POST',
     'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
     'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
     'CONTENT_LENGTH'  => strlen($data)
-]), new \Crunch\FastCGI\StringReader($data));
+]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
 
 $client->sendRequest($request);
 

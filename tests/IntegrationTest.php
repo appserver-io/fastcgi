@@ -2,6 +2,9 @@
 namespace Crunch\FastCGI;
 
 use Assert\AssertionFailedException;
+use Crunch\FastCGI\Client\ClientFactory;
+use Crunch\FastCGI\Protocol\RequestParameters;
+use Crunch\FastCGI\ReaderWriter\StringReader;
 use Socket\Raw\Exception as SocketException;
 use Socket\Raw\Factory as SocketFactory;
 
