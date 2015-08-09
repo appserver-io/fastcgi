@@ -44,4 +44,16 @@ class RequestParameters implements RequestParametersInterface
 
         return new ArrayIterator($result);
     }
+
+    public static function decode ($data)
+    {
+        $params = [];
+        while ($data) {
+            $header = \unpack('Nname/Nvalue', substr($data, 0, 8));
+            $params[substr($data, 8, $header['name'] - 0x80000000)] = substr($data, 8 + $header['name'] - 0x80000000, $header['value'] - 0x80000000);
+            $data = substr($data, 8 + ($header['name'] - 0x80000000) + ($header['value'] - 0x80000000));
+        }
+
+        return new self($params);
+    }
 }

@@ -2,7 +2,9 @@
 namespace Crunch\FastCGI;
 
 use Assert\AssertionFailedException;
+use Crunch\FastCGI\Client\Client;
 use Crunch\FastCGI\Client\ClientFactory;
+use Crunch\FastCGI\Connection\ConnectionFactory;
 use Crunch\FastCGI\Protocol\RequestParameters;
 use Crunch\FastCGI\ReaderWriter\StringReader;
 use Socket\Raw\Exception as SocketException;
@@ -70,9 +72,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->expectPHPFPMRunning();
 
 
-        $socketFactory = new SocketFactory();
-        $clientFactory = new ClientFactory($socketFactory);
-        $client = $clientFactory->connect('localhost:9331');
+        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
 
         $request = $client->newRequest(new RequestParameters([
             'REQUEST_METHOD'  => 'POST',
@@ -98,9 +98,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->expectPHPFPMRunning();
 
 
-        $socketFactory = new SocketFactory();
-        $clientFactory = new ClientFactory($socketFactory);
-        $client = $clientFactory->connect('localhost:9331');
+        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
 
         $request = $client->newRequest(new RequestParameters([
             'REQUEST_METHOD'  => 'GET',
@@ -126,9 +124,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->expectPHPFPMRunning();
 
 
-        $socketFactory = new SocketFactory();
-        $clientFactory = new ClientFactory($socketFactory);
-        $client = $clientFactory->connect('localhost:9331');
+        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
 
 
         $content = str_repeat('abcdefgh', 65535);
@@ -154,9 +150,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->expectPHPFPMRunning();
 
 
-        $socketFactory = new SocketFactory();
-        $clientFactory = new ClientFactory($socketFactory);
-        $client = $clientFactory->connect('localhost:9331');
+        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
 
         $params = [
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -185,9 +179,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->expectPHPFPMRunning();
 
 
-        $socketFactory = new SocketFactory();
-        $clientFactory = new ClientFactory($socketFactory);
-        $client = $clientFactory->connect('localhost:9331');
+        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
 
 
         $request = $client->newRequest(new RequestParameters([

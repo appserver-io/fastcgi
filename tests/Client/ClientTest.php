@@ -1,5 +1,5 @@
 <?php
-namespace Crunch\FastCGI\CLient;
+namespace Crunch\FastCGI\Client;
 
 use Crunch\FastCGI\Protocol\RequestParameters;
 use Crunch\FastCGI\ReaderWriter\StringReader;
@@ -16,7 +16,7 @@ class ClientTest extends TestCase
     /** @var ObjectProphecy */
     private $connectionProphet;
     /** @var ObjectProphecy */
-    private $clientFactoryProphet;
+    private $connectionFactoryProphet;
 
     /** @var ObjectProphecy */
     private $requestParametersProphet;
@@ -29,9 +29,9 @@ class ClientTest extends TestCase
 
         $this->connectionProphet = $this->prophesize('\Crunch\FastCGI\Connection\Connection');
 
-        $this->clientFactoryProphet = $this->prophesize('\Crunch\FastCGI\Client\ClientFactory');
-        $this->clientFactoryProphet
-            ->connect(Argument::type('string'), Argument::any())
+        $this->connectionFactoryProphet = $this->prophesize('\Crunch\FastCGI\Connection\ConnectionFactoryInterface');
+        $this->connectionFactoryProphet
+            ->connect()
             ->willReturn($this->connectionProphet->reveal());
 
         $this->requestParametersProphet = $this->prophesize('\Crunch\FastCGI\Protocol\RequestParametersInterface');
@@ -45,7 +45,7 @@ class ClientTest extends TestCase
      */
     public function testCreateNewRequest()
     {
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $request = $client->newRequest($this->requestParametersProphet->reveal(), $this->readerProphet->reveal());
 
@@ -59,7 +59,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceHasIntegerId()
     {
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $request = $client->newRequest($this->requestParametersProphet->reveal(), $this->readerProphet->reveal());
 
@@ -73,7 +73,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceKeepsParameters()
     {
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $parameters = $this->requestParametersProphet->reveal();
         $request = $client->newRequest($parameters, $this->readerProphet->reveal());
@@ -88,7 +88,7 @@ class ClientTest extends TestCase
      */
     public function testNewInstanceKeepsBody()
     {
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $this->readerProphet->read(Argument::type('integer'))->willReturn('foobar', '');
         $request = $client->newRequest($this->requestParametersProphet->reveal(), $this->readerProphet->reveal());
@@ -110,7 +110,7 @@ class ClientTest extends TestCase
         $requestProphet->toRecords()->willReturn([$record]);
         $requestProphet->getID()->willReturn(42);
 
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $client->sendRequest($requestProphet->reveal());
 
@@ -130,7 +130,7 @@ class ClientTest extends TestCase
         $response = $responseProphet->reveal();
         $responseBuilderProphet->build()->willReturn($response);
 
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $refClient = new \ReflectionObject($client);
         $refProperty = $refClient->getProperty('responseBuilders');
@@ -155,7 +155,7 @@ class ClientTest extends TestCase
 
         $request = $requestProphet->reveal();
 
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $client->receiveResponse($request);
     }
@@ -178,7 +178,7 @@ class ClientTest extends TestCase
             ->willReturn($recordProphet->reveal());
 
 
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $refClient = new \ReflectionObject($client);
         $refProperty = $refClient->getProperty('responseBuilders');
@@ -209,7 +209,7 @@ class ClientTest extends TestCase
             ->willReturn($record, null);
 
 
-        $client = new Client($this->connectionProphet->reveal());
+        $client = new Client($this->connectionFactoryProphet->reveal());
 
         $refClient = new \ReflectionObject($client);
         $refProperty = $refClient->getProperty('responseBuilders');

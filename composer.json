@@ -15,6 +15,7 @@
     ],
     "require": {
         "php": "~5.4",
+        "react/socket": "~0.4",
         "clue/socket-raw": "~1.0",
         "beberlei/assert": "~2.0"
     },

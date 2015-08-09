@@ -2,7 +2,7 @@
 namespace Crunch\FastCGI\Client;
 
 use Crunch\FastCGI\Connection\Connection;
-use Crunch\FastCGI\Connection\ConnectionInterface;
+use Crunch\FastCGI\Connection\ConnectionFactoryInterface;
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParametersInterface;
@@ -11,7 +11,7 @@ use Crunch\FastCGI\ReaderWriter\ReaderInterface;
 
 class Client implements ClientInterface
 {
-    /** @var Connection */
+    /** @var Connection|null */
     private $connection;
     /** @var int Next request id to use */
     private $nextRequestId = 1;
@@ -21,11 +21,11 @@ class Client implements ClientInterface
     /**
      * Creates new client instance
      *
-     * @param ConnectionInterface $connection
+     * @param ConnectionFactoryInterface $connectionFactory
      */
-    public function __construct(ConnectionInterface $connection)
+    public function __construct(ConnectionFactoryInterface $connectionFactory)
     {
-        $this->connection = $connection;
+        $this->connection = $connectionFactory->connect();
     }
 
     /**
