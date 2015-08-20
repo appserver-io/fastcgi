@@ -1,7 +1,9 @@
 <?php
 namespace Crunch\FastCGI\Protocol;
 
+use ArrayIterator;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
+use Traversable;
 
 class Response implements ResponseInterface
 {
@@ -30,5 +32,29 @@ class Response implements ResponseInterface
     public function getError()
     {
         return $this->error;
+    }
+
+
+    /**
+     * Encodes request into an traversable of records
+     *
+     * @return Traversable|Record[]
+     */
+    public function toRecords($id)
+    {
+        $result = [];
+
+        while ($chunk = $this->error->read(65535)) {
+            $result[] = new Record(new Header(RecordType::stderr(), $id, strlen($chunk)), $chunk);
+        }
+
+        while ($chunk = $this->error->read(65535)) {
+            $result[] = new Record(new Header(RecordType::stdout(), $id, strlen($chunk)), $chunk);
+        }
+        $result[] = new Record(new Header(RecordType::stdout(), $id, 0, 8), '');
+
+        $result[] = new Record(new Header(RecordType::endRequest(), $id, 0, 8), '');
+
+        return new ArrayIterator($result);
     }
 }

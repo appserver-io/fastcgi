@@ -6,25 +6,35 @@ use Socket\Raw\Factory as SocketFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$client = new Client(new ConnectionFactory('unix:///var/run/php5-fpm.sock', new SocketFactory));
-$client = new Client(new ConnectionFactory('localhost:1337', new SocketFactory));
+$loop = React\EventLoop\Factory::create();
+
+$dnsResolverFactory = new React\Dns\Resolver\Factory();
+$dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
+
+$connector = new React\SocketClient\Connector($loop, $dns);
+
+$factory = new \Crunch\FastCGI\Client\Factory($loop, $connector);
+
+$factory->createClient('127.0.0.1', 9000)->then(function (Client $client) use ($argv, $loop) {
+
+    $name = (@$argv[1] ?: 'World');
+    $data = "name=$name";
+    $request = $client->newRequest(new \Crunch\FastCGI\Protocol\RequestParameters([
+        'REQUEST_METHOD'  => 'POST',
+        'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
+        'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
+        'CONTENT_LENGTH'  => strlen($data)
+    ]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
+
+    $x = $client->sendRequest($request)->then(function ($response) use ($client) {
+        echo "\n" . $response->getContent()->read() . \PHP_EOL;
+    });
+
+    $all = \React\Promise\all([$x]);
+    $all->then(function() use ($client) {
+        $client->close();
+    });
+});
 
 
-$name = (@$argv[1] ?: 'World');
-$data = "name=$name";
-$request = $client->newRequest(new \Crunch\FastCGI\Protocol\RequestParameters([
-    'REQUEST_METHOD'  => 'POST',
-    'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
-    'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-    'CONTENT_LENGTH'  => strlen($data)
-]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
-
-$client->sendRequest($request);
-
-// Usually this ends up in an exception if there is an error, so this
-// shouldn't end up in an infinite loop
-while (!($response = $client->receiveResponse($request))) {
-    echo '.';
-}
-
-echo "\n" . $response->getContent()->read() . \PHP_EOL;
+$loop->run();

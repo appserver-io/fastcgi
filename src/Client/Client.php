@@ -3,29 +3,42 @@ namespace Crunch\FastCGI\Client;
 
 use Crunch\FastCGI\Connection\Connection;
 use Crunch\FastCGI\Connection\ConnectionFactoryInterface;
+use Crunch\FastCGI\Protocol\Header;
+use Crunch\FastCGI\Protocol\Record;
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParametersInterface;
 use Crunch\FastCGI\Protocol\ResponseInterface;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
+use React\Promise\Deferred;
+use React\SocketClient\ConnectorInterface;
+use React\Stream\DuplexStreamInterface;
+use React\Stream\Stream;
 
-class Client implements ClientInterface
+class Client
 {
     /** @var Connection|null */
-    private $connection;
+    private $connector;
     /** @var int Next request id to use */
     private $nextRequestId = 1;
     /** @var ResponseBuilder[] */
     private $responseBuilders = [];
+
+    /** @var Deferred[] */
+    private $promises = [];
 
     /**
      * Creates new client instance
      *
      * @param ConnectionFactoryInterface $connectionFactory
      */
-    public function __construct(ConnectionFactoryInterface $connectionFactory)
+    public function __construct(DuplexStreamInterface $connector)
     {
-        $this->connection = $connectionFactory->connect();
+        $connector->bufferSize = 8;
+        $connector->on('data', function($data) {
+            $this->read($data);
+        });
+        $this->connector = $connector;
     }
 
     /**
@@ -54,42 +67,38 @@ class Client implements ClientInterface
     public function sendRequest(RequestInterface $request)
     {
         $this->responseBuilders[$request->getID()] = new ResponseBuilder;
+        $this->promises[$request->getID()] = new Deferred();
         foreach ($request->toRecords() as $record) {
-            $this->connection->send($record);
+            $this->connector->write($record->encode());
+        }
+
+        return $this->promises[$request->getID()]->promise();
+    }
+
+    private $data = '';
+
+    private function read($data)
+    {
+        $this->data .= $data;
+
+        $header = Header::decode(substr($this->data, 0, 8));
+
+        if (strlen($this->data) < $header->getPayloadLength() + 8) {
+            return;
+        }
+
+        $rawRecord = substr($this->data, 8, $header->getLength());
+        $record = Record::decode($header, $rawRecord);
+        $this->data = substr($this->data, 8 + $header->getPayloadLength());
+
+        $this->responseBuilders[$header->getRequestId()]->addRecord($record);
+        if ($this->responseBuilders[$header->getRequestId()]->isComplete()) {
+            $this->promises[$header->getRequestId()]->resolve($this->responseBuilders[$header->getRequestId()]->build());
         }
     }
 
-    /**
-     * Receive response
-     *
-     * Returns the response a request previously sent with sendRequest()
-     *
-     * @param RequestInterface $request
-     * @return ResponseInterface
-     * @throws \Exception
-     */
-    public function receiveResponse(RequestInterface $request)
+    public function close()
     {
-        if (!isset($this->responseBuilders[$request->getID()])) {
-            throw new ClientException('Client never performed a request for request ID '. $request->getID());
-        }
-
-        while (!$this->responseBuilders[$request->getID()]->isComplete() && $record = $this->connection->receive(10)) {
-            if (!isset($this->responseBuilders[$record->getRequestId()])) {
-                throw new ClientException('Received unexpected request ID ' . $record->getRequestId());
-            }
-
-            $this->responseBuilders[$record->getRequestId()]->addRecord($record);
-        }
-
-        if (!$this->responseBuilders[$request->getID()]->isComplete()) {
-            return null;
-        }
-
-
-        $response = $this->responseBuilders[$request->getID()]->build();
-        unset($this->responseBuilders[$request->getID()]);
-
-        return $response;
+        $this->connector->close();
     }
 }

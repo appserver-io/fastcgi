@@ -59,7 +59,7 @@ class Request implements RequestInterface
      */
     public function toRecords()
     {
-        $result = [new Record(new Header(RecordType::beginRequest(), $this->getID(), 8), \pack('xCCxxxxx', Connection::RESPONDER, 0xFF & 1))];
+        $result = [new Record(new Header(RecordType::beginRequest(), $this->getID(), 8), \pack('xCCxxxxx', Role::RESPONDER, 0xFF & 1))];
 
         foreach ($this->getParameters()->encode($this->getID()) as $value) {
             $result[] = $value;

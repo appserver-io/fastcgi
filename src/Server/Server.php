@@ -3,6 +3,9 @@ namespace Crunch\FastCGI\Server;
 
 use Crunch\FastCGI\Protocol\Header;
 use Crunch\FastCGI\Protocol\Record;
+use Crunch\FastCGI\Protocol\Request;
+use Crunch\FastCGI\Protocol\Response;
+use Crunch\FastCGI\ReaderWriter\StringReader;
 use Evenement\EventEmitter;
 use Evenement\EventEmitterInterface;
 use React\EventLoop\LoopInterface;
@@ -54,10 +57,17 @@ class Server
     private function handleConnection (ConnectionInterface $connection)
     {
         $demux = new Demux();
+
+        $handler = new CallbackRequestHandler(function(Request $request) {
+            return new Response(new StringReader('foo'), new StringReader('bar'));
+        });
         $connection->bufferSize = 8;
-        $connection->on('data', function ($data) use ($demux) {
+        $connection->on('data', function ($data) use ($demux, $connection, $handler) {
             if ($record = $this->buffer->pushChunk($data)) {
-                $demux->pushRecord($record);
+                if ($request = $demux->pushRecord($record)) {
+                    sleep(1);
+                    $handler->handleRequest($request, new Responder($connection));
+                }
             }
         });
     }
