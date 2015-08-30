@@ -3,6 +3,9 @@ namespace Crunch\FastCGI\Server;
 
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
+use Crunch\FastCGI\Protocol\Response;
+use Crunch\FastCGI\Protocol\ResponseInterface;
+use React\Socket\ConnectionInterface;
 
 class CallbackRequestHandler implements RequestHandlerInterface
 {
@@ -18,11 +21,16 @@ class CallbackRequestHandler implements RequestHandlerInterface
     }
 
 
-    public function handleRequest(RequestInterface $request, Responder $responder)
+    public function handleRequest(RequestInterface $request, ConnectionInterface $connection)
     {
         $callback = $this->callback;
+        /** @var Response $response */
         $response = $callback($request);
 
-        $responder->sendResponse($response, $request->getID());
+        foreach ($response->toRecords($request->getID()) as $record) {
+            var_dump($record->getType());
+            $connection->write($record->encode());
+        }
+        $connection->end('');
     }
 }

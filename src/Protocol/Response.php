@@ -48,7 +48,7 @@ class Response implements ResponseInterface
             $result[] = new Record(new Header(RecordType::stderr(), $id, strlen($chunk)), $chunk);
         }
 
-        while ($chunk = $this->error->read(65535)) {
+        while ($chunk = $this->content->read(65535)) {
             $result[] = new Record(new Header(RecordType::stdout(), $id, strlen($chunk)), $chunk);
         }
         $result[] = new Record(new Header(RecordType::stdout(), $id, 0, 8), '');
@@ -56,5 +56,13 @@ class Response implements ResponseInterface
         $result[] = new Record(new Header(RecordType::endRequest(), $id, 0, 8), '');
 
         return new ArrayIterator($result);
+    }
+
+    public function __debugInfo()
+    {
+        return [
+            'content' => bin2hex($this->content),
+            'error' => bin2hex($this->error),
+        ];
     }
 }

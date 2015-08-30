@@ -21,9 +21,8 @@ class Server
     private $loop;
     /** @var ServerInterface */
     private $server;
-
-    private $buffer = '';
-    private $header;
+    /** @var RequestHandlerInterface */
+    private $handler;
 
     /**
      * Server constructor.
@@ -31,16 +30,11 @@ class Server
      * @param ServerInterface $server
      * @param LoopInterface   $loop
      */
-    public function __construct(ServerInterface $server, LoopInterface $loop)
+    public function __construct(ServerInterface $server, RequestHandlerInterface $handler, LoopInterface $loop)
     {
         $this->server = $server;
         $this->loop = $loop;
-        $this->buffer = new RecordParser;
-    }
-
-    public function listen($address)
-    {
-
+        $this->handler = $handler;
     }
 
     public function run($address)
@@ -54,21 +48,8 @@ class Server
         $this->loop->run();
     }
 
-    private function handleConnection (ConnectionInterface $connection)
+    private function handleConnection(ConnectionInterface $connection)
     {
-        $demux = new Demux();
-
-        $handler = new CallbackRequestHandler(function(Request $request) {
-            return new Response(new StringReader('foo'), new StringReader('bar'));
-        });
-        $connection->bufferSize = 8;
-        $connection->on('data', function ($data) use ($demux, $connection, $handler) {
-            if ($record = $this->buffer->pushChunk($data)) {
-                if ($request = $demux->pushRecord($record)) {
-                    sleep(1);
-                    $handler->handleRequest($request, new Responder($connection));
-                }
-            }
-        });
+        $connection->pipe(new Decoder(new RecordHandler($this->handler), $connection));
     }
 }

@@ -2,9 +2,16 @@
 
 use Crunch\FastCGI\Client\Client;
 use Crunch\FastCGI\Connection\ConnectionFactory;
+use Crunch\FastCGI\Protocol\Request;
+use Crunch\FastCGI\Protocol\Response;
+use Crunch\FastCGI\ReaderWriter\StringReader;
+use Crunch\FastCGI\Server\CallbackRequestHandler;
+use Crunch\FastCGI\Server\Responder;
 use Socket\Raw\Factory as SocketFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+
 
 $loop = React\EventLoop\Factory::create();
 
@@ -15,7 +22,7 @@ $connector = new React\SocketClient\Connector($loop, $dns);
 
 $factory = new \Crunch\FastCGI\Client\Factory($loop, $connector);
 
-$factory->createClient('127.0.0.1', 9000)->then(function (Client $client) use ($argv, $loop) {
+$factory->createClient('127.0.0.1', 1337)->then(function (Client $client) use ($argv, $loop) {
 
     $name = (@$argv[1] ?: 'World');
     $data = "name=$name";
@@ -27,6 +34,7 @@ $factory->createClient('127.0.0.1', 9000)->then(function (Client $client) use ($
     ]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
 
     $x = $client->sendRequest($request)->then(function ($response) use ($client) {
+        var_dump($response);
         echo "\n" . $response->getContent()->read() . \PHP_EOL;
     });
 

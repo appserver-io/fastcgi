@@ -34,7 +34,6 @@ class Client
      */
     public function __construct(DuplexStreamInterface $connector)
     {
-        $connector->bufferSize = 8;
         $connector->on('data', function($data) {
             $this->read($data);
         });
@@ -81,19 +80,21 @@ class Client
     {
         $this->data .= $data;
 
-        $header = Header::decode(substr($this->data, 0, 8));
+        while ($this->data) {
+            $header = Header::decode(substr($this->data, 0, 8));
 
-        if (strlen($this->data) < $header->getPayloadLength() + 8) {
-            return;
-        }
+            if (strlen($this->data) < $header->getPayloadLength() + 8) {
+                return;
+            }
 
-        $rawRecord = substr($this->data, 8, $header->getLength());
-        $record = Record::decode($header, $rawRecord);
-        $this->data = substr($this->data, 8 + $header->getPayloadLength());
+            $rawRecord = substr($this->data, 8, $header->getLength());
+            $record = Record::decode($header, $rawRecord);
+            $this->data = substr($this->data, 8 + $header->getPayloadLength());
 
-        $this->responseBuilders[$header->getRequestId()]->addRecord($record);
-        if ($this->responseBuilders[$header->getRequestId()]->isComplete()) {
-            $this->promises[$header->getRequestId()]->resolve($this->responseBuilders[$header->getRequestId()]->build());
+            $this->responseBuilders[$header->getRequestId()]->addRecord($record);
+            if ($this->responseBuilders[$header->getRequestId()]->isComplete()) {
+                $this->promises[$header->getRequestId()]->resolve($this->responseBuilders[$header->getRequestId()]->build());
+            }
         }
     }
 
