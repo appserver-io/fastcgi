@@ -14,18 +14,8 @@ class Decoder implements WritableStreamInterface
     private $writeable = true;
     private $buffer = '';
 
-    private $recordHandler;
-    private $connection;
-
-    /**
-     * Decoder constructor.
-     * @param $recordHandler
-     */
-    public function __construct(RecordHandler $recordHandler, ConnectionInterface $connection)
-    {
-        $this->recordHandler = $recordHandler;
-        $this->connection = $connection;
-    }
+    /** @var RequestParser[] */
+    private $requestParser = [];
 
 
     public function isWritable()
@@ -52,7 +42,17 @@ class Decoder implements WritableStreamInterface
             $record = Record::decode($header, substr($this->buffer, 8, $header->getLength()) ?: '');
             $this->buffer = substr($this->buffer, 8 + $header->getPayloadLength()) ?: '';
 
-            $this->recordHandler->pushRecord($record, $this->connection);
+            if ($record->getType()->isBeginRequest()) {
+                if (isset($this->requestParser[$record->getRequestId()])) {
+                    throw new \Exception('RequestID already in use!');
+                }
+                $this->requestParser[$record->getRequestId()] = new RequestParser;
+            }
+
+            if ($request = $this->requestParser[$record->getRequestId()]->pushRecord($record)) {
+                unset($this->requestParser[$record->getRequestId()]);
+                $this->emit('request', [$request]);
+            }
         }
     }
 

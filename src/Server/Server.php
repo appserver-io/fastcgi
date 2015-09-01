@@ -8,6 +8,7 @@ use Crunch\FastCGI\Protocol\Response;
 use Crunch\FastCGI\ReaderWriter\StringReader;
 use Evenement\EventEmitter;
 use Evenement\EventEmitterInterface;
+use Evenement\EventEmitterTrait;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\ServerInterface;
@@ -15,14 +16,11 @@ use React\Stream\DuplexStreamInterface;
 use React\Stream\ReadableStreamInterface;
 use React\Stream\Stream;
 
-class Server
+class Server implements EventEmitterInterface
 {
-    /** @var LoopInterface */
-    private $loop;
+    use EventEmitterTrait;
     /** @var ServerInterface */
     private $server;
-    /** @var RequestHandlerInterface */
-    private $handler;
 
     /**
      * Server constructor.
@@ -30,26 +28,26 @@ class Server
      * @param ServerInterface $server
      * @param LoopInterface   $loop
      */
-    public function __construct(ServerInterface $server, RequestHandlerInterface $handler, LoopInterface $loop)
+    public function __construct(ServerInterface $server)
     {
         $this->server = $server;
-        $this->loop = $loop;
-        $this->handler = $handler;
-    }
 
-    public function run($address)
-    {
-        $this->server->on('connection', function (EventEmitterInterface $connection) {
+        $this->server->on('connection', function (ConnectionInterface $connection) {
             $this->handleConnection($connection);
         });
-
-        $this->server->listen($address);
-
-        $this->loop->run();
     }
 
     private function handleConnection(ConnectionInterface $connection)
     {
-        $connection->pipe(new Decoder(new RecordHandler($this->handler), $connection));
+        $decoder = new Decoder();
+        $decoder->on('request', function (Request $request) use ($connection) {
+            $cb = function (Response $response) use ($connection, $request) {
+                foreach ($response->toRecords($request->getID()) as $r) {
+                    $connection->write($r->encode());
+                }
+            };
+            $this->emit('request', [$request, $cb]);
+        });
+        $connection->pipe($decoder);
     }
 }

@@ -65,6 +65,9 @@ class Client
      */
     public function sendRequest(RequestInterface $request)
     {
+        if (isset($this->promises[$request->getID()])) {
+            throw new ClientException("ID {$request->getID()} already in use");
+        }
         $this->responseBuilders[$request->getID()] = new ResponseBuilder;
         $this->promises[$request->getID()] = new Deferred();
         foreach ($request->toRecords() as $record) {
