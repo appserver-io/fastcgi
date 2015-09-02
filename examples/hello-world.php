@@ -28,22 +28,18 @@ $factory->createClient('127.0.0.1', 1337)->then(function (Client $client) use ($
         'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
         'CONTENT_LENGTH'  => strlen($data)
     ]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
-    $request3 = $client->newRequest(new \Crunch\FastCGI\Protocol\RequestParameters([
-        'REQUEST_METHOD'  => 'POST',
-        'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
-        'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-        'CONTENT_LENGTH'  => strlen($data)
-    ]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
 
-    $x = $client->sendRequest($request)->then(function ($response) use ($client) {
+    $responseHandler = function ($response) use ($client) {
         echo "\n" . $response->getContent()->read() . \PHP_EOL;
-    });
-    $y = $client->sendRequest($request2)->then(function ($response) use ($client) {
-        echo "\n" . $response->getContent()->read() . \PHP_EOL;
-    });
-    $z = $client->sendRequest($request3)->then(function ($response) use ($client) {
-        echo "\n" . $response->getContent()->read() . \PHP_EOL;
-    });
+    };
+    $failHandler = function (\Crunch\FastCGI\Client\ClientException $fail) {
+        echo "Request failed: {$fail->getMessage()}";
+        return $fail;
+    };
+
+    $x = $client->sendRequest($request)->then($responseHandler, $failHandler);
+    $y = $client->sendRequest($request2)->then($responseHandler, $failHandler);
+    $z = $client->sendRequest($request2)->then($responseHandler, $failHandler);
 
     $all = \React\Promise\all([$x, $y, $z]);
     $all->then(function () use ($client) {

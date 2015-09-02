@@ -15,7 +15,8 @@ class ResponseBuilderTest extends TestCase
      */
     public function testInitialResponseBuilderIsIncomplete()
     {
-        $builder = new ResponseBuilder;
+        $requestId = 42;
+        $builder = new ResponseBuilder($requestId);
 
         self::assertFalse($builder->isComplete());
     }
@@ -27,7 +28,8 @@ class ResponseBuilderTest extends TestCase
     {
         $this->setExpectedException('\\RuntimeException');
 
-        $builder = new ResponseBuilder;
+        $requestId = 42;
+        $builder = new ResponseBuilder($requestId);
 
         $builder->build();
     }
@@ -37,7 +39,8 @@ class ResponseBuilderTest extends TestCase
      */
     public function testPossibleToAddAnStdoutIsStillIncomplete()
     {
-        $builder = new ResponseBuilder;
+        $requestId = 42;
+        $builder = new ResponseBuilder($requestId);
 
         $record = $this->prophesize('\Crunch\FastCGI\Protocol\Record');
         $record->getType()->willReturn(RecordType::stdout());
@@ -53,7 +56,8 @@ class ResponseBuilderTest extends TestCase
      */
     public function testPossibleToAddAnStderrIsStillIncomplete()
     {
-        $builder = new ResponseBuilder;
+        $requestId = 42;
+        $builder = new ResponseBuilder($requestId);
 
         $record = $this->prophesize('\Crunch\FastCGI\Protocol\Record');
         $record->getType()->willReturn(RecordType::stderr());
@@ -69,7 +73,8 @@ class ResponseBuilderTest extends TestCase
      */
     public function testPossibleToAddAnEndRequestCompletesRequest()
     {
-        $builder = new ResponseBuilder;
+        $requestId = 42;
+        $builder = new ResponseBuilder($requestId);
 
         $record = $this->prophesize('\Crunch\FastCGI\Protocol\Record');
         $record->getType()->willReturn(RecordType::endRequest());
@@ -86,7 +91,8 @@ class ResponseBuilderTest extends TestCase
     {
         $this->setExpectedException('\RuntimeException');
 
-        $builder = new ResponseBuilder;
+        $requestId = 42;
+        $builder = new ResponseBuilder($requestId);
 
         $record = $this->prophesize('\Crunch\FastCGI\Protocol\Record');
         $record->getType()->willReturn(RecordType::endRequest());

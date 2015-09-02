@@ -11,13 +11,27 @@ use PHPUnit_Framework_TestCase as TestCase;
 class ResponseTest extends TestCase
 {
     /**
-     * @covers ::getError
+     * @covers ::getReuqestId
      */
-    public function testInstanceKeepsError()
+    public function testInstanceKeepsRequestId()
     {
+        $requestId = 42;
         $content = new StringReader('foo');
         $error = new StringReader('bar');
-        $response = new Response($content, $error);
+        $response = new Response($requestId, $content, $error);
+
+        self::assertEquals(42, $response->getRequestId());
+    }
+
+    /**
+     * @covers ::getError
+     */
+    public function testInstanceKeepsErrorReader()
+    {
+        $requestId = 42;
+        $content = new StringReader('foo');
+        $error = new StringReader('bar');
+        $response = new Response($requestId, $content, $error);
 
         self::assertSame($error, $response->getError());
     }
@@ -25,11 +39,12 @@ class ResponseTest extends TestCase
     /**
      * @covers ::getContent
      */
-    public function testInstanceKeepsContent()
+    public function testInstanceKeepsContentReader()
     {
+        $requestId = 42;
         $content = new StringReader('foo');
         $error = new StringReader('bar');
-        $response = new Response($content, $error);
+        $response = new Response($requestId, $content, $error);
 
         self::assertSame($content, $response->getContent());
     }

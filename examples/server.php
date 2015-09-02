@@ -11,7 +11,9 @@ $socket = new React\Socket\Server($loop);
 
 $server = new Server($socket);
 $server->on('request', function (Request $r, callable $cb) {
-    $cb(new Response(new StringReader('foo'), new StringReader('bar')));
+    $response = new Response($r->getID(), new StringReader('foo'), new StringReader('bar'));
+
+    $cb($response);
 });
 
 

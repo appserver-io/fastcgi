@@ -7,15 +7,26 @@ use Traversable;
 
 class Response implements ResponseInterface
 {
+    /** @var int */
+    private $requestId;
     /** @var ReaderInterface */
     private $content = '';
     /** @var ReaderInterface */
     private $error = '';
 
-    public function __construct(ReaderInterface $content, ReaderInterface $error)
+    public function __construct($requestId, ReaderInterface $content, ReaderInterface $error)
     {
+        $this->requestId = $requestId;
         $this->content = $content;
         $this->error = $error;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
     }
 
     /**
@@ -27,7 +38,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return \Crunch\FastCGI\ReaderWriter\ReaderInterface
+     * @return ReaderInterface
      */
     public function getError()
     {
@@ -40,20 +51,20 @@ class Response implements ResponseInterface
      *
      * @return Traversable|Record[]
      */
-    public function toRecords($id)
+    public function toRecords()
     {
         $result = [];
 
         while ($chunk = $this->error->read(65535)) {
-            $result[] = new Record(new Header(RecordType::stderr(), $id, strlen($chunk)), $chunk);
+            $result[] = new Record(new Header(RecordType::stderr(), $this->requestId, strlen($chunk)), $chunk);
         }
 
         while ($chunk = $this->content->read(65535)) {
-            $result[] = new Record(new Header(RecordType::stdout(), $id, strlen($chunk)), $chunk);
+            $result[] = new Record(new Header(RecordType::stdout(), $this->requestId, strlen($chunk)), $chunk);
         }
-        $result[] = new Record(new Header(RecordType::stdout(), $id, 0, 8), '');
+        $result[] = new Record(new Header(RecordType::stdout(), $this->requestId, 0, 8), '');
 
-        $result[] = new Record(new Header(RecordType::endRequest(), $id, 0, 8), '');
+        $result[] = new Record(new Header(RecordType::endRequest(), $this->requestId, 0, 8), '');
 
         return new ArrayIterator($result);
     }

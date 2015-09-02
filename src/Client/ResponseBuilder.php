@@ -8,12 +8,22 @@ use Crunch\FastCGI\ReaderWriter\StringReader;
 
 class ResponseBuilder
 {
+    /** @var int */
+    private $requestId;
     /** @var bool */
     private $complete = false;
     /** @var string */
     private $stdout = '';
     /** @var string */
     private $stderr = '';
+
+    /**
+     * @param int $requestId
+     */
+    public function __construct($requestId)
+    {
+        $this->requestId = $requestId;
+    }
 
     /**
      * @return boolean
@@ -59,7 +69,7 @@ class ResponseBuilder
             throw new \RuntimeException('Response not complete yet');
         }
 
-        $response = new Response(new StringReader($this->stdout), new StringReader($this->stderr));
+        $response = new Response($this->requestId, new StringReader($this->stdout), new StringReader($this->stderr));
         $this->reset();
 
         return $response;

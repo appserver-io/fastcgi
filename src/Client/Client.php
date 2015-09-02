@@ -1,19 +1,15 @@
 <?php
 namespace Crunch\FastCGI\Client;
 
-use Crunch\FastCGI\Connection\Connection;
-use Crunch\FastCGI\Connection\ConnectionFactoryInterface;
 use Crunch\FastCGI\Protocol\Header;
 use Crunch\FastCGI\Protocol\Record;
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParametersInterface;
-use Crunch\FastCGI\Protocol\ResponseInterface;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
 use React\Promise\Deferred;
-use React\SocketClient\ConnectorInterface;
 use React\Stream\DuplexStreamInterface;
-use React\Stream\Stream;
+use React\Promise as promise;
 
 class Client
 {
@@ -66,9 +62,9 @@ class Client
     public function sendRequest(RequestInterface $request)
     {
         if (isset($this->promises[$request->getID()])) {
-            throw new ClientException("ID {$request->getID()} already in use");
+            return promise\reject(new ClientException("ID {$request->getID()} already in use"));
         }
-        $this->responseBuilders[$request->getID()] = new ResponseBuilder;
+        $this->responseBuilders[$request->getID()] = new ResponseBuilder($request->getID());
         $this->promises[$request->getID()] = new Deferred();
         foreach ($request->toRecords() as $record) {
             $this->connector->write($record->encode());

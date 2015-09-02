@@ -41,13 +41,14 @@ class Server implements EventEmitterInterface
     {
         $decoder = new Decoder();
         $decoder->on('request', function (Request $request) use ($connection) {
-            $cb = function (Response $response) use ($connection, $request) {
-                foreach ($response->toRecords($request->getID()) as $r) {
+            $cb = function (Response $response) use ($connection) {
+                foreach ($response->toRecords() as $r) {
                     $connection->write($r->encode());
                 }
             };
             $this->emit('request', [$request, $cb]);
         });
+
         $connection->pipe($decoder);
     }
 }
