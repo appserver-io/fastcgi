@@ -3,16 +3,16 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Crunch\FastCGI\Client\Client;
 
-$loop = React\EventLoop\Factory::create();
+$loop = \React\EventLoop\Factory::create();
 
-$dnsResolverFactory = new React\Dns\Resolver\Factory();
-$dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
+$dnsResolverFactory = new \React\Dns\Resolver\Factory();
+$dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
 
-$connector = new React\SocketClient\Connector($loop, $dns);
+$connector = new \React\SocketClient\Connector($loop, $dns);
 
 $factory = new \Crunch\FastCGI\Client\Factory($loop, $connector);
 
-$factory->createClient('127.0.0.1', 1337)->then(function (Client $client) use ($argv, $loop) {
+$factory->createClient('127.0.0.1', 9331)->then(function (Client $client) use ($argv) {
 
     $name = (@$argv[1] ?: 'World');
     $data = "name=$name";

@@ -8,12 +8,13 @@ use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParametersInterface;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 use React\Stream\DuplexStreamInterface;
 use React\Promise as promise;
 
 class Client
 {
-    /** @var Connection|null */
+    /** @var DuplexStreamInterface */
     private $connector;
     /** @var int Next request id to use */
     private $nextRequestId = 1;
@@ -24,13 +25,20 @@ class Client
     private $promises = [];
 
     /**
+     * Read buffer
+     *
+     * @var string
+     */
+    private $data = '';
+
+    /**
      * Creates new client instance
      *
-     * @param ConnectionFactoryInterface $connectionFactory
+     * @param DuplexStreamInterface $connector
      */
     public function __construct(DuplexStreamInterface $connector)
     {
-        $connector->on('data', function($data) {
+        $connector->on('data', function ($data) {
             $this->read($data);
         });
         $this->connector = $connector;
@@ -53,33 +61,28 @@ class Client
     }
 
     /**
-     * Send request, but don't wait for response
-     *
-     * Remember to call receiveResponse(). Else, it will remain the buffer.
-     *
      * @param RequestInterface $request
+     * @return PromiseInterface
      */
     public function sendRequest(RequestInterface $request)
     {
-        if (isset($this->promises[$request->getID()])) {
-            return promise\reject(new ClientException("ID {$request->getID()} already in use"));
+        if (isset($this->promises[$request->getRequestId()])) {
+            return promise\reject(new ClientException("ID {$request->getRequestId()} already in use"));
         }
-        $this->responseBuilders[$request->getID()] = new ResponseBuilder($request->getID());
-        $this->promises[$request->getID()] = new Deferred();
+        $this->responseBuilders[$request->getRequestId()] = new ResponseBuilder($request->getRequestId());
+        $this->promises[$request->getRequestId()] = new Deferred();
         foreach ($request->toRecords() as $record) {
             $this->connector->write($record->encode());
         }
 
-        return $this->promises[$request->getID()]->promise();
+        return $this->promises[$request->getRequestId()]->promise();
     }
-
-    private $data = '';
 
     private function read($data)
     {
         $this->data .= $data;
 
-        while ($this->data) {
+        while (strlen($this->data) >= 8) {
             $header = Header::decode(substr($this->data, 0, 8));
 
             if (strlen($this->data) < $header->getPayloadLength() + 8) {
@@ -92,7 +95,8 @@ class Client
 
             $this->responseBuilders[$header->getRequestId()]->addRecord($record);
             if ($this->responseBuilders[$header->getRequestId()]->isComplete()) {
-                $this->promises[$header->getRequestId()]->resolve($this->responseBuilders[$header->getRequestId()]->build());
+                $this->promises[$header->getRequestId()]
+                    ->resolve($this->responseBuilders[$header->getRequestId()]->build());
             }
         }
     }

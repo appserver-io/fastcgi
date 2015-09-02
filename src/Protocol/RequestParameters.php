@@ -26,6 +26,7 @@ class RequestParameters implements RequestParametersInterface
         $packet = '';
         foreach ($this->parameters as $name => $value) {
             // TODO "pack(C)" when < 128
+            // 0x80000000 => 4byte, highest bit 1, rest 0 (0x1000...0000)
             $new = \pack('NN', \strlen($name) + 0x80000000, \strlen($value) + 0x80000000) . $name . $value;
 
             // Although the specs states, that it isn't important it looks like
@@ -45,10 +46,18 @@ class RequestParameters implements RequestParametersInterface
         return new ArrayIterator($result);
     }
 
-    public static function decode ($data)
+    public static function decode($data)
     {
         $params = [];
         while ($data) {
+            // TODO take care of single byte length values
+            // When the highest bit is 1 then 4 byte are used, else 1 byte
+            // For both name and value
+            /*if ($data[0] >> 7 === 1) {
+                // 4 byte
+            } else {
+                // 1 byte
+            }*/
             $header = \unpack('Nname/Nvalue', substr($data, 0, 8));
             $params[substr($data, 8, $header['name'] - 0x80000000)] = substr($data, 8 + $header['name'] - 0x80000000, $header['value'] - 0x80000000);
             $data = substr($data, 8 + ($header['name'] - 0x80000000) + ($header['value'] - 0x80000000));

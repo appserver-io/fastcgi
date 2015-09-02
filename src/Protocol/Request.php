@@ -10,7 +10,7 @@ use Traversable;
 class Request implements RequestInterface
 {
     /** @var int Request ID */
-    private $ID;
+    private $requestId;
     /** @var RequestParameters */
     private $parameters;
     /** @var \Crunch\FastCGI\ReaderWriter\ReaderInterface content to send ("body") */
@@ -23,7 +23,7 @@ class Request implements RequestInterface
      */
     public function __construct($requestId, RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
-        $this->ID = $requestId;
+        $this->requestId = $requestId;
         $this->parameters = $parameters ?: new RequestParameters;
         $this->stdin = $stdin ?: new EmptyReader;
     }
@@ -31,9 +31,9 @@ class Request implements RequestInterface
     /**
      * @return int
      */
-    public function getID()
+    public function getRequestId()
     {
-        return $this->ID;
+        return $this->requestId;
     }
 
     /**
@@ -59,20 +59,17 @@ class Request implements RequestInterface
      */
     public function toRecords()
     {
-        $result = [new Record(new Header(RecordType::beginRequest(), $this->getID(), 8), \pack('xCCxxxxx', Role::RESPONDER, 0xFF & 1))];
+        $result = [new Record(new Header(RecordType::beginRequest(), $this->getRequestId(), 8), \pack('xCCxxxxx', Role::RESPONDER, 0xFF & 1))];
 
-        foreach ($this->getParameters()->encode($this->getID()) as $value) {
+        foreach ($this->getParameters()->encode($this->getRequestId()) as $value) {
             $result[] = $value;
         }
 
         while ($chunk = $this->stdin->read(65535)) {
-            $result[] = new Record(new Header(RecordType::stdin(), $this->getID(), strlen($chunk)), $chunk);
+            $result[] = new Record(new Header(RecordType::stdin(), $this->getRequestId(), strlen($chunk)), $chunk);
         }
 
-        // I don't know why, but for some reason it seems, that the TCP-sockets expects
-        // this to be of a certain minimum size. At least with an additional padding it works
-        // with both unix- and tcp-sockets
-        $result[] = new Record(new Header(RecordType::stdin(), $this->getID(), 0, 0), '');
+        $result[] = new Record(new Header(RecordType::stdin(), $this->getRequestId(), 0, 0), '');
 
         return new ArrayIterator($result);
     }
