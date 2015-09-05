@@ -17,7 +17,7 @@ class RequestTest extends TestCase
     {
         $response = new Request(5, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
 
-        self::assertEquals(5, $response->getID());
+        self::assertEquals(5, $response->getRequestId());
     }
 
     /**

@@ -11,7 +11,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 class ResponseTest extends TestCase
 {
     /**
-     * @covers ::getReuqestId
+     * @covers ::getRequestId
      */
     public function testInstanceKeepsRequestId()
     {

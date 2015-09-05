@@ -3,12 +3,13 @@ namespace Crunch\FastCGI;
 
 use Assert\AssertionFailedException;
 use Crunch\FastCGI\Client\Client;
-use Crunch\FastCGI\Client\ClientFactory;
-use Crunch\FastCGI\Connection\ConnectionFactory;
+use Crunch\FastCGI\Client\Factory as ClientFactory;
 use Crunch\FastCGI\Protocol\RequestParameters;
+use Crunch\FastCGI\Protocol\Response;
 use Crunch\FastCGI\ReaderWriter\StringReader;
-use Socket\Raw\Exception as SocketException;
-use Socket\Raw\Factory as SocketFactory;
+use React\Dns\Resolver\Factory as ResolverFactory;
+use React\EventLoop\Factory as LoopFactory;
+use React\SocketClient\Connector as SocketConnector;
 
 /**
  * Integration test testing the client against a real FastCGI-server (php5-fpm)
@@ -23,6 +24,10 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
+        if ($this->isFpmRunning()) {
+            return;
+        }
+
         $conf = __DIR__ . '/Resources/php-fpm.conf';
         // start fpm daemon
         $output = $exitCode = null;
@@ -36,9 +41,9 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function tearDown()
+    public static function tearDownAfterClass()
     {
-        parent::tearDown();
+        parent::tearDownAfterClass();
 
         if (file_exists(__DIR__ . '/tmp/php5-fpm.pid')) {
             exec(sprintf('kill %d', file_get_contents(__DIR__ . '/tmp/php5-fpm.pid')));
@@ -55,15 +60,21 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     private function expectPHPFPMRunning()
     {
-        $x = file_exists(__DIR__ . '/tmp/php5-fpm.pid');
-        if (!$x) {
+        if (!$this->isFpmRunning()) {
             self::markTestSkipped('PHP FastCGI-server not running. You can set PHPFPM_BIN to point to the right location of the binary.');
         }
+    }
+
+    private function isFpmRunning()
+    {
+        if (!file_exists(__DIR__ . '/tmp/php5-fpm.pid')) {
+            return false;
+        }
+
         $output = $status = null;
         exec('exec kill -0 ' . file_get_contents(__DIR__ . '/tmp/php5-fpm.pid'), $output, $status);
-        if ($status) {
-            self::markTestSkipped('PHP FastCGI-server not running. You can set PHPFPM_BIN to point to the right location of the binary.');
-        }
+
+        return $status === 0;
     }
 
 
@@ -71,25 +82,39 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectPHPFPMRunning();
 
+        $loop = LoopFactory::create();
 
-        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
+        $dnsResolverFactory = new ResolverFactory();
+        $dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
 
-        $request = $client->newRequest(new RequestParameters([
-            'REQUEST_METHOD'  => 'POST',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
-            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH'  => strlen('foo=bar')
-        ]), new StringReader('foo=bar'));
+        $connector = new SocketConnector($loop, $dns);
 
-        $client->sendRequest($request);
+        $factory = new ClientFactory($loop, $connector);
 
-        $response = $client->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
+        $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) {
+            $request = $client->newRequest(new RequestParameters([
+                'REQUEST_METHOD'  => 'POST',
+                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
+                'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
+                'CONTENT_LENGTH'  => strlen('foo=bar')
+            ]), new StringReader('foo=bar'));
 
-        list($server) = unserialize($body);
+            $client->sendRequest($request)->then(function (Response $response) use ($client) {
+                $client->close();
 
-        self::assertEquals(7, $server['CONTENT_LENGTH']);
+                list(, $body) = explode("\r\n\r\n", $response->getContent()->read());
+                list($server) = unserialize($body);
+                self::assertEquals(7, $server['CONTENT_LENGTH']);
+
+                return $client;
+            });
+
+            return $client;
+        });
+
+
+        $loop->run();
     }
 
 
@@ -97,25 +122,36 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectPHPFPMRunning();
 
+        $loop = LoopFactory::create();
 
-        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
+        $dnsResolverFactory = new ResolverFactory();
+        $dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
 
-        $request = $client->newRequest(new RequestParameters([
-            'REQUEST_METHOD'  => 'GET',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
-            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH'  => 0
-        ]));
+        $connector = new SocketConnector($loop, $dns);
 
-        $client->sendRequest($request);
+        $factory = new ClientFactory($loop, $connector);
 
-        $response = $client->receiveResponse($request);
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
+        $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) {
+            $request = $client->newRequest(new RequestParameters([
+                'REQUEST_METHOD'  => 'GET',
+                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
+                'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
+                'CONTENT_LENGTH'  => 0
+            ]));
 
-        list($server) = unserialize($body);
+            $client->sendRequest($request)->then(function (Response $response) use ($client) {
+                $client->close();
 
-        self::assertEquals(0, $server['CONTENT_LENGTH']);
+                list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
+                list($server) = unserialize($body);
+                self::assertEquals(0, $server['CONTENT_LENGTH']);
+            });
+
+            return $client;
+        });
+
+        $loop->run();
     }
 
 
@@ -123,25 +159,38 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectPHPFPMRunning();
 
+        $loop = LoopFactory::create();
 
-        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
+        $dnsResolverFactory = new ResolverFactory();
+        $dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
+
+        $connector = new SocketConnector($loop, $dns);
+
+        $factory = new ClientFactory($loop, $connector);
 
 
-        $content = str_repeat('abcdefgh', 65535);
-        $request = $client->newRequest(new RequestParameters([
-            'REQUEST_METHOD'  => 'POST',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
-            'CONTENT_LENGTH'  => strlen($content)
-        ]), new StringReader($content));
+        $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) {
+            $content = str_repeat('abcdefgh', 65535);
+            $request = $client->newRequest(new RequestParameters([
+                'REQUEST_METHOD'  => 'POST',
+                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
+                'CONTENT_LENGTH'  => strlen($content)
+            ]), new StringReader($content));
 
-        $client->sendRequest($request);
-        $response = $client->receiveResponse($request);
+            $client->sendRequest($request)->then(function (Response $response) use ($client, $content) {
+                $client->close();
 
-        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
+                list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
 
-        list($server) = unserialize($body);
+                list($server) = unserialize($body);
 
-        self::assertEquals(strlen($content), $server['CONTENT_LENGTH']);
+                self::assertEquals(strlen($content), $server['CONTENT_LENGTH']);
+            });
+
+            return $client;
+        });
+
+        $loop->run();
     }
 
 
@@ -149,63 +198,40 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectPHPFPMRunning();
 
+        $loop = LoopFactory::create();
 
-        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
+        $dnsResolverFactory = new ResolverFactory();
+        $dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
 
-        $params = [
-            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-            'REQUEST_METHOD'  => 'POST',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
-            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH'  => strlen('foo=bar')
-        ];
-        for ($i = 1; $i < 4000; $i++) {
-            $params["param$i"] = "value$i";
-        }
-        $request = $client->newRequest(new RequestParameters($params), new StringReader('foo=bar'));
+        $connector = new SocketConnector($loop, $dns);
 
-        $client->sendRequest($request);
-        $response = $client->receiveResponse($request);
-
-        list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
-
-        list($server) = unserialize($body);
-
-        self::assertEquals(7, $server['CONTENT_LENGTH']);
-    }
-
-    public function testFpmGoesAway()
-    {
-        $this->expectPHPFPMRunning();
+        $factory = new ClientFactory($loop, $connector);
 
 
-        $client = new Client(new ConnectionFactory('localhost:9331', new SocketFactory));
+        $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) {
+            $params = [
+                'GATEWAY_INTERFACE' => 'FastCGI/1.0',
+                'REQUEST_METHOD'  => 'POST',
+                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
+                'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
+                'CONTENT_LENGTH'  => strlen('foo=bar')
+            ];
+            for ($i = 1; $i < 4000; $i++) {
+                $params["param$i"] = "value$i";
+            }
+            $request = $client->newRequest(new RequestParameters($params), new StringReader('foo=bar'));
 
+            $client->sendRequest($request)->then(function (Response $response) use ($client) {
+                $client->close();
 
-        $request = $client->newRequest(new RequestParameters([
-            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-            'REQUEST_METHOD'  => 'POST',
-            'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/sleep.php',
-            'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH'  => strlen('foo=bar')
-        ]), new StringReader('foo=bar'));
+                list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
+                list($server) = unserialize($body);
+                self::assertEquals(7, $server['CONTENT_LENGTH']);
+            });
 
-        time_nanosleep(0, 50000);
-        $client->sendRequest($request);
+            return $client;
+        });
 
-        exec(sprintf('kill %d', file_get_contents(__DIR__ . '/tmp/php5-fpm.pid')));
-
-        try {
-            $client->receiveResponse($request);
-        } catch (AssertionFailedException $e) {
-            // Also possible: The server dies while the connection tries to
-            // read the content and therefore only partials arrive
-            self::assertTrue(true);
-            return;
-        } catch (SocketException $e) {
-            self::assertTrue(true);
-            return;
-        }
-        self::assertTrue(false, 'None of the expected exceptions were thrown');
+        $loop->run();
     }
 }

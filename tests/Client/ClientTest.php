@@ -55,7 +55,7 @@ class ClientTest extends TestCase
     /**
      * @covers ::newRequest
      * @uses \Crunch\FastCGI\Protocol\Request::__construct
-     * @uses \Crunch\FastCGI\Protocol\Request::getID
+     * @uses \Crunch\FastCGI\Protocol\getRequestId::getRequestID
      */
     public function testNewInstanceHasIntegerId()
     {
