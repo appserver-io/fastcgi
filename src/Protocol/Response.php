@@ -15,7 +15,7 @@ class Response implements ResponseInterface
     private $error = '';
 
     /**
-     * @param int $requestId
+     * @param int             $requestId
      * @param ReaderInterface $content
      * @param ReaderInterface $error
      */

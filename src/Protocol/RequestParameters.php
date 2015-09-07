@@ -49,6 +49,7 @@ class RequestParameters implements RequestParametersInterface
 
     /**
      * @param string $data
+     *
      * @return RequestParameters
      */
     public static function decode($data)
