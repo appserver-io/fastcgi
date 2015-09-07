@@ -47,6 +47,10 @@ class RequestParameters implements RequestParametersInterface
         return new ArrayIterator($result);
     }
 
+    /**
+     * @param string $data
+     * @return RequestParameters
+     */
     public static function decode($data)
     {
         $params = [];

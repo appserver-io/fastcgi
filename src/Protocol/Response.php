@@ -14,6 +14,11 @@ class Response implements ResponseInterface
     /** @var ReaderInterface */
     private $error = '';
 
+    /**
+     * @param int $requestId
+     * @param ReaderInterface $content
+     * @param ReaderInterface $error
+     */
     public function __construct($requestId, ReaderInterface $content, ReaderInterface $error)
     {
         $this->requestId = $requestId;

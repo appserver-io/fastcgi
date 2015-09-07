@@ -20,6 +20,9 @@ class RecordType
 
     private static $instances = [];
 
+    /**
+     * @param int $type
+     */
     private function __construct($type)
     {
         $this->type = $type;
