@@ -1,9 +1,9 @@
 # Crunch\FastCGI
 
-[![Build Status](https://travis-ci.org/KingCrunch/FastCGI.svg?branch=develop)](https://travis-ci.org/KingCrunch/FastCGI)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/?branch=develop)
-[![Code Coverage](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/?branch=develop)
-[![Build Status](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/build-status/develop)
+[![Build Status](https://travis-ci.org/KingCrunch/FastCGI.svg?branch=master)](https://travis-ci.org/KingCrunch/FastCGI)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/badges/build.png?b=master)](https://scrutinizer-ci.com/g/KingCrunch/FastCGI/build-status/master)
 
 PHP-implementation of the [FastCGI](http://www.fastcgi.com/devkit/doc/fcgi-spec.html)-specifications
 including asynchronous client and server implementation.
