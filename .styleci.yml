@@ -1,0 +1,13 @@
+preset: recommended
+
+enable:
+  - no_blank_lines_before_namespace
+  - concat_with_spaces
+
+disable:
+  - single_blank_line_before_namespace
+  - concat_without_spaces
+
+finder:
+  path:
+    - "src"
