@@ -4,7 +4,7 @@ namespace Crunch\FastCGI\Protocol;
 use Assert as assert;
 
 /**
- * Record header
+ * Record header.
  *
  * Speaking of the actual transmission the header is the first 8 byte sequence
  * of the byte stream. It contains the meta data consisting of the FastCGI-version
@@ -40,10 +40,10 @@ class Header
      * is set, it will be validated against $length.
      *
      * @param RecordType $type
-     * @param int $requestId Greater than 1
-     * @param int $length Must be between 0 and 65535 (including)
-     * @param int|null $paddingLength between 0 and 7
-     *                                Calculated from $length when omitted, exception when invalid
+     * @param int        $requestId     Greater than 1
+     * @param int        $length        Must be between 0 and 65535 (including)
+     * @param int|null   $paddingLength between 0 and 7
+     *                                  Calculated from $length when omitted, exception when invalid
      */
     public function __construct(RecordType $type, $requestId, $length, $paddingLength = null)
     {
@@ -77,6 +77,7 @@ class Header
 
     /**
      * @param string $header
+     *
      * @return Header
      */
     public static function decode($header)
@@ -125,6 +126,7 @@ class Header
 
     /**
      * @deprecated Dont know, still useful? Not used anywhere anymore
+     *
      * @return int Length of the entire payload between 0 and 65535 (including)
      */
     public function getPayloadLength()
@@ -133,7 +135,7 @@ class Header
     }
 
     /**
-     * Returns the encoded header as a string
+     * Returns the encoded header as a string.
      *
      * @return string
      */

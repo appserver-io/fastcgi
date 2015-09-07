@@ -4,7 +4,7 @@ namespace Crunch\FastCGI\Protocol;
 use Assert as assert;
 
 /**
- * Record
+ * Record.
  *
  * The record is the smallest unit in the communication between the
  * server and the client. It consists of the Header and the payload, which
@@ -46,7 +46,7 @@ class Record
     }
 
     /**
-     * Compiles record into struct to send
+     * Compiles record into struct to send.
      *
      * @return string
      */
@@ -60,7 +60,7 @@ class Record
         assert\that($payload)
             ->string();
 
-        return new Record($header, $payload);
+        return new self($header, $payload);
     }
 
     /**

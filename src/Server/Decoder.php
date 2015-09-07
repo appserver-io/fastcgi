@@ -4,7 +4,6 @@ namespace Crunch\FastCGI\Server;
 use Crunch\FastCGI\Protocol\Header;
 use Crunch\FastCGI\Protocol\Record;
 use Evenement\EventEmitterTrait;
-use React\Socket\ConnectionInterface;
 use React\Stream\WritableStreamInterface;
 
 class Decoder implements WritableStreamInterface
@@ -16,7 +15,6 @@ class Decoder implements WritableStreamInterface
 
     /** @var RequestParser[] */
     private $requestParser = [];
-
 
     public function isWritable()
     {
@@ -34,9 +32,8 @@ class Decoder implements WritableStreamInterface
         while (strlen($this->buffer) >= 8) {
             $header = Header::decode(substr($this->buffer, 0, 8));
 
-
             if (strlen($this->buffer) < $header->getPayloadLength() + 8) {
-                return null;
+                return;
             }
 
             $record = Record::decode($header, substr($this->buffer, 8, $header->getLength()) ?: '');
@@ -46,7 +43,7 @@ class Decoder implements WritableStreamInterface
                 if (isset($this->requestParser[$record->getRequestId()])) {
                     throw new \Exception('RequestID already in use!');
                 }
-                $this->requestParser[$record->getRequestId()] = new RequestParser;
+                $this->requestParser[$record->getRequestId()] = new RequestParser();
             }
 
             if ($request = $this->requestParser[$record->getRequestId()]->pushRecord($record)) {

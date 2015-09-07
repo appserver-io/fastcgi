@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: sebastian
  * Date: 15.04.15
- * Time: 22:34
+ * Time: 22:34.
  */
 namespace Crunch\FastCGI\Protocol;
 

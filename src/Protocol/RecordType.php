@@ -32,23 +32,24 @@ class RecordType
 
     /**
      * @param int $type
+     *
      * @return RecordType
      */
     public static function instance($type)
     {
         if (!self::$instances) {
             self::$instances = [
-                self::BEGIN_REQUEST => new self(self::BEGIN_REQUEST),
-                self::ABORT_REQUEST => new self(self::ABORT_REQUEST),
-                self::END_REQUEST => new self(self::END_REQUEST),
-                self::PARAMS => new self(self::PARAMS),
-                self::STDIN => new self(self::STDIN),
-                self::STDOUT => new self(self::STDOUT),
-                self::STDERR => new self(self::STDERR),
-                self::DATA => new self(self::DATA),
-                self::GET_VALUES => new self(self::GET_VALUES),
+                self::BEGIN_REQUEST     => new self(self::BEGIN_REQUEST),
+                self::ABORT_REQUEST     => new self(self::ABORT_REQUEST),
+                self::END_REQUEST       => new self(self::END_REQUEST),
+                self::PARAMS            => new self(self::PARAMS),
+                self::STDIN             => new self(self::STDIN),
+                self::STDOUT            => new self(self::STDOUT),
+                self::STDERR            => new self(self::STDERR),
+                self::DATA              => new self(self::DATA),
+                self::GET_VALUES        => new self(self::GET_VALUES),
                 self::GET_VALUES_RESULT => new self(self::GET_VALUES_RESULT),
-                self::UNKNOWN_TYPE => new self(self::UNKNOWN_TYPE)
+                self::UNKNOWN_TYPE      => new self(self::UNKNOWN_TYPE),
             ];
         }
 
@@ -61,114 +62,111 @@ class RecordType
 
     public function isBeginRequest()
     {
-        return $this->value() === self::instance(RecordType::BEGIN_REQUEST)->value();
+        return $this->value() === self::instance(self::BEGIN_REQUEST)->value();
     }
 
     public function isAbortRequest()
     {
-        return $this->value() === self::instance(RecordType::ABORT_REQUEST)->value();
+        return $this->value() === self::instance(self::ABORT_REQUEST)->value();
     }
 
     public function isEndRequest()
     {
-        return $this->value() === self::instance(RecordType::END_REQUEST)->value();
+        return $this->value() === self::instance(self::END_REQUEST)->value();
     }
 
     public function isParams()
     {
-        return $this->value() === self::instance(RecordType::PARAMS)->value();
+        return $this->value() === self::instance(self::PARAMS)->value();
     }
 
     public function isStdin()
     {
-        return $this->value() === self::instance(RecordType::STDIN)->value();
+        return $this->value() === self::instance(self::STDIN)->value();
     }
 
     public function isStdout()
     {
-        return $this->value() === self::instance(RecordType::STDOUT)->value();
+        return $this->value() === self::instance(self::STDOUT)->value();
     }
 
     public function isStderr()
     {
-        return $this->value() === self::instance(RecordType::STDERR)->value();
+        return $this->value() === self::instance(self::STDERR)->value();
     }
 
     public function isData()
     {
-        return $this->value() === self::instance(RecordType::DATA)->value();
+        return $this->value() === self::instance(self::DATA)->value();
     }
 
     public function isGetValues()
     {
-        return $this->value() === self::instance(RecordType::GET_VALUES)->value();
+        return $this->value() === self::instance(self::GET_VALUES)->value();
     }
 
     public function isGetValuesResult()
     {
-        return $this->value() === self::instance(RecordType::GET_VALUES_RESULT)->value();
+        return $this->value() === self::instance(self::GET_VALUES_RESULT)->value();
     }
 
     public function isUnknownType()
     {
-        return $this->value() === self::instance(RecordType::UNKNOWN_TYPE)->value();
+        return $this->value() === self::instance(self::UNKNOWN_TYPE)->value();
     }
-
-
-
 
     public static function beginRequest()
     {
-        return  self::instance(RecordType::BEGIN_REQUEST);
+        return  self::instance(self::BEGIN_REQUEST);
     }
 
     public static function abortRequest()
     {
-        return self::instance(RecordType::ABORT_REQUEST);
+        return self::instance(self::ABORT_REQUEST);
     }
 
     public static function endRequest()
     {
-        return self::instance(RecordType::END_REQUEST);
+        return self::instance(self::END_REQUEST);
     }
 
     public static function params()
     {
-        return self::instance(RecordType::PARAMS);
+        return self::instance(self::PARAMS);
     }
 
     public static function stdin()
     {
-        return self::instance(RecordType::STDIN);
+        return self::instance(self::STDIN);
     }
 
     public static function stdout()
     {
-        return self::instance(RecordType::STDOUT);
+        return self::instance(self::STDOUT);
     }
 
     public static function stderr()
     {
-        return self::instance(RecordType::STDERR);
+        return self::instance(self::STDERR);
     }
 
     public static function data()
     {
-        return self::instance(RecordType::DATA);
+        return self::instance(self::DATA);
     }
 
     public static function getValues()
     {
-        return self::instance(RecordType::GET_VALUES);
+        return self::instance(self::GET_VALUES);
     }
 
     public static function getValuesResult()
     {
-        return self::instance(RecordType::GET_VALUES_RESULT);
+        return self::instance(self::GET_VALUES_RESULT);
     }
 
     public static function unknownType()
     {
-        return self::instance(RecordType::UNKNOWN_TYPE);
+        return self::instance(self::UNKNOWN_TYPE);
     }
 }

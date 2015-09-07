@@ -45,9 +45,8 @@ class Response implements ResponseInterface
         return $this->error;
     }
 
-
     /**
-     * Encodes request into an traversable of records
+     * Encodes request into an traversable of records.
      *
      * @return Traversable|Record[]
      */
@@ -73,7 +72,7 @@ class Response implements ResponseInterface
     {
         return [
             'content' => bin2hex($this->content),
-            'error' => bin2hex($this->error),
+            'error'   => bin2hex($this->error),
         ];
     }
 }

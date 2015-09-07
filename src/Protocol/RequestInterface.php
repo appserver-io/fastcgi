@@ -6,7 +6,7 @@ use Traversable;
 interface RequestInterface
 {
     /**
-     * Encodes request into an traversable of records
+     * Encodes request into an traversable of records.
      *
      * @return Traversable|Record[]
      */

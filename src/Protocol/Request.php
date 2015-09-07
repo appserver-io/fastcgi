@@ -2,7 +2,6 @@
 namespace Crunch\FastCGI\Protocol;
 
 use ArrayIterator;
-use Crunch\FastCGI\Connection\Connection;
 use Crunch\FastCGI\ReaderWriter\EmptyReader;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
 use Traversable;
@@ -17,15 +16,15 @@ class Request implements RequestInterface
     private $stdin;
 
     /**
-     * @param int $requestId
-     * @param RequestParametersInterface|null $parameters
-     * @param \Crunch\FastCGI\ReaderWriter\ReaderInterface|null $stdin string or stream resource
+     * @param int                                               $requestId
+     * @param RequestParametersInterface|null                   $parameters
+     * @param \Crunch\FastCGI\ReaderWriter\ReaderInterface|null $stdin      string or stream resource
      */
     public function __construct($requestId, RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
         $this->requestId = $requestId;
-        $this->parameters = $parameters ?: new RequestParameters;
-        $this->stdin = $stdin ?: new EmptyReader;
+        $this->parameters = $parameters ?: new RequestParameters();
+        $this->stdin = $stdin ?: new EmptyReader();
     }
 
     /**
@@ -53,7 +52,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Encodes request into an traversable of records
+     * Encodes request into an traversable of records.
      *
      * @return Traversable|Record[]
      */

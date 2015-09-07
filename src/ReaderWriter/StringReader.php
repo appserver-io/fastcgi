@@ -19,6 +19,7 @@ class StringReader implements ReaderInterface
 
     /**
      * @param int|null $max
+     *
      * @return string
      */
     public function read($max = null)

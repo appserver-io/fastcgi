@@ -2,7 +2,7 @@
 namespace Crunch\FastCGI\ReaderWriter;
 
 /**
- * Reader interface
+ * Reader interface.
  *
  * Reads a (binary) string from somewhere. Implementations can assume, that
  * once the data was read it can be dropped ("read-once").
@@ -13,7 +13,7 @@ namespace Crunch\FastCGI\ReaderWriter;
 interface ReaderInterface
 {
     /**
-     * Read
+     * Read.
      *
      * Reads at most $max bytes. For consistency 0 is a valid value and will
      * always return an empty string.
@@ -24,6 +24,7 @@ interface ReaderInterface
      * available.
      *
      * @param int|null $max
+     *
      * @return string
      */
     public function read($max = null);

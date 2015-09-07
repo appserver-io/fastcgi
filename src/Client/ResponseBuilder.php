@@ -26,7 +26,7 @@ class ResponseBuilder
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isComplete()
     {
@@ -35,6 +35,7 @@ class ResponseBuilder
 
     /**
      * @param Record $record
+     *
      * @throws \RuntimeException
      */
     public function addRecord(Record $record)
@@ -60,8 +61,9 @@ class ResponseBuilder
     }
 
     /**
-     * @return ResponseInterface
      * @throws \RuntimeException
+     *
+     * @return ResponseInterface
      */
     public function build()
     {

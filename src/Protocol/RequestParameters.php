@@ -5,7 +5,7 @@ use ArrayIterator;
 use Traversable;
 
 /**
- * Representing the request parameters
+ * Representing the request parameters.
  */
 class RequestParameters implements RequestParametersInterface
 {
@@ -19,6 +19,7 @@ class RequestParameters implements RequestParametersInterface
 
     /**
      * @param int $requestId
+     *
      * @return Record[]|Traversable
      */
     public function encode($requestId)

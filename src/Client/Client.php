@@ -7,10 +7,10 @@ use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParametersInterface;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
+use React\Promise as promise;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use React\Stream\DuplexStreamInterface;
-use React\Promise as promise;
 
 class Client
 {
@@ -25,14 +25,14 @@ class Client
     private $promises = [];
 
     /**
-     * Read buffer
+     * Read buffer.
      *
      * @var string
      */
     private $data = '';
 
     /**
-     * Creates new client instance
+     * Creates new client instance.
      *
      * @param DuplexStreamInterface $connector
      */
@@ -45,14 +45,15 @@ class Client
     }
 
     /**
-     * Creates a new request
+     * Creates a new request.
      *
      * Although you can create a Request instance manually it is highly
      * recommended to use this factory method, because only this one
      * ensures, that the request uses a previously unused request id.
      *
      * @param RequestParametersInterface|null $parameters
-     * @param ReaderInterface|null $stdin
+     * @param ReaderInterface|null            $stdin
+     *
      * @return RequestInterface
      */
     public function newRequest(RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
@@ -62,6 +63,7 @@ class Client
 
     /**
      * @param RequestInterface $request
+     *
      * @return PromiseInterface
      */
     public function sendRequest(RequestInterface $request)

@@ -1,20 +1,13 @@
 <?php
 namespace Crunch\FastCGI\Server;
 
-use Crunch\FastCGI\Protocol\Header;
-use Crunch\FastCGI\Protocol\Record;
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\Response;
-use Crunch\FastCGI\ReaderWriter\StringReader;
-use Evenement\EventEmitter;
 use Evenement\EventEmitterInterface;
 use Evenement\EventEmitterTrait;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\ServerInterface;
-use React\Stream\DuplexStreamInterface;
-use React\Stream\ReadableStreamInterface;
-use React\Stream\Stream;
 
 class Server implements EventEmitterInterface
 {

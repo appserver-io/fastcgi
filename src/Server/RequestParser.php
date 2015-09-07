@@ -14,6 +14,7 @@ class RequestParser
 
     /**
      * @param Record $record
+     *
      * @return RequestInterface|null
      */
     public function pushRecord(Record $record)
@@ -21,9 +22,8 @@ class RequestParser
         $this->records[] = $record;
 
         if (!$record->getType()->isStdin() || $record->getContent()) {
-            return null;
+            return;
         }
-
 
         return $this->buildRequest();
     }
@@ -50,7 +50,6 @@ class RequestParser
         if ($this->records) {
             // TODO Not empty, something went wrong
         }
-
 
         return new Request($record->getRequestId(), RequestParameters::decode($params), new StringReader($stdin));
     }
