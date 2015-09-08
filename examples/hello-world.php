@@ -2,27 +2,34 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use Crunch\FastCGI\Client\Client;
+use Crunch\FastCGI\Client\ClientException;
+use Crunch\FastCGI\Client\Factory as FastCGIClientFactory;
+use Crunch\FastCGI\Protocol\RequestParameters;
+use React\Dns\Resolver\Factory as DnsResolverFactory;
+use React\EventLoop\Factory as EventLoopFactory;
+use React\SocketClient\Connector as SocketConnector;
+use React\Promise as promise;
 
-$loop = \React\EventLoop\Factory::create();
+$loop = EventLoopFactory::create();
 
-$dnsResolverFactory = new \React\Dns\Resolver\Factory();
+$dnsResolverFactory = new DnsResolverFactory();
 $dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
 
-$connector = new \React\SocketClient\Connector($loop, $dns);
+$connector = new SocketConnector($loop, $dns);
 
-$factory = new \Crunch\FastCGI\Client\Factory($loop, $connector);
+$factory = new FastCGIClientFactory($loop, $connector);
 
 $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) use ($argv) {
 
     $name = (@$argv[1] ?: 'World');
     $data = "name=$name";
-    $request = $client->newRequest(new \Crunch\FastCGI\Protocol\RequestParameters([
+    $request = $client->newRequest(new RequestParameters([
         'REQUEST_METHOD'  => 'POST',
         'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
         'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
         'CONTENT_LENGTH'  => strlen($data)
     ]), new \Crunch\FastCGI\ReaderWriter\StringReader($data));
-    $request2 = $client->newRequest(new \Crunch\FastCGI\Protocol\RequestParameters([
+    $request2 = $client->newRequest(new RequestParameters([
         'REQUEST_METHOD'  => 'POST',
         'SCRIPT_FILENAME' => __DIR__ . '/docroot/hello-world.php',
         'CONTENT_TYPE'    => 'application/x-www-form-urlencoded',
@@ -32,7 +39,7 @@ $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) use ($
     $responseHandler = function ($response) use ($client) {
         echo "\n" . $response->getContent()->read() . \PHP_EOL;
     };
-    $failHandler = function (\Crunch\FastCGI\Client\ClientException $fail) {
+    $failHandler = function (ClientException $fail) {
         echo "Request failed: {$fail->getMessage()}";
         return $fail;
     };
@@ -41,7 +48,7 @@ $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) use ($
     $y = $client->sendRequest($request2)->then($responseHandler, $failHandler);
     $z = $client->sendRequest($request2)->then($responseHandler, $failHandler);
 
-    $all = \React\Promise\all([$x, $y, $z]);
+    $all = promise\all([$x, $y, $z]);
     $all->then(function () use ($client) {
         $client->close();
     });

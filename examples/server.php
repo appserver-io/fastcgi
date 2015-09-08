@@ -4,12 +4,14 @@ require __DIR__ . '/../vendor/autoload.php';
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\Response;
 use Crunch\FastCGI\ReaderWriter\StringReader;
-use Crunch\FastCGI\Server\Server;
+use Crunch\FastCGI\Server\Server as FastCGIServer;
+use React\EventLoop\Factory as EventLoopFactory;
+use React\Socket\Server as SocketServer;
 
-$loop = React\EventLoop\Factory::create();
-$socket = new React\Socket\Server($loop);
+$loop = EventLoopFactory::create();
+$socket = new SocketServer($loop);
 
-$server = new Server($socket);
+$server = new FastCGIServer($socket);
 $server->on('request', function (Request $r, callable $cb) {
     $response = new Response($r->getRequestId(), new StringReader('foo'), new StringReader('bar'));
 
