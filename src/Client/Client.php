@@ -6,6 +6,7 @@ use Crunch\FastCGI\Protocol\Record;
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParametersInterface;
+use Crunch\FastCGI\Protocol\Role;
 use Crunch\FastCGI\ReaderWriter\ReaderInterface;
 use React\Promise as promise;
 use React\Promise\Deferred;
@@ -45,7 +46,7 @@ class Client
     }
 
     /**
-     * Creates a new request.
+     * Creates a new responder request.
      *
      * Although you can create a Request instance manually it is highly
      * recommended to use this factory method, because only this one
@@ -58,7 +59,7 @@ class Client
      */
     public function newRequest(RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
-        return new Request($this->nextRequestId++, $parameters, $stdin);
+        return new Request(Role::responder(), $this->nextRequestId++, true, $parameters, $stdin);
     }
 
     /**

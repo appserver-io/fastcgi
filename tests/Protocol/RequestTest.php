@@ -5,19 +5,42 @@ use Crunch\FastCGI\ReaderWriter\StringReader;
 use PHPUnit_Framework_TestCase as TestCase;
 
 /**
+ * @uses \Crunch\FastCGI\Protocol\Role
+ * @uses \Crunch\FastCGI\Protocol\RequestParameters
+ * @uses \Crunch\FastCGI\ReaderWriter\StringReader
  * @coversDefaultClass \Crunch\FastCGI\Protocol\Request
  * @covers \Crunch\FastCGI\Protocol\Request
  */
 class RequestTest extends TestCase
 {
     /**
+     * @covers ::getRole
+     */
+    public function testInstanceKeepsRole()
+    {
+        $request = new Request(Role::responder(), 5, false, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
+
+        self::assertSame(Role::responder(), $request->getRole());
+    }
+
+    /**
      * @covers ::getRequestId
      */
     public function testInstanceKeepsId()
     {
-        $response = new Request(5, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
+        $request = new Request(Role::responder(), 5, false, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
 
-        self::assertEquals(5, $response->getRequestId());
+        self::assertEquals(5, $request->getRequestId());
+    }
+
+    /**
+     * @covers ::isKeepConnection
+     */
+    public function testInstanceKeepsKeepConnection()
+    {
+        $request = new Request(Role::responder(), 5, false, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
+
+        self::assertFalse($request->isKeepConnection());
     }
 
     /**
@@ -26,9 +49,9 @@ class RequestTest extends TestCase
     public function testInstanceKeepsParameters()
     {
         $parameters = new RequestParameters(['foo' => 'bar']);
-        $response = new Request(5, $parameters, new StringReader('baz'));
+        $request = new Request(Role::responder(), 5, false, $parameters, new StringReader('baz'));
 
-        self::assertSame($parameters, $response->getParameters());
+        self::assertSame($parameters, $request->getParameters());
     }
 
     /**
@@ -36,8 +59,8 @@ class RequestTest extends TestCase
      */
     public function testInstanceKeepsStdin()
     {
-        $response = new Request(5, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
+        $request = new Request(Role::responder(), 5, false, new RequestParameters(['foo' => 'bar']), new StringReader('baz'));
 
-        self::assertEquals('baz', $response->getStdin()->read(3));
+        self::assertEquals('baz', $request->getStdin()->read(3));
     }
 }

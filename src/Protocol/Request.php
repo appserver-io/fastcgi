@@ -8,23 +8,44 @@ use Traversable;
 
 class Request implements RequestInterface
 {
+    /** @var Role */
+    private $role;
     /** @var int Request ID */
     private $requestId;
+    /** @var bool */
+    private $keepConnection;
     /** @var RequestParameters */
     private $parameters;
-    /** @var \Crunch\FastCGI\ReaderWriter\ReaderInterface content to send ("body") */
+    /** @var ReaderInterface content to send ("body") */
     private $stdin;
 
     /**
-     * @param int                                               $requestId
-     * @param RequestParametersInterface|null                   $parameters
-     * @param \Crunch\FastCGI\ReaderWriter\ReaderInterface|null $stdin      string or stream resource
+     * Creates new Request instance
+     *
+     * If $keepConnection is set to `false` the server may close the connection
+     * right after sending the response.
+     *
+     * @param Role                              $role
+     * @param int                               $requestId
+     * @param bool                              $keepConnection Default: true
+     * @param RequestParametersInterface|null   $parameters
+     * @param ReaderInterface|null              $stdin
      */
-    public function __construct($requestId, RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
+    public function __construct(Role $role, $requestId, $keepConnection = true, RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
+        $this->role = $role;
         $this->requestId = $requestId;
+        $this->keepConnection = $keepConnection;
         $this->parameters = $parameters ?: new RequestParameters();
         $this->stdin = $stdin ?: new EmptyReader();
+    }
+
+    /**
+     * @return Role
+     */
+    public function getRole()
+    {
+        return $this->role;
     }
 
     /**
@@ -33,6 +54,14 @@ class Request implements RequestInterface
     public function getRequestId()
     {
         return $this->requestId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isKeepConnection()
+    {
+        return $this->keepConnection;
     }
 
     /**
@@ -58,7 +87,7 @@ class Request implements RequestInterface
      */
     public function toRecords()
     {
-        $result = [new Record(new Header(RecordType::beginRequest(), $this->getRequestId(), 8), \pack('xCCxxxxx', Role::RESPONDER, 0xFF & 1))];
+        $result = [new Record(new Header(RecordType::beginRequest(), $this->getRequestId(), 8), \pack('xCCxxxxx', $this->role->value(), 0xFF & ($this->keepConnection ? 1 : 0)))];
 
         foreach ($this->getParameters()->encode($this->getRequestId()) as $value) {
             $result[] = $value;
