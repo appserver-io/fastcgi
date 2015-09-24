@@ -40,6 +40,11 @@ class RecordType
      */
     public static function instance($type)
     {
+        if (!is_int($type)) {
+            throw new \InvalidArgumentException(sprintf('Record type id must be an integer, %s given', gettype($type)));
+        }
+
+        // @codeCoverageIgnoreStart
         if (!self::$instances) {
             self::$instances = [
                 self::BEGIN_REQUEST     => new self(self::BEGIN_REQUEST),
@@ -55,6 +60,7 @@ class RecordType
                 self::UNKNOWN_TYPE      => new self(self::UNKNOWN_TYPE),
             ];
         }
+        // @codeCoverageIgnoreEnd
 
         if ($type >= self::MAXTYPE || $type <= 0) {
             $type = self::UNKNOWN_TYPE;
@@ -118,6 +124,11 @@ class RecordType
         return $this->value() === self::instance(self::UNKNOWN_TYPE)->value();
     }
 
+    public function isMaxtype()
+    {
+        return $this->value() === self::instance(self::MAXTYPE)->value();
+    }
+
     public static function beginRequest()
     {
         return  self::instance(self::BEGIN_REQUEST);
@@ -169,6 +180,11 @@ class RecordType
     }
 
     public static function unknownType()
+    {
+        return self::instance(self::UNKNOWN_TYPE);
+    }
+
+    public static function maxtype()
     {
         return self::instance(self::UNKNOWN_TYPE);
     }

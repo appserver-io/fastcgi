@@ -44,6 +44,7 @@ class Role
      */
     public static function instance($role)
     {
+        // @codeCoverageIgnoreStart
         if (!self::$instances) {
             self::$instances = [
                 self::RESPONDER => new self(self::RESPONDER),
@@ -51,6 +52,7 @@ class Role
                 self::FILTER => new self(self::FILTER),
             ];
         }
+        // @codeCoverageIgnoreEnd
 
         if (!array_key_exists($role, self::$instances)) {
             throw new \InvalidArgumentException("Invalid Role $role");
