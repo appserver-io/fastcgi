@@ -2,7 +2,7 @@
 namespace Crunch\FastCGI\Protocol;
 
 /**
- * Type: Role
+ * Type: Role.
  */
 class Role
 {
@@ -25,7 +25,7 @@ class Role
     }
 
     /**
-     * Returns the raw value
+     * Returns the raw value.
      *
      * @return int
      */
@@ -35,10 +35,11 @@ class Role
     }
 
     /**
-     * Returns an instance of the given role
+     * Returns an instance of the given role.
+     *
+     * @param int $role
      *
      * @throws \InvalidArgumentException
-     * @param int $role
      *
      * @return Role
      */
@@ -47,9 +48,9 @@ class Role
         // @codeCoverageIgnoreStart
         if (!self::$instances) {
             self::$instances = [
-                self::RESPONDER => new self(self::RESPONDER),
+                self::RESPONDER  => new self(self::RESPONDER),
                 self::AUTHORIZER => new self(self::AUTHORIZER),
-                self::FILTER => new self(self::FILTER),
+                self::FILTER     => new self(self::FILTER),
             ];
         }
         // @codeCoverageIgnoreEnd

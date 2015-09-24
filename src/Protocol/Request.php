@@ -20,16 +20,16 @@ class Request implements RequestInterface
     private $stdin;
 
     /**
-     * Creates new Request instance
+     * Creates new Request instance.
      *
      * If $keepConnection is set to `false` the server may close the connection
      * right after sending the response.
      *
-     * @param Role                              $role
-     * @param int                               $requestId
-     * @param bool                              $keepConnection Default: true
-     * @param RequestParametersInterface|null   $parameters
-     * @param ReaderInterface|null              $stdin
+     * @param Role                            $role
+     * @param int                             $requestId
+     * @param bool                            $keepConnection Default: true
+     * @param RequestParametersInterface|null $parameters
+     * @param ReaderInterface|null            $stdin
      */
     public function __construct(Role $role, $requestId, $keepConnection = true, RequestParametersInterface $parameters = null, ReaderInterface $stdin = null)
     {
