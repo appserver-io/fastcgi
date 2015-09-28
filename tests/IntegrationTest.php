@@ -77,7 +77,9 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         return $status === 0;
     }
 
-
+    /**
+     * @medium
+     */
     public function testSendSimpleRequest()
     {
         $this->expectPHPFPMRunning();
@@ -117,7 +119,9 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $loop->run();
     }
 
-
+    /**
+     * @medium
+     */
     public function testSendSimpleGetRequest()
     {
         $this->expectPHPFPMRunning();
@@ -154,7 +158,9 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $loop->run();
     }
 
-
+    /**
+     * @medium
+     */
     public function testSendSimpleRequestWithOversizedPayload()
     {
         $this->expectPHPFPMRunning();
@@ -193,7 +199,9 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $loop->run();
     }
 
-
+    /**
+     * @medium
+     */
     public function testSendRequestWithOversizedParameters()
     {
         $this->expectPHPFPMRunning();

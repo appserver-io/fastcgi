@@ -29,11 +29,11 @@ cache:
 before_install:
   - composer config -g github-oauth.github.com $GITHUB_OAUTH
   - travis_retry composer self-update --no-interaction --no-progress
-  - phpunit --version
+  - travis_retry wget https://phar.phpunit.de/phpunit.phar
 install:
   - travis_retry composer update --prefer-dist $PREFER_LOWEST --no-interaction --no-progress --ignore-platform-reqs
 script:
-  - phpunit --enforce-time-limit --coverage-clover=coverage.clover
+  - php ./phpunit.phar --enforce-time-limit --coverage-clover=coverage.clover
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
