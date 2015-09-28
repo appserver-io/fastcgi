@@ -39,7 +39,9 @@ class RequestParameters implements RequestParametersInterface
             }
             $packet .= $new;
         }
-        $result[] = new Record(new Header(RecordType::params(), $requestId, strlen($packet)), $packet);
+        if ($packet) {
+            $result[] = new Record(new Header(RecordType::params(), $requestId, strlen($packet)), $packet);
+        }
         // Some servers miss to drop the padding on the empty PARAMS-record
         // I look at you php-fpm ;)
         $result[] = new Record(new Header(RecordType::params(), $requestId, 0, 0), '');

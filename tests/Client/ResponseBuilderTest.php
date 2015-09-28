@@ -35,6 +35,7 @@ class ResponseBuilderTest extends TestCase
     }
 
     /**
+     * @uses \Crunch\FastCGI\Protocol\RecordType
      * @covers ::addRecord
      */
     public function testPossibleToAddAnStdoutIsStillIncomplete()
@@ -52,6 +53,7 @@ class ResponseBuilderTest extends TestCase
     }
 
     /**
+     * @uses \Crunch\FastCGI\Protocol\RecordType
      * @covers ::addRecord
      */
     public function testPossibleToAddAnStderrIsStillIncomplete()
@@ -69,6 +71,7 @@ class ResponseBuilderTest extends TestCase
     }
 
     /**
+     * @uses \Crunch\FastCGI\Protocol\RecordType
      * @covers ::addRecord
      */
     public function testPossibleToAddAnEndRequestCompletesRequest()
@@ -85,6 +88,7 @@ class ResponseBuilderTest extends TestCase
     }
 
     /**
+     * @uses \Crunch\FastCGI\Protocol\RecordType
      * @covers ::addRecord
      */
     public function testCannotAddRecordToComplete()

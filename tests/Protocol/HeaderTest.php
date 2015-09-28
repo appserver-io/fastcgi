@@ -79,8 +79,9 @@ class HeaderTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
      * @dataProvider lengthAndPaddingProvider
+     * @uses \Crunch\FastCGI\Protocol\RecordType
+     * @covers ::__construct
      * @param int $length
      * @param int $expectedPadding
      */
@@ -110,8 +111,9 @@ class HeaderTest extends TestCase
     }
 
     /**
-     * @covers ::decode
      * @dataProvider encodedHeaderProvider
+     * @uses \Crunch\FastCGI\Protocol\RecordType
+     * @covers ::decode
      * @param string $headerString
      * @param RecordType $type
      * @param int $requestId
@@ -131,8 +133,9 @@ class HeaderTest extends TestCase
     }
 
     /**
-     * @covers ::encode
      * @dataProvider encodedHeaderProvider
+     * @uses \Crunch\FastCGI\Protocol\RecordType
+     * @covers ::encode
      * @param string $headerString
      * @param RecordType $type
      * @param int $requestId
@@ -170,6 +173,7 @@ class HeaderTest extends TestCase
 
     /**
      * @dataProvider invalidHeaderStrings
+     * @uses \Crunch\FastCGI\Protocol\RecordType
      * @param string $headerString
      */
     public function testInvalidHeaderStrings($headerString)

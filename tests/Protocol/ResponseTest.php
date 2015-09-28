@@ -12,6 +12,7 @@ class ResponseTest extends TestCase
 {
     /**
      * @covers ::getRequestId
+     * @uses \Crunch\FastCGI\ReaderWriter\StringReader
      */
     public function testInstanceKeepsRequestId()
     {
@@ -25,6 +26,7 @@ class ResponseTest extends TestCase
 
     /**
      * @covers ::getError
+     * @uses \Crunch\FastCGI\ReaderWriter\StringReader
      */
     public function testInstanceKeepsErrorReader()
     {
@@ -38,6 +40,7 @@ class ResponseTest extends TestCase
 
     /**
      * @covers ::getContent
+     * @uses \Crunch\FastCGI\ReaderWriter\StringReader
      */
     public function testInstanceKeepsContentReader()
     {
