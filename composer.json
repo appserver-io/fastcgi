@@ -19,8 +19,6 @@
         "react/dns": "~0.4.1",
         "beberlei/assert": "~2.0"
     },
-    "require-dev": {
-    },
     "support": {
         "issues": "https://github.com/KingCrunch/FastCGI/issues"
     },
