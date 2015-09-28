@@ -20,7 +20,6 @@
         "beberlei/assert": "~2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.5"
     },
     "support": {
         "issues": "https://github.com/KingCrunch/FastCGI/issues"

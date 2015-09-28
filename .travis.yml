@@ -20,7 +20,6 @@ matrix:
 branches:
   only:
     - master
-    - develop
 
 cache:
   directories:
@@ -30,10 +29,11 @@ cache:
 before_install:
   - composer config -g github-oauth.github.com $GITHUB_OAUTH
   - travis_retry composer self-update --no-interaction --no-progress
+  - phpunit --version
 install:
   - travis_retry composer update --prefer-dist $PREFER_LOWEST --no-interaction --no-progress --ignore-platform-reqs
 script:
-  - vendor/bin/phpunit --enforce-time-limit --coverage-clover=coverage.clover
+  - phpunit --enforce-time-limit --coverage-clover=coverage.clover
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
