@@ -1,7 +1,8 @@
 <?php
 namespace Crunch\FastCGI\Protocol;
-
-use Assert as assert;
+use DomainException;
+use InvalidArgumentException;
+use LengthException;
 
 /**
  * Record header.
@@ -39,6 +40,8 @@ class Header
      * If $paddingLength is omitted, it is calculated from $length. If $paddingLength
      * is set, it will be validated against $length.
      *
+     * @throws InvalidArgumentException thrown when one argument is of an invalid type
+     * @throws DomainException thrown when the value of an argument is invalid
      * @param RecordType $type
      * @param int        $requestId     Greater than 1
      * @param int        $length        Must be between 0 and 65535 (including)
@@ -47,17 +50,29 @@ class Header
      */
     public function __construct(RecordType $type, $requestId, $length, $paddingLength = null)
     {
-        assert\that($requestId)
-            ->integer()
-            ->min(1, "Request ID must be > 1, $requestId given");
-        assert\that($length)
-            ->integer()
-            ->range(0, 65535, "Length must be between 0 and 65535, $length given");
-        assert\thatNullOr($paddingLength)
-            ->integer()
-            ->range(0, 255, "Padding length must be between 0 and 255, $paddingLength given");
-        assert\that(is_null($paddingLength) || ($paddingLength + $length) % 8 === 0)
-            ->true('Sum of Length and Padding Length must be divisible by 8');
+        if (!is_int($requestId)) {
+            throw new InvalidArgumentException(sprintf('Request ID must be an integer, %s given', gettype($requestId)));
+        }
+        if ($requestId <= 0) {
+            throw new DomainException("Request ID must be a positive integer, $requestId given");
+        }
+
+        if (!is_int($length)) {
+            throw new InvalidArgumentException(sprintf('Length must be an integer, %s given', gettype($length)));
+        }
+        if (0 > $length || $length > 65535) {
+            throw new DomainException("Length must be between 0 and 65535, $length given");
+        }
+
+        if (!is_null($paddingLength) && !is_int($paddingLength)) {
+            throw new InvalidArgumentException(sprintf('Padding length must be an integer, or null, %s given', gettype($paddingLength)));
+        }
+        if (!is_null($paddingLength) && (0 > $paddingLength || $paddingLength > 255)) {
+            throw new DomainException("Padding Lenght must be null or between 0 and 255, $length given");
+        }
+        if (!is_null($paddingLength) && ($paddingLength + $length) % 8 !== 0) {
+            throw new DomainException(sprintf('Padding Lenght must be null or Padding Length + Length must be divisable by 8, %d given', $paddingLength + $length));
+        }
 
         $this->type = $type;
         $this->requestId = $requestId;
@@ -78,14 +93,18 @@ class Header
     /**
      * @param string $header
      *
+     * @throws InvalidArgumentException thrown when $header is not a string
+     * @throws LengthException thrown when $header is not exactly 8 bytes
      * @return Header
      */
     public static function decode($header)
     {
-        assert\that($header)
-            ->string();
-        assert\that(bin2hex($header))
-            ->length(16);
+        if (!is_string($header)) {
+            throw new InvalidArgumentException(sprintf('Header must be a (binary) string, %s given', gettype($header)));
+        }
+        if (strlen($header) != 8) {
+            throw new LengthException(sprintf('Header must be exactly 8 bytes, %d bytes given', strlen($header)));
+        }
 
         $header = \unpack('Cversion/Ctype/nrequestId/nlength/CpaddingLength/Creserved', $header);
 

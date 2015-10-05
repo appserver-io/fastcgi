@@ -44,23 +44,24 @@ class HeaderTest extends TestCase
     public static function invalidConstructorArguments()
     {
         return [
-            /* $type, $requestId, $length, $padding */
-            [RecordType::instance(4), 12, 4, 9],
-            [RecordType::instance(4), 12, 4, 2],
+            /* $exception, $type, $requestId, $length, $padding */
+            ['\DomainException', RecordType::instance(4), 12, 4, 9],
+            ['\DomainException', RecordType::instance(4), 12, 4, 2],
         ];
     }
 
     /**
      * @covers ::__construct
      * @dataProvider invalidConstructorArguments
+     * @param string$exception
      * @param RecordType $type
      * @param int $requestId
      * @param int $length
      * @param int|null $padding
      */
-    public function testInvalidConstructorArguments(RecordType $type, $requestId, $length, $padding)
+    public function testInvalidConstructorArguments($exception, RecordType $type, $requestId, $length, $padding)
     {
-        $this->setExpectedException('\Assert\AssertionFailedException');
+        $this->setExpectedException($exception);
 
         new Header($type, $requestId, $length, $padding);
     }
@@ -152,33 +153,34 @@ class HeaderTest extends TestCase
     public static function invalidHeaderStrings()
     {
         return [
-            /* $headerString */
+            /* $exception, $headerString */
 
             // to short
-            ["\x01"],
-            ["\x01\x02"],
-            ["\x01\x02\x00"],
-            ["\x01\x02\x00\x03"],
-            ["\x01\x02\x00\x03\x00"],
-            ["\x01\x02\x00\x03\x00\x04"],
-            ["\x01\x02\x00\x03\x00\x04\x05"],
+            ['\LengthException', "\x01"],
+            ['\LengthException', "\x01\x02"],
+            ['\LengthException', "\x01\x02\x00"],
+            ['\LengthException', "\x01\x02\x00\x03"],
+            ['\LengthException', "\x01\x02\x00\x03\x00"],
+            ['\LengthException', "\x01\x02\x00\x03\x00\x04"],
+            ['\LengthException', "\x01\x02\x00\x03\x00\x04\x05"],
 
             // to long
-            ["\x01\x02\x00\x03\x00\x04\x04\x06\x07"],
-            ["\x01\x02\x00\x03\x00\x04\x04\x06\x07\x08"],
+            ['\LengthException', "\x01\x02\x00\x03\x00\x04\x04\x06\x07"],
+            ['\LengthException', "\x01\x02\x00\x03\x00\x04\x04\x06\x07\x08"],
 
-            ["\x01\x02\x00\x03\x00\x04\x09\x00"], // Invalid padding
+            ['\DomainException', "\x01\x02\x00\x03\x00\x04\x09\x00"], // Invalid padding
         ];
     }
 
     /**
      * @dataProvider invalidHeaderStrings
-     * @uses \Crunch\FastCGI\Protocol\RecordType
+     * @uses         \Crunch\FastCGI\Protocol\RecordType
+     * @param string $exception
      * @param string $headerString
      */
-    public function testInvalidHeaderStrings($headerString)
+    public function testInvalidHeaderStrings($exception, $headerString)
     {
-        $this->setExpectedException('\Assert\AssertionFailedException');
+        $this->setExpectedException($exception);
 
         Header::decode($headerString);
     }

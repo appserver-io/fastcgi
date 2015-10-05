@@ -1,8 +1,6 @@
 <?php
 namespace Crunch\FastCGI\ReaderWriter;
 
-use Assert as assert;
-
 class StringReader implements ReaderInterface
 {
     private $data;
@@ -12,7 +10,9 @@ class StringReader implements ReaderInterface
      */
     public function __construct($data)
     {
-        assert\that($data)->string();
+        if (!is_string($data)) {
+            throw new \InvalidArgumentException(sprintf('Data must be string, %s given', gettype($data)));
+        }
 
         $this->data = $data;
     }

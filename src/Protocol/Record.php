@@ -1,7 +1,8 @@
 <?php
 namespace Crunch\FastCGI\Protocol;
 
-use Assert as assert;
+use InvalidArgumentException;
+use LengthException;
 
 /**
  * Record.
@@ -31,15 +32,20 @@ class Record
     private $content;
 
     /**
+     * @throws InvalidArgumentException Thrown when $content is not a string
+     * @throws LengthException          Thrown when the length of the content does
+     *                                  not match the length given by the header
      * @param Header $header
      * @param string $content
      */
     public function __construct(Header $header, $content)
     {
-        assert\that($content)
-            ->string();
-        assert\that($content)
-            ->length($header->getLength());
+        if (!is_string($content)) {
+            throw new InvalidArgumentException(sprintf('Content must be string, %s given', gettype($content)));
+        }
+        if (strlen($content) != $header->getLength()) {
+            throw new LengthException('The length of the content must match the length propgated by the header');
+        }
 
         $this->header = $header;
         $this->content = $content;
@@ -57,8 +63,9 @@ class Record
 
     public static function decode(Header $header, $payload)
     {
-        assert\that($payload)
-            ->string();
+        if (!is_string($payload)) {
+            throw new InvalidArgumentException(sprintf('Payload must be a string, %s given', gettype($payload)));
+        }
 
         return new self($header, $payload);
     }
