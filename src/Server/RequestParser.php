@@ -5,6 +5,7 @@ use Crunch\FastCGI\Protocol\Record;
 use Crunch\FastCGI\Protocol\Request;
 use Crunch\FastCGI\Protocol\RequestInterface;
 use Crunch\FastCGI\Protocol\RequestParameters;
+use Crunch\FastCGI\Protocol\Role;
 use Crunch\FastCGI\ReaderWriter\StringReader;
 
 class RequestParser
@@ -30,16 +31,21 @@ class RequestParser
 
     private function buildRequest()
     {
-        // TODO Extend RequestInterface to handle keep-alive and other stuff as well
+        /** @var Record $record */
         $record = array_shift($this->records);
-        $params = $stdin = '';
+        $role = Role::instance(ord($record->getContent()[1]));
+        $keepConnection = $record->getContent()[2] !== "\x00";
 
+
+        $params = '';
         while ($this->records && $this->records[0]->getType()->isParams()) {
             /** @var Record $record */
             $record = array_shift($this->records);
 
             $params .= $record->getContent();
         }
+
+        $stdin = '';
         while ($this->records && $this->records[0]->getType()->isStdin()) {
             /** @var Record $record */
             $record = array_shift($this->records);
@@ -51,6 +57,6 @@ class RequestParser
             // TODO Not empty, something went wrong
         }
 
-        return new Request($record->getRequestId(), RequestParameters::decode($params), new StringReader($stdin));
+        return new Request($role, $record->getRequestId(), $keepConnection, RequestParameters::decode($params), new StringReader($stdin));
     }
 }
