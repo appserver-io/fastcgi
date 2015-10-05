@@ -19,7 +19,7 @@ $connector = new SocketConnector($loop, $dns);
 
 $factory = new FastCGIClientFactory($loop, $connector);
 
-$factory->createClient('127.0.0.1', 9331)->then(function (Client $client) use ($argv) {
+$factory->createClient('127.0.0.1', 1337)->then(function (Client $client) use ($argv) {
 
     $name = (@$argv[1] ?: 'World');
     $data = "name=$name";

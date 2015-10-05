@@ -10,11 +10,24 @@ class Decoder implements WritableStreamInterface
 {
     use EventEmitterTrait;
 
+    private $requestReceiver;
+
     private $writeable = true;
     private $buffer = '';
 
     /** @var RequestParser[] */
     private $requestParser = [];
+
+    /**
+     * Decoder constructor.
+     *
+     * @param callable $requestReceiver
+     */
+    public function __construct(callable $requestReceiver)
+    {
+        $this->requestReceiver = $requestReceiver;
+    }
+
 
     public function isWritable()
     {
@@ -48,7 +61,9 @@ class Decoder implements WritableStreamInterface
 
             if ($request = $this->requestParser[$record->getRequestId()]->pushRecord($record)) {
                 unset($this->requestParser[$record->getRequestId()]);
-                $this->emit('request', [$request]);
+
+                $receiver = $this->requestReceiver;
+                $receiver($request);
             }
         }
     }
