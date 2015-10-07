@@ -19,7 +19,7 @@ class Client
     private $connector;
     /** @var int Next request id to use */
     private $nextRequestId = 1;
-    /** @var ResponseBuilder[] */
+    /** @var ResponseParser[] */
     private $responseBuilders = [];
 
     /** @var Deferred[] */
@@ -72,7 +72,7 @@ class Client
         if (isset($this->promises[$request->getRequestId()])) {
             return promise\reject(new ClientException("ID {$request->getRequestId()} already in use"));
         }
-        $this->responseBuilders[$request->getRequestId()] = new ResponseBuilder($request->getRequestId());
+        $this->responseBuilders[$request->getRequestId()] = new ResponseParser($request->getRequestId());
         $this->promises[$request->getRequestId()] = new Deferred();
         foreach ($request->toRecords() as $record) {
             $this->connector->write($record->encode());
@@ -96,10 +96,9 @@ class Client
             $record = Record::decode($header, $rawRecord);
             $this->data = substr($this->data, 8 + $header->getPayloadLength());
 
-            $this->responseBuilders[$header->getRequestId()]->addRecord($record);
-            if ($this->responseBuilders[$header->getRequestId()]->isComplete()) {
-                $this->promises[$header->getRequestId()]
-                    ->resolve($this->responseBuilders[$header->getRequestId()]->build());
+            if ($response = $this->responseBuilders[$header->getRequestId()]->pushRecord($record)) {
+                $this->promises[$header->getRequestId()]->resolve($response);
+
             }
         }
     }
