@@ -1,9 +1,6 @@
-Crunch\FastCGI [![Build Status](https://secure.travis-ci.org/KingCrunch/FastCGI.png)](http://travis-ci.org/KingCrunch/FastCGI)
-===
-FastCGI client library
+Fork of [https://github.com/CrunchPHP/fastcgi]
 
-* [Documentation at readthedocs.org](http://crunchfastcgi.readthedocs.org/en/latest/)
-* [List of available packages at packagist.org](http://packagist.org/packages/crunch/fastcgi)
+FastCGI client library
 
 
 Allows to access a FastCGI-server directly from PHP.
@@ -53,8 +50,6 @@ Requirements
 Contributors
 ============
 See CONTRIBUTING.md for details on how to contribute.
-
-* Sebastian "KingCrunch" Krebs <krebs.seb@gmail.com> -- http://www.kingcrunch.de/ (german)
 
 License
 =======

@@ -3,26 +3,13 @@
     "description": "fastcgi client",
     "type": "library",
     "keywords": ["FastCGI"],
-    "homepage": "http://crunchfastcgi.readthedocs.org/en/latest/",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Sebastian Krebs",
-            "email": "krebs.seb@gmail.com",
-            "homepage": "http://www.kingcrunch.de",
-            "role": "Maintainer"
-        }
-    ],
     "require": {
         "php": ">=5.3.0"
     },
     "require-dev": {
         "phake/phake": "~2.0@dev",
         "appserver-io/build" : "~1.0"
-    },
-    "support": {
-        "email": "krebs.seb@gmail.com",
-        "issues": "https://github.com/KingCrunch/FastCGI/issues"
     },
     "autoload": {
         "psr-4": { "Crunch\\FastCGI\\": ["src", "tests"]  }
