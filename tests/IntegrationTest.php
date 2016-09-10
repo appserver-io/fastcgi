@@ -159,7 +159,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @large
+     * @medium
      */
     public function testSendSimpleRequestWithOversizedPayload()
     {
