@@ -159,7 +159,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @medium
+     * @large
      */
     public function testSendSimpleRequestWithOversizedPayload()
     {
@@ -176,7 +176,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
 
         $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) {
-            $content = str_repeat('abcdefgh', 65535);
+            $content = str_repeat('abcdefgh', 65535 * 100);
             $request = $client->newRequest(new RequestParameters([
                 'REQUEST_METHOD'  => 'POST',
                 'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
