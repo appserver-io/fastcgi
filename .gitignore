@@ -1,7 +1,4 @@
 /vendor
 /composer.lock
 /.vagrant
-/.buildpath
-/.settings
-/.project
 /build
