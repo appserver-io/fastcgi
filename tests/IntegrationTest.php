@@ -202,6 +202,47 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     /**
      * @medium
      */
+    public function testSendSimpleRequestWithPayloadMoreThan64MB()
+    {
+        $this->expectPHPFPMRunning();
+
+        $loop = LoopFactory::create();
+
+        $dnsResolverFactory = new ResolverFactory();
+        $dns = $dnsResolverFactory->createCached('0.0.0.0', $loop);
+
+        $connector = new SocketConnector($loop, $dns);
+
+        $factory = new ClientFactory($loop, $connector);
+
+
+        $factory->createClient('127.0.0.1', 9331)->then(function (Client $client) {
+            $content = str_repeat('abcdefgh', 65535 * 100);
+            $request = $client->newRequest(new RequestParameters([
+                'REQUEST_METHOD'  => 'POST',
+                'SCRIPT_FILENAME' => __DIR__ . '/Resources/scripts/echo.php',
+                'CONTENT_LENGTH'  => strlen($content)
+            ]), new StringReader($content));
+
+            $client->sendRequest($request)->then(function (Response $response) use ($client, $content) {
+                $client->close();
+
+                list($header, $body) = explode("\r\n\r\n", $response->getContent()->read());
+
+                list($server) = unserialize($body);
+
+                self::assertEquals(strlen($content), $server['CONTENT_LENGTH']);
+            });
+
+            return $client;
+        });
+
+        $loop->run();
+    }
+
+    /**
+     * @medium
+     */
     public function testSendRequestWithOversizedParameters()
     {
         $this->expectPHPFPMRunning();
