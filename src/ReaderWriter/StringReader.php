@@ -14,7 +14,14 @@ class StringReader implements ReaderInterface
             throw new \InvalidArgumentException(sprintf('Data must be string, %s given', gettype($data)));
         }
 
-        $this->data = $data;
+        $this->data = fopen('php://temp', 'w+');
+        fwrite($this->data, $data);
+        fseek($this->data, 0);
+    }
+
+    public function __destruct()
+    {
+        $this->close();
     }
 
     /**
@@ -24,9 +31,19 @@ class StringReader implements ReaderInterface
      */
     public function read($max = null)
     {
-        $max = $max ?: strlen($this->data);
-        list($result, $this->data) = [substr($this->data, 0, $max), substr($this->data, $max)];
+        $max = $max ?: 256*1024*1024;
+        if (feof($this->data)) {
+            $this->close();
+            return '';
+        }
 
-        return $result;
+        return fread($this->data, $max);
+    }
+
+    private function close()
+    {
+        if ($this->data) {
+            fclose($this->data);
+        }
     }
 }
