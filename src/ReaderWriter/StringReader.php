@@ -45,7 +45,7 @@ class StringReader implements ReaderInterface
 
     private function close()
     {
-        if ($this->data && is_resource($this->data)) {
+        if (is_resource($this->data)) {
             fclose($this->data);
         }
     }
